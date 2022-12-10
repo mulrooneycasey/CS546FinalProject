@@ -1,0 +1,14 @@
+<div class="row row-cols-1">
+    {{#if this.context.posts}}
+        <div class="container-fluid" id="post-area">
+            {{#each this.context.posts}} {{> post this trunc=../context/trunc }} {{/each}}
+        </div>
+    {{else}}
+        <div class="col">
+            <div class="alert alert-danger" role="alert">
+                <h3>Uh oh...</h3>
+                <p>No posts found. Either the server had an internal error, or your filter and/or search query returned nothing.</p>
+            </div>
+        </div>
+    {{/if}}
+</div>

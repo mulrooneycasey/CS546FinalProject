@@ -1,0 +1,169 @@
+<div class="col mb-4">
+    <div class="card h-100 border-secondary">
+        {{#if trunc}}
+            <div class="row no-gutters">
+                <div class="col-md-4 mt-lg-2 m-md-1 m-lg-0">
+                    <img src="{{image}}" class="img-thumbnail" width="100%" height="200" alt="User: {{firstName}} {{lastName}}; Keywords: {{#kwPrinter keywords ','}}{{/kwPrinter}}; Location: {{location}}; Datetime: {{date}} {{time}}">
+                </div>
+                <div class="col-md-7">
+                    <div class="card-body text-body">
+                        {{!-- If the title stuff below is causing compiling errors, then just 
+                        comment it out or delete it. I was expecting a basic title for each post 
+                        in addition to everything else. - Chance --}}
+                        <span class="d-inline-block text-truncate"><h5 class="card-title">{{title}}</h5></span>
+                        <h6 class="card-subtitle font-weight-bold">Description:</h6>
+                        <p class="card-text mb-2 text-truncate">{{description}}</p>
+                        <h6 class="card-subtitle mb-2">Overall Rating: {{overallRating}} (out of {{#length reviews 'review'}}{{/length}})</h6>
+                        <h6 class="card-subtitle mb-2">{{#length comments 'comment'}}{{/length}}</h6>
+                    </div>
+                </div>
+                <div class="col-sm-auto col-lg-1 mt-md-3 py-sm-3">
+                    <div class="form-inline justify-content-center">
+                        <button type="button" class="btn btn-outline-warning" data-toggle="button" aria-pressed="false">
+                            <span class="sr-only">Add this Post to Favorites</span>
+                            <i class="bi bi-bookmark-star"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="w-100"></div>
+                <div class="col w-auto">
+                    <div class="text-center">
+                        <div class="card-footer">
+                            {{#if mgmtPage}}
+                                <form action="/account/listings/{{postId}}">
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">Go to Post</button>
+                                </form>
+                            {{else}}
+                                <form action="/listings/{{postId}}">
+                                    <button type="submit" class="btn btn-outline-primary btn-sm">Go to Post</button>
+                                </form>
+                            {{/if}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {{else}}
+            <div class="card-header bg-transparent border-light mb-2">
+                <div class="row">
+                    <div class="col-md-6 align-self-center">
+                        <img src="{{image}}" class="rounded" width="960" height="540" alt="User: {{firstName}} {{lastName}}; Keywords: {{#kwPrinter keywords ','}}{{/kwPrinter}}; Location: {{location}}; Datetime: {{date}} {{time}}">
+                    </div>
+                </div>
+            </div>
+            <div class="card-body text-body">
+                {{!-- If the title stuff below is causing compiling errors, then just comment it 
+                out or delete it. I was expecting a basic title for each post in addition to 
+                everything else. - Chance --}}
+                <div class="row justify-content-between mb-2">
+                    <div class="col-8">
+                        <h5 class="card-title">{{title}}</h5>
+                    </div>
+                    <div class="col-sm-auto col-lg-2 mt-md-3 py-sm-3">
+                        <div class="form-inline justify-content-center">
+                            <button type="button" class="btn btn-outline-warning" data-toggle="button" aria-pressed="false">
+                                <span class="sr-only">Add this Post to Favorites</span>
+                                <i class="bi bi-bookmark-star"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <h6 class="card-subtitle font-weight-bold">Description:</h6>
+                <p class="card-text mb-4">{{description}}</p>
+                <h6 class="card-subtitle font-weight-bold mb-2">Reviews:</h6>
+                <div class="row row-cols-1 justify-content-center">{{#each reviews}} {{> review }} {{/each}}</div>
+                <div class="row row-cols-1 align-items-center">
+                    <div class="col mb-2">
+                        <button type="button" class="btn btn-primary active" data-toggle="button" aria-pressed="true">Show More</button>
+                    </div>
+                    {{#unless ownPost}}
+                        <div class="col mb-2 p-2">
+                            <form class="form-inline" method="POST" action="/review/{{postId}}">
+                                <label for="review-textarea" class="sr-only">Textbox for Your Review:</label>
+                                <textarea class="form-control w-100" id="review-textarea" rows="10" aria-required="true" required></textarea>
+                                <div class="container-fluid my-auto p-2">
+                                    <label for="review-rating" class="col-form-label float-left mr-md-2 font-weight-bold">Rating:</label>
+                                    <input type="number" class="form-control" id="review-rating" min="1" max="5" aria-required="true" required>
+                                    <div class="d-inline-flex p-2 float-md-right"><span><button type="submit" class="btn btn-primary">Add Review</button></span></div>
+                                </div>
+                            </form>
+                        </div>
+                    {{/unless}}
+                </div>
+                <h6 class="card-subtitle mb-4">Overall Rating: {{overallRating}} (out of {{#length reviews 'review'}}{{/length}})</h6>
+                <h6 class="card-subtitle font-weight-bold mb-2">Comments:</h6>
+                <div class="row row-cols-1 justify-content-center">{{#each comments}} {{> comment }} {{/each}}</div>
+                <div class="row row-cols-1">
+                    <div class="col align-self-center mb-2">
+                        <button type="button" class="btn btn-primary active" data-toggle="button" aria-pressed="true">Show More</button>
+                    </div>
+                    <div class="col mb-2 p-2">
+                        <form class="form-inline" method="POST" action="/comment/{{postId}}">
+                            <label for="comment-textarea" class="sr-only">Textbox for Your Comment:</label>
+                            <textarea class="form-control w-100" id="comment-textarea" rows="5" aria-required="true" required></textarea>
+                            <div class="container-fluid my-auto p-2">
+                                <span class="float-md-right">
+                                    <button type="submit" class="btn btn-primary">Add Comment</button>
+                                </span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <h6 class="card-subtitle mb-4">{{#length comments 'comment'}}{{/length}}</h6>
+                <h6 class="card-subtitle font-weight-bold">Location:</h6>
+                <p class="card-text mb-2">{{location}}</p>
+                <h6 class="card-subtitle font-weight-bold">Upload Date:</h6>
+                <p class="card-text mb-2">{{date}} {{time}}</p>
+                {{!-- This status was mentioned in the original project proposal, so I included 
+                here. If it's causing issues, feel free to comment it or delete it. - Chance --}}
+                <div class="form-check form-check-inline mb-2">
+                    <label class="form-check-label font-weight-bold font-italic mr-2" for="postTaken">Taken?</label>
+                    {{#if taken}}
+                        <input type="checkbox" id="postTaken" name="postTaken" aria-selected="true" aria-disabled="true" checked disabled>
+                    {{else}}
+                        <input type="checkbox" id="postTaken" name="postTaken" aria-selected="false" aria-disabled="false">
+                    {{/if}}
+                </div>
+                <h6 class="card-subtitle font-weight-bold">Keywords:</h6>
+                <p class="card-text mb-2">{{#kwPrinter keywords ';'}}{{/kwPrinter}}</p>
+                <div class="form-group mb-1">
+                    <label class="font-weight-bold font-italic" for="placed-sighted-select">Placed or Sighted?</label>
+                    <select class="form-control" id="placed-sighted-select" disabled>
+                        <option value="" selected></option>
+                        <option value="placed">Placed by Poster</option>
+                        <option value="sighted">Sighted by Poster</option>
+                    </select>
+                </div>
+            </div>
+            {{#if isAdmin}}
+                <div class="d-flex align-self-center">
+                    <div class="card-footer">
+                        <form method="POST" action="/admin/listings/{{postId}}">
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <label class="form-check-label" for="real-object-check">Real Object?</label>
+                                    <input type="checkbox" class="form-check-input" id="real-object-check" value="">
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label" for="appropriate-check">Not inappropriate?</label>
+                                    <input type="checkbox" class="form-check-input" id="appropriate-check" value="">
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label" for="verified-location-check">Located at listed location?</label>
+                                    <input type="checkbox" class="form-check-input" id="verified-location-check" value="">
+                                </div>
+                            </div>
+                            <div class="row justify-content-around align-items-center">
+                                <div class="col">
+                                    <button type="submit" class="btn btn-outline-danger">Deny (Remove)</button>
+                                </div>
+                                <div class="col">
+                                    <button type="submit" class="btn btn-outline-success">Approve (Post)</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            {{/if}}
+        {{/if}}
+    </div>
+</div>

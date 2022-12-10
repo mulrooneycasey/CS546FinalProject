@@ -1,0 +1,58 @@
+{{#if this.context.loggedIn}}
+    <form class="mt-sm-2 mt-lg-5 p-3" method="POST" action="/account">
+        <div class="container-fluid align-items-center">
+            <div class="form-group row">
+                <label for="emailInput" class="col-sm-3 col-auto col-form-label col-form-label-lg">Email:</label>
+                <div class="col-sm-6 col-lg-3">
+                    <input type="email" class="form-control form-control-lg" id="emailInput" name="emailInput" size="16" minlength="3" maxlength="64" placeholder="Enter email" aria-required="false">
+                </div>
+                <div class="col-sm-4 col-lg-auto">
+                    <span class="small text-muted">Must be a valid email address.</span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="usernameInput" class="col-sm-2 col-form-label col-form-label-lg">Username:</label>
+                <div class="col-sm-6 col-auto offset-md-1">
+                    <input type="text" class="form-control form-control-lg" id="usernameInput" name="usernameInput" size="16" minlength="4" maxlength="64" placeholder="Enter username" aria-required="false">
+                </div>
+                <div class="col-sm-4 col-lg-auto">
+                    <span class="small text-muted">Must include alphanumeric (A-Z, 0-9) characters.</span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="passwordInput" class="col-sm-2 col-form-label col-form-label-lg">Password:</label>
+                <div class="col-sm-6 col-auto offset-md-1">
+                    <input type="password" class="form-control form-control-lg" id="passwordInput" name="passwordInput" minlength="6" pattern="[A-Z]+|[a-z]+|[0-9]+|[^\w\s]+" placeholder="Enter valid password" aria-required="false">
+                </div>
+                <div class="col-sm-4 col-lg-auto">
+                    <span class="small text-muted">Must contain at least 1 uppercase charater, 1 lowercase character, 1 number, and 1 special character.</span>
+                </div>
+            </div>
+            {{!-- This is where the phone number section would go, but our database proposal doesn't 
+            include a phone number field, so I left it out for now. - Chance --}}
+            <div class="w-100"></div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary mb-2">Update</button>
+            </div>
+            {{#if this.context.error}}
+                <div class="alert alert-danger my-1" role="alert">
+                    <h6 class="alert-heading">You had the following error(s):</h6>
+                    <ul class="list-group list-group-flush">
+                        {{#each this.context.errors}}
+                            <li class="list-group-item">{{this}}</li>
+                        {{/each}}
+                    </ul>
+                </div>
+            {{/if}}
+        </div>
+    </form>
+{{else}}
+    <div class="alert alert-danger my-3" role="alert">
+        <h3 class="alert-heading">You had the following error(s):</h6>
+        <ul class="list-group list-group-flush">
+            {{#each this.context.errors}}
+                <li class="list-group-item">{{this}}</li>
+            {{/each}}
+        </ul>
+    </div>
+{{/if}}

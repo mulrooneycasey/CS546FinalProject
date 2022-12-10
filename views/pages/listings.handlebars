@@ -1,0 +1,47 @@
+{{#unless this.context.error}}
+    {{#if this.context.allKeywords}}
+        <div class="row w-25 align-items-start mb-2">
+            <div class="col align-self-end mr-3">
+                <form class="form-inline">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <label for="filter" class="sr-only">Filter:</label>
+                            <i class="bi bi-funnel-fill"></i>
+                        </div>
+                        <select class="custom-select custom-select-sm" id="filter" name="filter" size="3">
+                            <option value="" selected></option>
+                            {{#each this.context.allKeywords}}
+                                <option value="{{this}}">{{this}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary">Apply</button>
+                </form>
+            </div>
+        </div>
+    {{/if}}
+    <div class="row row-cols-1">
+        {{#if this.context.posts}}
+            <div class="container-fluid" id="post-area">
+                {{#each this.context.posts}} {{> post this trunc=../context/trunc mgmtPage=../context/mgmtPage }} {{/each}}
+            </div>
+        {{else}}
+            <div class="col">
+                <div class="alert alert-danger" role="alert">
+                    <h3 class="alert-heading">Uh oh...</h3>
+                    <p>No posts found. Either the server had an internal error, or your filter and/or search query returned nothing.</p>
+                </div>
+            </div>
+        {{/if}}
+    </div>
+{{/unless}}
+{{#if error}}
+    <div class="alert alert-danger my-3" role="alert">
+        <h3 class="alert-heading">You had the following error(s):</h6>
+        <ul class="list-group list-group-flush">
+            {{#each errors}}
+                <li class="list-group-item">{{this}}</li>
+            {{/each}}
+        </ul>
+    </div>
+{{/if}}

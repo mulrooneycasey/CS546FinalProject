@@ -1,0 +1,1 @@
+// NOTE: Please check if the viewport is less than laptop size (small & medium sized screens). If so, then remove 'fixed-footer' from the <footer> tag.

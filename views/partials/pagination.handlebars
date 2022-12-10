@@ -1,0 +1,40 @@
+{{#if noPagination}}
+    {{!-- If we're on the "Moderation", "Individual Listing", "Account Management", "Admin 
+    Management", "Login", or "Sign Up" pages, then display "Hoboken Curbside" as the title, have a 
+    link to the about page, and show a copyright notice with the group members' names: 
+    --}}
+    <h3 class="card-title">Hoboken Curbside</h3>
+    <p class="card-text">Copyright © Andrew Capro, Nicholas Mule, Casey Mulrooney, Chancelor Assiamah</p>
+    <a href="/about" class="btn btn-info">About Us</a>
+{{/if}}
+{{#unless noPagination}}
+    {{!-- Else, we're on the "Listings", "My Listings", or "Admin Management" pages. Display the 
+    normal pagination widget. --}}
+    <div class="pagination-container">
+        <div class="d-flex align-items-center flex-wrap">
+            {{!-- text-align: center; --}}
+            <div class="justify-content-center h-50 d-inline-block">
+                <nav aria-label="Page Navigation">
+                    <ul class="pagination">
+                        {{!-- <li class="page-item"><a class="page-link" href="#">&laquo;</a></li>
+                        {{#seq @root.posts 0}}
+                        <li class="page-item"><a class="page-link" href="#">&raquo;</a></li> --}}
+                    </ul>
+                </nav>
+            </div>
+            {{!-- float: right; --}}
+            <div class="justify-content-end">
+                <nav aria-label="Jump to Page">
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <label for="page" id="jpm-pg-label">Jump to Page:</label>
+                            <select class="form-control" id="page" name="page" aria-labelledby="jmp-pg-label">
+                                {{#pageSeq posts}}{{/pageSeq}}
+                            </select>
+                        </div>
+                    </form>
+                </nav>
+            </div>
+        </div>
+    </div>
+{{/unless}}

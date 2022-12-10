@@ -1,0 +1,12 @@
+<div class="row row-cols-1">
+    {{#if this.context.post}}
+        {{#with this.context.post}} {{> post }} {{/with}}
+    {{else}}
+        <div class="col">
+            <div class="alert alert-danger" role="alert">
+                <h3 class="alert-heading">Uh oh...</h3>
+                <p>No post with that ID was found.</p>
+            </div>
+        </div>
+    {{/if}}
+</div>

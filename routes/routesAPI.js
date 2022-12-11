@@ -66,7 +66,7 @@ router.get('/', async (req, res) => {
     // Render the landing page, with an "About" section and the 5 most recent postings.
     /** Insert the code for obtaining the 5 most recent postings here. */
     res.render('pages/home', {
-        script: '/public/js/listings.js',
+        scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
         context: {
             posts: [{
                 postId: 1,
@@ -131,14 +131,14 @@ router
          * other ones to restore the correct functionality. - Chance 
          */
         res.render('pages/userLogin', {
-            script: '/public/js/userLogin.js',
+            scripts: ['/public/js/userLogin.js'],
             context: {
                 noPagination: true
             }
         });
         // if (req.session.user) res.redirect('/');
         // else res.render('pages/userLogin', {
-        //     script: '/public/js/userLogin.js',
+        //     scripts: ['/public/js/userLogin.js'],
         //     context: {
         //         noPagination: true
         //     }
@@ -169,14 +169,14 @@ router
          * other ones to restore the correct functionality. - Chance 
          */
         res.render('pages/userRegister', {
-            script: '/public/js/userRegister.js',
+            scripts: ['/public/js/userRegister.js'],
             context: {
                 noPagination: true
             }
         });
         // if (req.session.user) res.redirect('/');
         // else res.render('pages/userRegister', {
-        //     script: '/public/js/userRegister.js',
+        //     scripts: ['/public/js/userRegister.js'],
         //     context: {
         //         noPagination: true
         //     }

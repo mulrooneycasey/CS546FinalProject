@@ -18,7 +18,7 @@ router
          * other ones to restore the correct functionality. - Chance 
          */
         res.render('pages/accountMgmt', {
-            script: '/public/js/accountMgmt.js',
+            scripts: ['/public/js/accountMgmt.js'],
             context: {
                 mgmtPage: true,
                 noPagination: true,
@@ -29,7 +29,7 @@ router
         // // without a problem.
         // if (req.session.user)
         //     res.render('pages/accountMgmt', {
-        //         script: '/public/js/accountMgmt.js',
+        //         scripts: ['/public/js/accountMgmt.js'],
         //         context: {
         //             mgmtPage: true,
         //             noPagination: true,
@@ -40,7 +40,7 @@ router
         // // error message.
         // else {
         //     res.status(403).render('pages/accountMgmt', {
-        //         script: '/public/js/accountMgmt.js',
+        //         scripts: ['/public/js/accountMgmt.js'],
         //         context: {
         //             mgmtPage: true,
         //             loggedIn: false,
@@ -82,7 +82,7 @@ router
         // HTTP 400 status code) again with the errors.
         if (errors.length > 0) {
             res.status(400).render('pages/accountMgmt', {
-                script: '/public/js/accountMgmt.js',
+                scripts: ['/public/js/accountMgmt.js'],
                 context: {
                     error: true,
                     errors: errors
@@ -145,7 +145,7 @@ router
                          * string or an array of strings), and the provided page here.
                          */
                         res.render('pages/listings', {
-                            script: '/public/js/listings.js',
+                            scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                             context: {
                                 posts: [{
                                     postId: 1,
@@ -183,7 +183,7 @@ router
                          * string) and on the provided page here.
                          */
                         res.render('pages/listings', {
-                            script: '/public/js/listings.js',
+                            scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                             context: {
                                 posts: [{
                                     postId: 1,
@@ -225,7 +225,7 @@ router
                      * string or an array of strings) and on the provided page here. 
                      */
                     res.render('pages/listings', {
-                        script: '/public/js/listings.js',
+                        scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                         context: {
                             posts: [{
                                 postId: 1,
@@ -264,7 +264,7 @@ router
                      * user here.
                      */
                     res.render('pages/listings', {
-                        script: '/public/js/listings.js',
+                        scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                         context: {
                             posts: [{
                                 postId: 1,
@@ -316,7 +316,7 @@ router
                          * string or an array of strings) here.
                          */
                         res.render('pages/listings', {
-                            script: '/public/js/listings.js',
+                            scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                             context: {
                                 posts: [{
                                     postId: 1,
@@ -353,7 +353,7 @@ router
                          * string) here.
                          */
                         res.render('pages/listings', {
-                            script: '/public/js/listings.js',
+                            scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                             context: {
                                 posts: [{
                                     postId: 1,
@@ -394,7 +394,7 @@ router
                      * strings).
                      */
                     res.render('pages/listings', {
-                        script: '/public/js/listings.js',
+                        scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                         context: {
                             posts: [{
                                 postId: 1,
@@ -431,7 +431,7 @@ router
                      * user here. 
                      */
                     res.render('pages/listings', {
-                        script: '/public/js/listings.js',
+                        scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                         context: {
                             posts: [{
                                 postId: 1,
@@ -469,7 +469,7 @@ router
         // error message.
         else {
             res.status(403).render('pages/listings', {
-                script: '/public/js/listings.js',
+                scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                 loggedIn: false,
                 context: {
                     mgmtPage: true,
@@ -503,7 +503,7 @@ router.get('/listings/:postId', async (req, res) => {
          * other ones to restore the correct functionality. - Chance 
          */
          res.render('pages/soloListing', {
-            script: '/public/js/soloListing.js',
+            scripts: ['/public/js/soloListing.js'],
             context: {
                 post: {
                     postId: 1,
@@ -546,7 +546,7 @@ router.get('/listings/:postId', async (req, res) => {
         //      * below. 
         //      */
         //     res.render('pages/soloListing', {
-        //         script: '/public/js/soloListing.js',
+        //         scripts: ['/public/js/soloListing.js'],
         //         context: {
         //             post: {
         //                 postId: 1,

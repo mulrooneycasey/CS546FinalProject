@@ -8,12 +8,12 @@ const xss = require('xss');
  *   If logged in, redirects you to the listings route;
  *   Else, you're not logged in, redirects you to the "Sign In" page.
  */
-router.get('/', async (req, res) => {
+router.get('/admin', async (req, res) => {
     /** 
      * Once you add the user to the session, you can delete the line below and uncomment the 
      * other ones to restore the correct functionality. - Chance 
      */
-    res.redirect('/listings');
+    res.redirect('/admin/listings');
     // if (req.session.user) res.redirect('/admin/listings');
     // else res.redirect('/login');
 });
@@ -24,7 +24,7 @@ router.get('/', async (req, res) => {
  *   Else, you're not logged in, redirects you to the "Sign In" page.
  *   Can have additional queries, like "?page=3".
  */
-router.get('/listings', async (req, res) => {
+router.get('/admin/listings', async (req, res) => {
     /** 
      * Once you add the user to the session, you can uncomment the other lines to restore the 
      * correct functionality. - Chance 
@@ -51,7 +51,7 @@ router.get('/listings', async (req, res) => {
                      * string or an array of strings), and the provided page here.
                      */
                     res.render('pages/listings', {
-                        script: '/public/js/listings.js',
+                        scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                         context: {
                             posts: [{
                                 firstName: 'Andrew',
@@ -86,7 +86,7 @@ router.get('/listings', async (req, res) => {
                      * the provided page here.
                      */
                     res.render('pages/listings', {
-                        script: '/public/js/listings.js',
+                        scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                         context: {
                             posts: [{
                                 firstName: 'Andrew',
@@ -125,7 +125,7 @@ router.get('/listings', async (req, res) => {
                  * or an array of strings) and on the provided page here.
                  */
                 res.render('pages/listings', {
-                    script: '/public/js/listings.js',
+                    scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                     context: {
                         posts: [{
                             firstName: 'Andrew',
@@ -161,7 +161,7 @@ router.get('/listings', async (req, res) => {
                  * here.
                  */
                 res.render('pages/listings', {
-                    script: '/public/js/listings.js',
+                    scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                     context: {
                         posts: [{
                             firstName: 'Andrew',
@@ -210,7 +210,7 @@ router.get('/listings', async (req, res) => {
                      * string or an array of strings) here.
                      */
                     res.render('pages/listings', {
-                        script: '/public/js/listings.js',
+                        scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                         context: {
                             posts: [{
                                 firstName: 'Andrew',
@@ -243,7 +243,7 @@ router.get('/listings', async (req, res) => {
                      * user based on the search query ("req.query.search" will be a string) here.
                      */
                     res.render('pages/listings', {
-                        script: '/public/js/listings.js',
+                        scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                         context: {
                             posts: [{
                                 firstName: 'Andrew',
@@ -280,7 +280,7 @@ router.get('/listings', async (req, res) => {
                  * here ("req.query.filter" will either be a string or an array of strings). 
                  */
                 res.render('pages/listings', {
-                    script: '/public/js/listings.js',
+                    scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                     context: {
                         posts: [{
                             firstName: 'Andrew',
@@ -314,7 +314,7 @@ router.get('/listings', async (req, res) => {
                  * here. 
                  */
                 res.render('pages/listings', {
-                    script: '/public/js/listings.js',
+                    scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                     context: {
                         posts: [{
                             firstName: 'Andrew',
@@ -358,9 +358,8 @@ router.get('/listings', async (req, res) => {
  * "POST /admin/listings/:postId": 
  *   Either changes status to "accepted"/"denied" for the given post.
  */
-router //This is the only route that returns an error, something about the array not being - Nick
-        //Might just need some additional admin-specific variables in the context
-    .route('/listings/:postId')
+router
+    .route('/admin/listings/:postId')
     .get(async (req, res) => {
         /** 
          * You should probably wrap the function in an if statement that checks if the post 
@@ -372,33 +371,11 @@ router //This is the only route that returns an error, something about the array
          * other ones to restore the correct functionality. - Chance 
          */
          res.render('pages/soloListing', {
-            script: '/public/js/soloListing.js',
-            context: {
-            post: {
-                postId: 1,
-                firstName: 'Andrew',
-                lastName: 'Capro',
-                description: 'post description',
-                image: 'img.png',
-                location: 'Hoboken, 10th St.',
-                time: new Date().toTimeString(),
-                date: new Date().toDateString(),
-                keywords: ['test1', 'test2', 'test3'],
-                overallRating: 5,
-                reviews: [{
-                    user: 'Andrew Capro',
-                    ratingNum: 5,
-                    description: 'this was a real thing'
-                }],
-                comments: [{
-                    name: 'Casey Mulrooney',
-                    comment: 'this is cool'
-                }]
-            },
-            loggedIn: loggedIn,
+            scripts: ['/public/js/soloListing.js'],
+            post: {},
+            loggedIn: true,
             trunc: false,
             noPagination: true
-        }
         });
         // // If the user is logged in, then they should gain access to the post without a problem.
         // if (req.session.user) {
@@ -409,11 +386,33 @@ router //This is the only route that returns an error, something about the array
         //      * lines below.
         //      */
         //     res.render('pages/soloListing', {
-        //         script: '/public/js/soloListing.js',
-        //         post: {},
-        //         loggedIn: true,
-        //         trunc: false,
-        //         noPagination: true
+        //         script: ['/public/js/soloListing.js'],
+		// 		context: {
+		// 			post: {
+		// 				postId: 1,
+		// 				firstName: 'Andrew',
+		// 				lastName: 'Capro',
+		// 				description: 'post description',
+		// 				image: 'img.png',
+		// 				location: 'Hoboken, 10th St.',
+		// 				time: new Date().toTimeString(),
+		// 				date: new Date().toDateString(),
+		// 				keywords: ['test1', 'test2', 'test3'],
+		// 				overallRating: 5,
+		// 				reviews: [{
+		// 					user: 'Andrew Capro',
+		// 					ratingNum: 5,
+		// 					description: 'this was a real thing'
+		// 				}],
+		// 				comments: [{
+		// 					name: 'Casey Mulrooney',
+		// 					comment: 'this is cool'
+		// 				}]
+		// 			},
+		// 			loggedIn: true,
+		// 			trunc: false,
+		// 			noPagination: true
+		// 		}
         //     });
         // }
         // // Else, redirect the user to the "Sign In" page.

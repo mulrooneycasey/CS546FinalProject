@@ -47,7 +47,7 @@ router
                      * strings), and the provided page here.
                      */
                     res.render('pages/listings', {
-                        script: '/public/js/listings.js',
+                        scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                         context: {
                             posts: [{
                                 postId: 1,
@@ -84,7 +84,7 @@ router
                      * here.
                      */
                     res.render('pages/listings', {
-                        script: '/public/js/listings.js',
+                        scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                         context: {
                             posts: [{
                                 postId: 1,
@@ -125,7 +125,7 @@ router
                  * strings) and on the provided page here. 
                  */
                 res.render('pages/listings', {
-                    script: '/public/js/listings.js',
+                    scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                     context: {
                         posts: [{
                             postId: 1,
@@ -162,7 +162,7 @@ router
                  * Insert the code for obtaining the 10 most recent postings here.
                  */
                 res.render('pages/listings', {
-                    script: '/public/js/listings.js',
+                    scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                     context: {
                         posts: [{
                             postId: 1,
@@ -212,7 +212,7 @@ router
                      * strings) here.
                      */
                     res.render('pages/listings', {
-                        script: '/public/js/listings.js',
+                        scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                         context: {
                             posts: [{
                                 postId: 1,
@@ -247,7 +247,7 @@ router
                      * search query ("req.query.search" will be a string) here.
                      */
                     res.render('pages/listings', {
-                        script: '/public/js/listings.js',
+                        scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                         context: {
                             posts: [{
                                 postId: 1,
@@ -286,7 +286,7 @@ router
                  * ("req.query.filter" will either be a string or an array of strings). 
                  */
                 res.render('pages/listings', {
-                    script: '/public/js/listings.js',
+                    scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                     context: {
                         posts: [{
                             postId: 1,
@@ -319,7 +319,7 @@ router
             else {
                 /** Insert the code for obtaining the 10 most recent postings here. */
                 res.render('pages/listings', {
-                    script: '/public/js/listings.js',
+                    scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                     context: {
                         posts: [{
                             postId: 1,
@@ -377,7 +377,7 @@ router.get('/:postId', async (req, res) => {
      * below. 
      */
     res.render('pages/soloListing', {
-        script: '/public/js/soloListing.js',
+        scripts: ['/public/js/soloListing.js'],
         context: {
             post: {
                 postId: 1,

@@ -1,23 +1,25 @@
 <nav class="navbar navbar-light navbar-expand-lg" role="navigation" aria-label="Navigation Bar">
     {{!-- float: left; --}}
     <span class="navbar-brand h3"><a href="/">Hoboken Curbside</a></span>
-    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-toggle">
+    <label for="navbar-toggler" hidden>navbar</label>
+    <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-toggle" id="navbar-toggler">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="container">
         <div class="collapse navbar-collapse" id="navbar-toggle">
             {{!-- float: center; --}}
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
+                <li class="nav-item"><a class="nav-link" href="/about">About Us</a></li>
                 <li class="nav-item"><a class="nav-link" href="/listings">Listings</a></li>
                 <li class="nav-item"><a class="nav-link" href="/account">Account Management</a></li>
+                 
                 {{#if isAdmin}}
                     <li class="nav-item">
                         <a class="nav-link" href="/admin">Admin Management</a>
                     </li>
                 {{/if}}
                 {{#if loggedIn}}
-                    <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>                
                 {{else}}
                     <li class="nav-item"><a class="nav-link" href="/login">Sign In / Sign Up</a></li>
                 {{/if}}
@@ -26,6 +28,7 @@
             {{#if trunc}}
             <form class="form-inline">
                 <div class="input-group">
+                    <label for="search" hidden="true">Search</label>
                     <input type="text" class="form-control mr-sm-2" id="search" name="search" placeholder="Search...">
                     <div class="input-group-append">
                         <button type="button" class="close invisible" aria-label="Clear Search">

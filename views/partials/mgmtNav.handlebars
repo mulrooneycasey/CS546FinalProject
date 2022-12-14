@@ -8,7 +8,7 @@
         <div class="collapse navbar-collapse" id="navbar-toggle">
             {{!-- float: center; --}}
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
+                <li class="nav-item"><a class="nav-link" href="/about">About Us</a></li>
                 <li class="nav-item"><a class="nav-link" href="/account/listings">My Listings</a></li>
                 <li class="nav-item"><a class="nav-link" href="/account">Account Management</a></li>
                 {{#if isAdmin}}
@@ -17,14 +17,16 @@
                     </li>
                 {{/if}}
                 <li class="nav-item"><a class="nav-link" href="/logout">Log Out</a></li>
+                <li class="nav-item"><a class="btn btn-primary" href="/logout">Create Post</a></li>   
             </ul>
             {{!-- float: right; --}}
             {{#if trunc}}
             <form class="form-inline">
-                <div class="input-group">
-                    <input type="text" class="form-control mr-sm-2" id="search" name="search" placeholder="Search...">
+                <div class="input-group mt-3">
+                    <label for="search" hidden="true">Search</label>
+                    <input type="text" class="form-control mr-sm-2 mt-2" id="search" name="search" placeholder="Search...">
                     <button type="submit" class="btn btn-outline-success my-2">Search</button>
-                    <div class="input-group-append">
+                    <div class="input-group-append mt-2">
                         <button type="button" class="close invisible" aria-label="Clear Search">
                             <span aria-hidden="true">&times;</span>
                         </button>

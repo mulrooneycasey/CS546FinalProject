@@ -6,12 +6,7 @@
                     <img src="{{image}}" class="img-thumbnail" width="100%" height="200" alt="{{description}}">
                 </div>
                 <div class="col-md-7">
-                    <div class="card-body text-body">
-                        {{!-- If the title stuff below is causing compiling errors, then just 
-                        comment it out or delete it. I was expecting a basic title for each post 
-                        in addition to everything else. - Chance --}}
-                        {{!-- <span class="d-inline-block text-truncate"><h1 class="card-title">{{title}}</h1></span> --}}
-                        
+                    <div class="card-body text-body">                     
                         <h1 class="card-subtitle mb-2 font-weight-bold h2">{{description}}</h1>
                         <h1 class="card-subtitle h4">Located at:</h1>
                         <p class="card-text mb-2 text-truncate">{{location}}</p>
@@ -58,10 +53,7 @@
                 out or delete it. I was expecting a basic title for each post in addition to 
                 everything else. - Chance --}}
                 <div class="row justify-content-between mb-2">
-                    <div class="col-8">
-                        <h1 class="card-title">{{title}}</h1>
-                    </div>
-                    <div class="col-sm-auto col-lg-2 mt-md-3 py-sm-3">
+                    <div class="col-auto mt-md-3 py-sm-3 ml-lg-auto">
                         <div class="form-inline justify-content-center">
                             <button type="button" class="btn btn-outline-warning" data-toggle="button" aria-pressed="false">
                                 <span class="sr-only">Add this Post to Favorites</span>

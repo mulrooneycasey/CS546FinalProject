@@ -15,7 +15,7 @@ async function createPost(firstName, lastName, object, image, location){
     typeof location!='string' || typeof object!='string'){
         throw "first name, last name, location, and object has to be a string";
     }
-    //im assuming an object is supposed to be a string description
+
     firstName.trim();
     lastName.trim();
     location.trim();
@@ -85,7 +85,6 @@ async function createReview(postID, username, comment, rating){
     const original = getPostById(postID);
     const uReviews=original['reviews'];
     let update;
-    //do i need to make a database for reviews and comments
     uReviews.push(newReview);
     rating = 0;
     for(let i=0; i<uReviews.length; i++){

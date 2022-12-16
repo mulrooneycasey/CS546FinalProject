@@ -31,11 +31,18 @@ function containsUpper(str){
     return alpha.test(str);
 }
 
+function compareNumbers(a, b) {
+    return a - b;
+}
+
+
+
 module.exports = {
     containsSpec,
     containsNum,
     containsPunct,
     containsAlpha,
     containsSpace,
+    compareNumbers,
     containsUpper
 };

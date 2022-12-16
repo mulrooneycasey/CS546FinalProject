@@ -75,7 +75,7 @@ async function createReview(postID, username, comment, rating){
     if(!ObjectId.isValid(postID)){
         throw "not valid post id";
     }
-    const newReview = {username: username, comment: comment, rating: rating};
+    const newReview = {username: username, comment: comment, rating: rating, _id: new ObjectId()};
     const postCollection = await posts();
     const original = getPostById(postID);
     const reviews=original['reviews'];
@@ -86,11 +86,12 @@ async function createReview(postID, username, comment, rating){
     else{
         update.reviews.push(newReview);
     }
+    //I think we need to add something to calculate overall rating? - Nick reviewLater
     const info = await postCollection.updateOne({_id: ObjectId(postID)}, {$set: update});
     if(info.modifiedCount==0){
         throw "post did not update";
     }
-    return;
+    return newReview['_id'];
 }
 
 async function createComment(postID, username, comment){

@@ -8,6 +8,7 @@ const bcrypt = require('bcrypt');
 const xss = require('xss');
 const data = require('../data');
 const helpers = require('../helpers');
+const { addFavorite } = require('../data/users');
 const userData = data.users;
 const postData = data.posts;
 /** Include any helper functions here. */
@@ -67,7 +68,7 @@ router.get('/', async (req, res) => {
      * here. - Chance 
      */
     // if (loggedIn === True){
-    //     const isAdmin = req.session.user.isAdmin;
+    //     const isAdmin = req.session.user['isAdmin'];
     // } 
     // -Nick reviewLater
 
@@ -227,8 +228,9 @@ router
          * strings>', and with a HTTP 400 (or 500 if it's likely a server/db error) status code. I 
          * guess if you're confused by what any of this means, you can look at the "PUT /account" 
          * route for reference. - Chance 
-         */
-        // let theUserData = req.body;
+         */ 
+        //reviewLater Nick
+        // let theUserData = req.body; 
         // let errors = [];
 
         // theUserData.usernameInput = theUserData.usernameInput.trim();
@@ -309,7 +311,7 @@ router.get('/logout', async (req, res) => {
  *   Favorites the given post.
  */
 router.post('/favorite/:postId', async (req, res) => {
-    const postId = req.params.postId;
+    const postId = req.params.postId.trim();
     /** 
      * Insert the code that appends the ObjectId (MongoDB) of the post to the user's list of 
      * favorites here.
@@ -317,6 +319,32 @@ router.post('/favorite/:postId', async (req, res) => {
     /** 
      * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
      */
+    //reviewLater nick
+    // const userId = req.session.user['_id']; 
+    // let errors = [];
+    // try{
+    //     const result = await userData.addFavorite(postId, userId.toString())
+    //     if (result['favoriteInserted'] !== true){
+    //         res.status(500).render('pages/soloListing', {
+    //             scripts: ['/public/js/soloListing.js'],
+    //             context: { 
+    //                 //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+    //                 error: true,
+    //                 errors: errors
+    //                 }
+    //             });
+    //     }
+    // } catch (e){
+    //     errors.append(e.toString());
+    //     res.status(400).render('pages/soloListing', { //Maybe to the post's page?
+    //         scripts: ['/public/js/soloListing.js'],
+    //         context: { 
+    //             //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+    //             error: true,
+    //             errors: errors
+    //             }
+    //         });
+    // }
 });
 
 /**
@@ -324,13 +352,40 @@ router.post('/favorite/:postId', async (req, res) => {
  *   Adds a review to the given post.
  */
 router.post('/review/:postId', async (req, res) => {  
-    const postId = req.params.postId;
+    const postId = req.params.postId.trim();
     /** 
      * Insert the code that updates the user's collection of reviews here.
      */
     /** 
      * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
      */
+    //reviewLater nick
+    // const userId = req.session.user['_id'];
+    // let errors = [];
+    // try{
+    //     await postData.createReview(postId, req.session.user['username'], req.body.comment.trim(), req.body.rating)
+    //     const result = await userData.addRating(postId, userId.toString())
+    //     if (result['ratingInserted'] !== true){
+    //         res.status(500).render('pages/soloListing', {
+    //             scripts: ['/public/js/soloListing.js'],
+    //             context: { 
+    //                 //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+    //                 error: true,
+    //                 errors: errors
+    //                 }
+    //             });
+    //     }
+    // } catch (e){
+    //     errors.append(e.toString());
+    //     res.status(400).render('pages/soloListing', { //Maybe to the post's page?
+    //         scripts: ['/public/js/soloListing.js'],
+    //         context: { 
+    //             //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+    //             error: true,
+    //             errors: errors
+    //             }
+    //         });
+    // }
 });
 
 /**

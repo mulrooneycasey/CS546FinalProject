@@ -3,6 +3,7 @@ const users = mongoCollections.users;
 const { ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
 const helpers = require('../helpers');
+const posts = require('./posts');
 
 //make usernames case insensitive
 async function createUser(firstName, lastName, email, username, password){
@@ -253,7 +254,52 @@ async function changeEmail(id, password, change){
     return await this.getUserById(id);
 }
 
+async function makePost(id, firstName, lastName, object, image, location){
+    let user = this.getUserById(id);
+    if(user==null){
+        throw "user does not exist";
+    }
+    const newPost = posts.createPost(firstName, lastName, object, image, location);
+    let ogPosts = user['posts'];
+    ogPosts.push(newPost);
+    const update = {posts: ogPosts};
+    const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
+    if(info.modifiedCount==0){
+        throw "Error: posts did not update";
+    }
+    return await this.getUserById(id);
+}
 
+async function makeComment(postID, username, comment){
+    let user = this.getUserById(id);
+    if(user==null){
+        throw "user does not exist";
+    }
+    const newComment = posts.createComment(postID, username, comment);
+    let ogComments = user['comments'];
+    ogComments.push(newComment);
+    const update = {comments: ogComments};
+    const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
+    if(info.modifiedCount==0){
+        throw "Error: posts did not update";
+    }
+    return await this.getUserById(id);
+}
+async function makeReview(postID, username, comment, rating){
+    let user = this.getUserById(id);
+    if(user==null){
+        throw "user does not exist";
+    }
+    const newReview = posts.createReview(postID, username, comment);
+    let ogReviews = user['reviews'];
+    ogReviews.push(newReview);
+    const update = {reviews: ogReviews};
+    const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
+    if(info.modifiedCount==0){
+        throw "Error: posts did not update";
+    }
+    return await this.getUserById(id);
+}
 
 module.exports = {
     createUser,
@@ -263,5 +309,8 @@ module.exports = {
     changeFirstName,
     changeLastName,
     makeAdmin,
-    getUserById
+    getUserById,
+    makePost,
+    makeComment,
+    makeReview
 };

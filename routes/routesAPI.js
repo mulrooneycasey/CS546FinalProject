@@ -118,15 +118,13 @@ router.get('/about', async (req, res) => {
      * here. - Chance 
      * Added the code as requested - Nick
      */
-    if (!isAdmin){
-        res.render('pages/about', {
-            context: {
-                noPagination: true,
-                loggedIn: false, //change to loggedIn reviewLater
-                isAdmin: false //change to isAdmin
-            }
-        });
-    }
+    res.render('pages/about', {
+        context: {
+            noPagination: true,
+            loggedIn: false, //change to loggedIn reviewLater
+            isAdmin: false //change to isAdmin
+        }
+    });
 });
 
 /**

@@ -12,12 +12,12 @@ async function main() {
     await users.createUser('Andrew', 'Capro', 'acapro@gmail.com', 'acapro', 'andrew123')
     const aPost1 = await posts.createPost('Andrew', 'Capro', 'an object', 'image.png', '3 Cool Ln.')
     await posts.createPost('Andrew', 'Capro', 'an object 2', 'image2.png', '400 West St.')
-    const aPostID = aPost1._id.toString()
+    const aPostID = aPost1.toString()
 
     //user two
     await users.createUser('Nick', 'Mule', 'nmule@gmail.com', 'nmule', 'nick123')
     const nPost = await posts.createPost('Nick', 'Mule', 'an object 3', 'image3.png', '800 Washington St.')
-    const nPostID = nPost._id.toString()
+    const nPostID = nPost.toString()
     await posts.createReview(aPostID, 'nmule', 'This is a cool thing!', 5)
     await posts.createComment(aPostID, 'nmule', 'Its actually hidden under the stairs')
 
@@ -25,7 +25,7 @@ async function main() {
     await users.createUser('Casey', 'Mulrooney', 'cmulrooney@gmail.com', 'cmulrooney', 'casey123')
     const cPost1 = await posts.createPost('Casey', 'Mulrooney', 'an object 4', 'image4.png', '300 Bloomfield Ave.')
     await posts.createPost('Casey', 'Mulrooney', 'an object 5', 'image5.png', 'Outside Babbio Center')
-    const cPostID = cPost1._id.toString()
+    const cPostID = cPost1.toString()
     await posts.createReview(nPostID, 'cmulrooney', 'This is fake!', 4)
     await posts.createComment(aPostID, 'cmulrooney', 'nmule is wrong, someone already took it!')
 

@@ -82,7 +82,7 @@ async function createReview(postID, username, comment, rating){
     }
     const newReview = {username: username, comment: comment, rating: rating, _id: new ObjectId()};
     const postCollection = await posts();
-    const original = getPostById(postID);
+    const original = await getPostById(postID);
     const uReviews=original['reviews'];
     let update;
     uReviews.push(newReview);
@@ -118,14 +118,15 @@ async function createComment(postID, username, comment){
     }
     const newComment = {username: username, comment: comment};
     const postCollection = await posts();
-    const original = getPostById(postID);
+    const original = await getPostById(postID);
     const comments=original['comments'];
-    let update;
-    if(comments==null){
-        update.comments=[newComment];
+    let update = {};
+    if(comments===[]){
+        update['comments']=[newComment];
     }
     else{
-        update.comments.push(newComment);
+        update['comments'] = comments;
+        update['comments'].push(newComment)
     }
     const info = await postCollection.updateOne({_id: ObjectId(postID)}, {$set: update});
     if(info.modifiedCount==0){

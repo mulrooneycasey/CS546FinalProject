@@ -6,6 +6,11 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const xss = require('xss');
+const data = require('../data');
+const helpers = require('../helpers');
+const { addFavorite } = require('../data/users');
+const userData = data.users;
+const postData = data.posts;
 /** Include any helper functions here. */
 
 /**
@@ -56,21 +61,21 @@ router.get('/', async (req, res) => {
      */
     const loggedIn = false;
     // If there is the user logged in, then enable them to logout.
-    // const loggedIn = typeof req.session.user !== 'undefined';
+    // const loggedIn = typeof req.session.user !== 'undefined'; reviewLater
 
     /** 
      * Insert code that, if the user is logged in, determines whether the user is an admin or not 
      * here. - Chance 
      */
     // if (loggedIn === True){
-    //     const isAdmin = req.session.user.isAdmin;
+    //     const isAdmin = req.session.user['isAdmin'];
     // } 
-    // -Nick
+    // -Nick reviewLater
 
     // Render the landing page, with an "About" section and the 5 most recent postings.
     /** Insert the code for obtaining the 5 most recent postings here. 
      *  Use a function to get all of the postings, probably add it in mongoDB
-     *  Then get the most recent five by checking their dates and comparing them - Nick
+     *  Then get the most recent five by checking their dates and comparing them - Nick reviewLater
     */
     res.render('pages/home', {
         scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
@@ -113,12 +118,13 @@ router.get('/about', async (req, res) => {
     /** 
      * Insert code that, if the user is logged in, determines whether the user is an admin or not 
      * here. - Chance 
+     * Added the code as requested - Nick
      */
     res.render('pages/about', {
         context: {
             noPagination: true,
-            loggedIn: false,
-            isAdmin: false
+            loggedIn: false, //change to loggedIn reviewLater
+            isAdmin: false //change to isAdmin
         }
     });
 });
@@ -143,7 +149,7 @@ router
                 noPagination: true
             }
         });
-        // if (req.session.user) res.redirect('/');
+        // if (req.session.user) res.redirect('/'); reviewLater
         // else res.render('pages/userLogin', {
         //     scripts: ['/public/js/userLogin.js'],
         //     context: {
@@ -159,6 +165,32 @@ router
          * you're confused by what any of this means, you can look at the "PUT /account" route for 
          * reference. - Chance
          */
+        //uncomment when ready reviewLater - Nick
+        // let errors = [];
+        // let emailInput = req.body.emailInput;
+        // let passwordInput = req.body.passwordInput;
+        // try {
+        //     let theUser = await userData.checkUser(emailInput, passwordInput); //Might need to be implemented in data/users.js using find({}) and iterating through all until finding matching username, returing entire user - Nick reviewLater
+        // }
+        // catch (e){
+        //     errors.push(e); //This block is to catch the error of 'Either invalid password or username'
+        // } //theUser is now a whole user object after this part
+        
+        // if (typeof theUser !== undefined){
+        //     req.session.user = theUser;
+        //     res.redirect('/'); //Redirect to homepage if successfully logged in
+        // }
+
+        // if (errors.length > 0) {
+        //     res.status(400).render('pages/userLogin', {
+        //         scripts: ['/public/js/userLogin.js'],
+        //         context: { //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+        //             error: true,
+        //             errors: errors
+        //         }
+        //     });
+        //     return;
+        // }
     });
 
 /**
@@ -181,7 +213,7 @@ router
                 noPagination: true
             }
         });
-        // if (req.session.user) res.redirect('/');
+        // if (req.session.user) res.redirect('/'); reviewLater
         // else res.render('pages/userRegister', {
         //     scripts: ['/public/js/userRegister.js'],
         //     context: {
@@ -196,7 +228,63 @@ router
          * strings>', and with a HTTP 400 (or 500 if it's likely a server/db error) status code. I 
          * guess if you're confused by what any of this means, you can look at the "PUT /account" 
          * route for reference. - Chance 
-         */
+         */ 
+        //reviewLater Nick
+        // let theUserData = req.body; 
+        // let errors = [];
+
+        // theUserData.usernameInput = theUserData.usernameInput.trim();
+        // theUserData.passwordInput = theUserData.passwordInput.trim();
+        // theUserData.firstInput = theUserData.firstInput.trim();
+        // theUserData.lastInput = theUserData.lastInput.trim();
+        // theUserData.emailInput = theUserData.emailInput.trim();
+
+        // try {
+        //     const newUser = await UserData.createUser(
+        //     theUserData.firstInput,
+        //     theUserData.lastInput,
+        //     theUserData.emailInput,
+        //     theUserData.usernameInput,
+        //     theUserData.passwordInput,
+        //     'Hoboken',
+        //     'NJ'
+        //     );
+        //     if (newUser["userInserted"] === true) res.redirect('/'); //Might need to be adjusted based on createUser reviewLater
+        //     else {
+        //         errors.push("Internal Server Error");
+        //         res.status(500).render('pages/userRegister', {
+        //             scripts: ['/public/js/userRegister.js'],
+        //             context: { 
+        //                 //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+        //                 error: true,
+        //                 errors: errors
+        //                 }
+        //             });
+        //     }
+        // } catch (e) {
+        //     errors.push(e.toString()); //Check if this works reviewLater; In general, this is jank but hopefully its ok?
+        //     res.status(400).render('pages/userRegister', {
+        //         scripts: ['/public/js/userRegister.js'],
+        //         context: { 
+        //             //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+        //             error: true,
+        //             errors: errors
+        //             }
+        //         });
+        // }
+
+        // if (errors.length > 0) { //this part is prob not needed
+        //     res.status(400).render('pages/userRegister', {
+        //     scripts: ['/public/js/userRegister.js'],
+        //     context: { 
+        //         //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+        //         error: true,
+        //         errors: errors
+        //         }
+        //     });
+        // }
+
+        
     });
 
 /**
@@ -223,7 +311,7 @@ router.get('/logout', async (req, res) => {
  *   Favorites the given post.
  */
 router.post('/favorite/:postId', async (req, res) => {
-    const postId = req.params.postId;
+    const postId = req.params.postId.trim();
     /** 
      * Insert the code that appends the ObjectId (MongoDB) of the post to the user's list of 
      * favorites here.
@@ -231,6 +319,32 @@ router.post('/favorite/:postId', async (req, res) => {
     /** 
      * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
      */
+    //reviewLater nick
+    // const userId = req.session.user['_id']; 
+    // let errors = [];
+    // try{
+    //     const result = await userData.addFavorite(postId, userId.toString())
+    //     if (result['favoriteInserted'] !== true){
+    //         res.status(500).render('pages/soloListing', {
+    //             scripts: ['/public/js/soloListing.js'],
+    //             context: { 
+    //                 //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+    //                 error: true,
+    //                 errors: errors
+    //                 }
+    //             });
+    //     }
+    // } catch (e){
+    //     errors.append(e.toString());
+    //     res.status(400).render('pages/soloListing', { //Maybe to the post's page?
+    //         scripts: ['/public/js/soloListing.js'],
+    //         context: { 
+    //             //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+    //             error: true,
+    //             errors: errors
+    //             }
+    //         });
+    // }
 });
 
 /**
@@ -238,13 +352,40 @@ router.post('/favorite/:postId', async (req, res) => {
  *   Adds a review to the given post.
  */
 router.post('/review/:postId', async (req, res) => {  
-    const postId = req.params.postId;
+    const postId = req.params.postId.trim();
     /** 
      * Insert the code that updates the user's collection of reviews here.
      */
     /** 
      * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
      */
+    //reviewLater nick
+    // const userId = req.session.user['_id'];
+    // let errors = [];
+    // try{
+    //     await postData.createReview(postId, req.session.user['username'], req.body.comment.trim(), req.body.rating)
+    //     const result = await userData.addRating(postId, userId.toString())
+    //     if (result['ratingInserted'] !== true){
+    //         res.status(500).render('pages/soloListing', {
+    //             scripts: ['/public/js/soloListing.js'],
+    //             context: { 
+    //                 //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+    //                 error: true,
+    //                 errors: errors
+    //                 }
+    //             });
+    //     }
+    // } catch (e){
+    //     errors.append(e.toString());
+    //     res.status(400).render('pages/soloListing', { //Maybe to the post's page?
+    //         scripts: ['/public/js/soloListing.js'],
+    //         context: { 
+    //             //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+    //             error: true,
+    //             errors: errors
+    //             }
+    //         });
+    // }
 });
 
 /**
@@ -259,6 +400,34 @@ router.post('/comment/:postId', async (req, res) => {
     /** 
      * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
      */
+    //reviewLater nick
+    // const userId = req.session.user['_id'];
+    // let errors = [];
+    // try{
+    //     await postData.createComment(postId, req.session.user['username'], req.body.comment.trim())
+    //     const result = await userData.addComment(postId, userId.toString())
+    //     if (result['commentInserted'] !== true){
+    //         res.status(500).render('pages/soloListing', {
+    //             scripts: ['/public/js/soloListing.js'],
+    //             context: { 
+    //                 //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+    //                 error: true,
+    //                 errors: errors
+    //post, loggedIn, truncination, posts error: true errors: errors all in 
+    //                 }
+    //             });
+    //     }
+    // } catch (e){
+    //     errors.append(e.toString());
+    //     res.status(400).render('pages/soloListing', { //Maybe to the post's page?
+    //         scripts: ['/public/js/soloListing.js'],
+    //         context: { 
+    //             //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+    //             error: true,
+    //             errors: errors
+    //             }
+    //         });
+    // }
 });
 
 module.exports = router;

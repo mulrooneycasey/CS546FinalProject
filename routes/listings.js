@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const xss = require('xss');
+const data = require('../data');
+const userData = data.users;
+const postData = data.posts;
+const helpers = require('../helpers')
 
 /**
  * "GET /listings": 
@@ -33,6 +37,30 @@ router
          * in the database so that the corresponding posts are displayed. We must keep in mind any 
          * filtered keywords the user has selected and/or any keyword the user has searched.
          */
+        //Beginning of nick filter/page/search
+        // let currentList = await postData.getAllPosts();
+        // currentList.sort(helpers.compareNumbers)
+        // if (req.query.search){
+        //     searchField = req.query.search;
+        //     searchArr = searchField.split(' ');
+        //     currentList = await postData.filterPosts(searchArr, currentList);
+        // }
+        // if (req.query.filter){
+        //     filterField = req.query.filter;
+        //     filterArr = filterField.split(' ');
+        //     currentList = await postData.filterPosts(filterArr, currentList)
+        // }
+        // if (req.query.page){
+        //     pageField = req.query.page;
+        //     pageField = parseInt(pageField);
+        //     currentList = await postData.getPostsByIndex(pageField, pageField*10, currentList);
+        // }
+        // else {
+        //     currentList = await postData.getPostById(0, 10, currentList);
+        // }
+        //end of nick filter/page/search
+        
+        //begin of hardcode
         if (req.query.page) {
             // If there's a search query attached, then we only search the database for posts that 
             // match the given keyword.
@@ -351,11 +379,15 @@ router
                 return;
             }
         }
+        //end of hardcode
     })
     .post(async (req, res) => {
         /** 
          * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
          */
+
+        
+        
     });
 
 /**
@@ -364,7 +396,7 @@ router
  */
 router.get('/:postId', async (req, res) => {
     const postId = req.params.postId;
-
+    //const post = postData.getPostById(postId);
     /** 
      * Once you add the user to the session, you can delete the line below and uncomment the other 
      * one. - Chance 
@@ -379,7 +411,7 @@ router.get('/:postId', async (req, res) => {
     res.render('pages/soloListing', {
         scripts: ['/public/js/soloListing.js'],
         context: {
-            post: {
+            post: { //I think we can just change this to post when it all works reviewLater
                 postId: 1,
                 firstName: 'Andrew',
                 lastName: 'Capro',

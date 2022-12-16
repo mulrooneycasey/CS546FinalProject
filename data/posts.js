@@ -80,7 +80,7 @@ async function createReview(postID, username, comment, rating){
     if(!ObjectId.isValid(postID)){
         throw "not valid post id";
     }
-    const newReview = {username: username, ratingNum: rating, comment: comment};
+    const newReview = {username: username, comment: comment, rating: rating, _id: new ObjectId()};
     const postCollection = await posts();
     const original = getPostById(postID);
     const uReviews=original['reviews'];
@@ -134,8 +134,79 @@ async function createComment(postID, username, comment){
     return newComment;
 }
 
+async function getAllPosts(){
+  const postCollection = await posts();
+  const postList = await postCollection.find({}).toArray();
+  if (!postList) throw 'Error: Could not get all posts';
+
+  for (const post of postList){ //turn to strings for use in getPostById
+    post["_id"] = post["_id"].toString();
+  }
+  return postList;
+}
+
+//This function is to get, starting from an index, numberPosts posts, with the most recent ones being first, from array postList
+async function getPostsByIndex(startingIndex, numberPosts, postList){
+    if (!startingIndex) throw "Error: No startingIndex";
+    if (typeof startingIndex !== 'number') throw "Error: startingIndex must be a number.";
+    if (startingIndex < 0) throw "Error: Cannot have a negative startingIndex";
+    if (!numberPosts) throw "Error: No numberPosts";
+    if (typeof numberPosts !== 'number') throw "Error: numberPosts must be a number.";
+    if (numberPosts < 0) throw "Error: Cannot have a negative numberPosts";
+    if (startingIndex > postList.length -1) throw "Error: Index cannot exceed length of all posts";
+    if (startingIndex + numberPosts - 1) throw "Error: Posts exceeded the number of total posts";
+
+    dateArr = [];
+    for (let post of postList){
+        let date = post['date'];
+        let time = post['time'];
+        let day = date + " " + time;
+        dDay = new Date(day);
+        dateArr.push(dDay);
+    }
+
+    dateArr.sort(helpers.compareNumbers); //All dates are now sorted with the most recent as 0
+    answer = [];
+    for (let i = startingIndex; i < numberPosts-1; i++){
+        answer.push(dateArr[i]);
+    }
+    return answer;
+}
+
+async function filterPosts(keywordArr, postList){
+    if (!keywordArr) throw "Error: No keywordArr given";
+    if (!Array.isArray(keywordArr)) throw "Error: given input is not an array.";
+
+    for (let keyword of keywordArr){
+        if (typeof keyword !== 'string') throw "Error: An element of the array is not a string."
+        if (keyword.trim().length === 0){
+            throw "Error: Keyword in the given array is either an empty string or only whitespace."
+        }
+    }
+
+    answer = [];
+    for (let post of postList){
+        postKeywords = post['keywords'];
+        contained = true;
+        while (i < keywordArr.length){
+            if (!postKeywords.includes(keywordArr[i])) {
+                contained = false
+                break;
+            }
+        }
+        if (contained) answer.push(post);
+    }
+
+    return answer;
+}
+
+
 module.exports = {
     createPost,
     createReview,
+    getAllPosts,
+    getPostById,
+    filterPosts,
+    getPostsByIndex,
     createComment
 };

@@ -87,7 +87,7 @@ async function createReview(postID, username, comment, rating){
     let update;
     //do i need to make a database for reviews and comments
     uReviews.push(newReview);
-    let rating = 0;
+    rating = 0;
     for(let i=0; i<uReviews.length; i++){
         rating+=uReviews[i].ratingNum;
     }

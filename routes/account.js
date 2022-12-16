@@ -72,7 +72,7 @@ router
         try {
             /* Insert code that fetches the post by its ID here. Once you do, modify or delete the 
              * lines below. */
-            // let userId = req.session.user._id;
+            // let userId = req.session.user['_id'];
             // updateUserResult = await users.updateUser(
             //     xss(userId),
             //     xss(usernameInput),

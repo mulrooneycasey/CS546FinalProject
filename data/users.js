@@ -166,6 +166,52 @@ async function addRating(reviewId, userId){
   return {ratingInserted: true};
 }
 
+async function addComment(commentId, userId){
+  if (!commentId) throw "Error: Must supply commentId";
+  if (typeof commentId != 'string') throw "Error: commentId must be a string";
+  commentId = commentId.trim();
+  if (commentId.length() === 0) throw "Error: commentId cannot be only whitespace";
+  if (!ObjectId.isValid(commentId)) throw "Error: commentId is not a valid objectId"; //dumb question but should it be a string still at first? - Nick
+
+  if (!userId) throw "Error: Must supply userId";
+  if (typeof userId != 'string') throw "Error: userId must be a string";
+  userId = userId.trim();
+  if (userId.length() === 0) throw "Error: userId cannot be only whitespace";
+  if (!ObjectId.isValid(userId)) throw "Error: userId is not a valid objectId"; //dumb question but should it be a string still at first? - Nick
+
+  const userCollection = await users();
+  const user = await getUserById(userId);
+  
+  //Maybe should check if the review exists? but not exactly because this is used with createReview soo
+
+  let newComments = user['comments'];
+  newComments.push(commentId);
+  
+
+  let newUser = {};
+  newUser['firstName'] = user['firstName'];
+  newUser['lastName'] = user['lastName'];
+  newUser['email'] = user['email'];
+  newUser['username'] = user['username'];
+  newUser['city'] = user['city'];
+  newUser['state'] = user['state'];
+  newUser['isAdmin'] = user['isAdmin']
+  newUser['favorites'] = user['favorites']
+  newUser['posts'] = user['posts'];
+  newUser['ratings'] = user['ratings']
+  newUser['comments'] = newComments
+
+  const updatedInfo = await userCollection.updateOne(
+    {_id: ObjectId(userId)},
+    {$set: newUser}
+  );
+  if (updatedInfo.modifiedCount === 0) {
+    throw 'Error: could not update favorites successfully';
+  }
+
+  return {commentInserted: true};
+}
+
 module.exports = {
     createUser,
     changeUsername,
@@ -173,5 +219,6 @@ module.exports = {
     checkUser,
     getUserById,
     addFavorite,
+    addComment,
     addRating
 };

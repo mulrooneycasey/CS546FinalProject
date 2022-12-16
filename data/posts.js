@@ -96,7 +96,7 @@ async function createReview(postID, username, comment, rating){
     if(info.modifiedCount==0){
         throw "post did not update";
     }
-    return newReview;
+    return newReview["_id"];
 }
 
 async function createComment(postID, username, comment){
@@ -132,7 +132,7 @@ async function createComment(postID, username, comment){
     if(info.modifiedCount==0){
         throw "post did not update";
     }
-    return newComment;
+    return newComment["_id"];
 }
 
 async function getAllPosts(){

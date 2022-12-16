@@ -7,7 +7,7 @@ const getCollectionFn = (collection) => {
 
   return async () => {
     if (!_col) {
-      const db = await dbConnection.dbConnection();
+      const db = await dbConnection.connectToDb();
       _col = await db.collection(collection);
     }
 
@@ -15,8 +15,7 @@ const getCollectionFn = (collection) => {
   };
 };
 
-/* Now, you can list your collections here: 
-NOTE: YOU WILL NEED TO CHANGE THE CODE BELOW TO HAVE THE COLLECTION(S) REQUIRED BY THE ASSIGNMENT */
+/* Now, you can list your collections here:*/
 module.exports = {
   users: getCollectionFn('users'),
   posts: getCollectionFn('posts'),

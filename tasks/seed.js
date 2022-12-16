@@ -1,12 +1,12 @@
-const dbconnect = require('../config/mongoConnection');
+const dbConnection = require('../config/mongoConnections');
 const data = require('../data/');
 const users = data.users
 const posts = data.posts
 
 
 async function main() {
-    const db = await dbconnect.dbConnection()
-    await db.dropDatabase()
+    const db = await dbConnection.connectToDb()
+    await db.dropDatabase();
     //create users and their posts
     //user one
     await users.createUser('Andrew', 'Capro', 'acapro@gmail.com', 'acapro', 'andrew123')
@@ -36,7 +36,8 @@ async function main() {
     await posts.createComment(nPostID, 'cassiamah', 'no where to be found')
 
     console.log('Done seeding')
-    await dbconnect.closeConnection();
+    
+    await dbConnection.closeConnection();
 }
 
 main();

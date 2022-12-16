@@ -81,11 +81,12 @@ async function createReview(postID, username, comment, rating){
     if(!ObjectId.isValid(postID)){
         throw "not valid post id";
     }
-    const newReview = {username: username, ratingNum: rating, comment: comment};
+    const newReview = {username: username, comment: comment, rating: rating, _id: new ObjectId()};
     const postCollection = await posts();
     const original = getPostById(postID);
     const uReviews=original['reviews'];
     let update;
+
     //do i need to make a database for reviews and comments
     uReviews.push(newReview);
     let rating = 0;
@@ -98,7 +99,7 @@ async function createReview(postID, username, comment, rating){
     if(info.modifiedCount==0){
         throw "post did not update";
     }
-    return;
+    return newReview['_id'];
 }
 
 async function createComment(postID, username, comment){

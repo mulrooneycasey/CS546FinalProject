@@ -10,7 +10,7 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title ml-auto mr-auto h3" id="createPostTitle">Create a Post</h1>
+                    <h1 class="modal-title ml-auto mr-auto h4" id="createPostTitle">Create a Post</h1>
                     <button type="button" class="close ml-0" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -27,11 +27,11 @@
                             <div class="form-group row mb-5 mb-md-4">
                                 <label for="imageInput" class="col-5 col-md-4 mr-2 mr-md-1 col-form-label col-form-label-lg">Image</label>
                                 <div class="col-7 p-1 offset-1 offset-md-0 custom-file">
-                                    <input type="file" class="custom-file-input form-control" accept="image/png, image/jpeg, image/jpg" required aria-required="true">
+                                    <input type="file" id="imageInput" class="custom-file-input form-control" accept=".png, .jpg, .jpeg" required aria-required="true">
                                     <label for="imageInput" class="custom-file-label">Choose file</label>
                                     <div class="w-100"></div>
                                     <div class="col-auto">
-                                        <span class="small text-muted">Must be .png or .jpeg (.jpg) file.</span>
+                                        <span class="small text-muted">Must be .png or .jpg/.jpeg file.</span>
                                     </div>
                                 </div>
                             </div>
@@ -48,6 +48,16 @@
                                     <div class="col-auto">
                                         <span class="small text-muted">Must be in the format: "kw1; kw2; kw3".</span>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="placedSightedSelect" class="col-auto col-md-4 col-form-label col-form-label-lg">Placed or Sighted?</label>
+                                <div class="col-auto col-md-7 p-1 offset-1 offset-md-0">
+                                    <select class="form-control" id="placedSightedSelect">
+                                        <option value="" selected></option>
+                                        <option value="placed">Placed</option>
+                                        <option value="sighted">Sighted</option>
+                                    </select>
                                 </div>
                             </div>
                         </form>

@@ -15,14 +15,16 @@
                         <h2 class="card-subtitle mb-2 h5">{{#length comments 'comment'}}{{/length}}</h2>
                     </div>
                 </div>
-                <div class="col-sm-auto col-lg-1 mt-md-3 py-sm-3">
-                    <div class="form-inline justify-content-center">
-                        <button type="button" class="btn btn-outline-warning" data-toggle="button" aria-pressed="false">
-                            <span class="sr-only">Add this Post to Favorites</span>
-                            <i class="bi bi-bookmark-star"></i>
-                        </button>
+                {{#if loggedIn}}
+                    <div class="col-auto ml-auto mr-auto py-3">
+                        <div class="form-inline justify-content-center">
+                            <button type="button" class="btn btn-outline-warning" data-toggle="button" aria-pressed="false">
+                                <span class="sr-only">Add this Post to Favorites</span>
+                                <i class="bi bi-bookmark-star"></i>
+                            </button>
+                        </div>
                     </div>
-                </div>
+                {{/if}}
                 <div class="w-100"></div>
                 <div class="col w-auto">
                     <div class="text-center">
@@ -43,28 +45,27 @@
         {{else}}
             <div class="card-header bg-transparent border-light mb-2">
                 <div class="row">
-                    <div class="col-md-6 align-self-center">
+                    <div class="col-md-6 ml-auto mr-auto">
                         <img src="{{image}}" class="rounded" width="960" height="540" alt="User: {{firstName}} {{lastName}}; Keywords: {{#kwPrinter keywords ','}}{{/kwPrinter}}; Location: {{location}}; Datetime: {{date}} {{time}}">
                     </div>
                 </div>
             </div>
             <div class="card-body text-body">
-                {{!-- If the title stuff below is causing compiling errors, then just comment it 
-                out or delete it. I was expecting a basic title for each post in addition to 
-                everything else. - Chance --}}
-                <div class="row justify-content-between mb-2">
-                    <div class="col-auto mt-md-3 py-sm-3 ml-lg-auto">
-                        <div class="form-inline justify-content-center">
-                            <button type="button" class="btn btn-outline-warning" data-toggle="button" aria-pressed="false">
-                                <span class="sr-only">Add this Post to Favorites</span>
-                                <i class="bi bi-bookmark-star"></i>
-                            </button>
+                {{#if loggedIn}}
+                    <div class="row justify-content-between mb-1">
+                        <div class="col-auto ml-auto ml-md-1 mr-auto py-3">
+                            <div class="form-inline justify-content-center">
+                                <button type="button" class="btn btn-outline-warning" data-toggle="button" aria-pressed="false">
+                                    <span class="sr-only">Add this Post to Favorites</span>
+                                    <i class="bi bi-bookmark-star"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                {{/if}}
                 <h2 class="card-subtitle font-weight-bold">Description:</h2>
                 <p class="card-text mb-4">{{description}}</p>
-                <h2 class="card-subtitle font-weight-bold mb-2">Reviews:</h2>
+                <h2 class="card-subtitle font-weight-bold mb-3">Reviews:</h2>
                 <div class="row row-cols-1 justify-content-center">{{#each reviews}} {{> review }} {{/each}}</div>
                 <div class="row row-cols-1 align-items-center">
                     <div class="col mb-2">
@@ -86,7 +87,7 @@
                 </div>
                 <h2 class="card-subtitle mb-4 h4">Overall Rating: {{overallRating}} (out of {{#length reviews 'review'}}{{/length}})</h2>
                 <hr>
-                <h2 class="card-subtitle font-weight-bold mb-2 h4">Comments:</h2>
+                <h2 class="card-subtitle font-weight-bold mb-3 h4">Comments:</h2>
                 <div class="row row-cols-1 justify-content-center">{{#each comments}} {{> comment }} {{/each}}</div>
                 <div class="row row-cols-1">
                     <div class="col align-self-center mb-2">
@@ -106,12 +107,12 @@
                 </div>
                 <h2 class="card-subtitle mb-4">{{#length comments 'comment'}}{{/length}}</h2>
                 <h2 class="card-subtitle font-weight-bold h3">Location:</h2>
-                <p class="card-text mb-2">{{location}}</p>
+                <p class="card-text mb-3">{{location}}</p>
                 <h2 class="card-subtitle font-weight-bold h3">Upload Date:</h2>
-                <p class="card-text mb-2">{{date}} {{time}}</p>
+                <p class="card-text mb-3">{{date}} {{time}}</p>
                 {{!-- This status was mentioned in the original project proposal, so I included 
                 here. If it's causing issues, feel free to comment it or delete it. - Chance --}}
-                <div class="form-check form-check-inline mb-2">
+                <div class="form-check form-check-inline mb-3">
                     <label class="form-check-label font-weight-bold font-italic mr-2" for="postTaken">Taken?</label>
                     {{#if taken}}
                         <input type="checkbox" id="postTaken" name="postTaken" aria-selected="true" aria-disabled="true" checked disabled>
@@ -120,7 +121,7 @@
                     {{/if}}
                 </div>
                 <h2 class="card-subtitle font-weight-bold h3">Keywords:</h2>
-                <p class="card-text mb-2">{{#kwPrinter keywords ';'}}{{/kwPrinter}}</p>
+                <p class="card-text mb-3">{{#kwPrinter keywords ';'}}{{/kwPrinter}}</p>
                 <div class="form-group mb-1">
                     <label class="font-weight-bold font-italic" for="placed-sighted-select">Placed or Sighted?</label>
                     <select class="form-control" id="placed-sighted-select" disabled>

@@ -11,7 +11,7 @@ async function main() {
     //user one
     await users.createUser('Andrew', 'Capro', 'acapro@gmail.com', 'acapro', 'andrew123', 'Asbury Park', 'New Jersey')
     const aPost1 = await posts.createPost('Andrew', 'Capro', 'an object', 'image.png', '3 Cool Ln.')
-    await posts.createPost('an object 2', 'image2.png', '400 West St.')
+    await posts.createPost('Andrew', 'Capro', 'an object 2', 'image2.png', '400 West St.')
     const aPostID = aPost1._id.toString()
 
 

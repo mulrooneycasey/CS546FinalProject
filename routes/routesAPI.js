@@ -113,14 +113,26 @@ router.get('/about', async (req, res) => {
     /** 
      * Insert code that, if the user is logged in, determines whether the user is an admin or not 
      * here. - Chance 
+     * Added the code as requested - Nick
      */
-    res.render('pages/about', {
-        context: {
-            noPagination: true,
-            loggedIn: false,
-            isAdmin: false
-        }
-    });
+    if (!isAdmin){
+        res.render('pages/about', {
+            context: {
+                noPagination: true,
+                loggedIn: false,
+                isAdmin: false
+            }
+        });
+    }
+    else if (isAdmin){
+        res.render('pages/about', {
+            context: {
+                noPagination: true,
+                loggedIn: false,
+                isAdmin: true
+            }
+        });
+    }
 });
 
 /**

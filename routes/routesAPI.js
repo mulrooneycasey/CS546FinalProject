@@ -6,6 +6,9 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const xss = require('xss');
+const data = require('../data');
+const userData = data.users;
+const postData = data.posts;
 /** Include any helper functions here. */
 
 /**
@@ -56,7 +59,7 @@ router.get('/', async (req, res) => {
      */
     const loggedIn = false;
     // If there is the user logged in, then enable them to logout.
-    // const loggedIn = typeof req.session.user !== 'undefined';
+    // const loggedIn = typeof req.session.user !== 'undefined'; reviewLater
 
     /** 
      * Insert code that, if the user is logged in, determines whether the user is an admin or not 
@@ -65,12 +68,12 @@ router.get('/', async (req, res) => {
     // if (loggedIn === True){
     //     const isAdmin = req.session.user.isAdmin;
     // } 
-    // -Nick
+    // -Nick reviewLater
 
     // Render the landing page, with an "About" section and the 5 most recent postings.
     /** Insert the code for obtaining the 5 most recent postings here. 
      *  Use a function to get all of the postings, probably add it in mongoDB
-     *  Then get the most recent five by checking their dates and comparing them - Nick
+     *  Then get the most recent five by checking their dates and comparing them - Nick reviewLater
     */
     res.render('pages/home', {
         scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
@@ -119,17 +122,8 @@ router.get('/about', async (req, res) => {
         res.render('pages/about', {
             context: {
                 noPagination: true,
-                loggedIn: false,
-                isAdmin: false
-            }
-        });
-    }
-    else if (isAdmin){
-        res.render('pages/about', {
-            context: {
-                noPagination: true,
-                loggedIn: false,
-                isAdmin: true
+                loggedIn: false, //change to loggedIn reviewLater
+                isAdmin: false //change to isAdmin
             }
         });
     }
@@ -155,7 +149,7 @@ router
                 noPagination: true
             }
         });
-        // if (req.session.user) res.redirect('/');
+        // if (req.session.user) res.redirect('/'); reviewLater
         // else res.render('pages/userLogin', {
         //     scripts: ['/public/js/userLogin.js'],
         //     context: {
@@ -171,6 +165,33 @@ router
          * you're confused by what any of this means, you can look at the "PUT /account" route for 
          * reference. - Chance
          */
+        //uncomment when ready reviewLater - Nick
+        // let errors = [];
+        // let usernameInput = req.body.usernameInput;
+        // let passwordInput = req.body.passwordInput;
+        // let the
+        // try {
+        //     let theUser = await userData.checkUser(usernameInput, passwordInput); //Might need to be implemented in data/users.js using find({}) and iterating through all until finding matching username, returing entire user - Nick reviewLater
+        // }
+        // catch (e){
+        //     errors.push(e); //This block is to catch the error of 'Either invalid password or username'
+        // } //theUser is now a whole user object after this part
+        
+        // if (typeof theUser !== undefined){
+        //     req.session.user = theUser;
+        //     res.redirect('/'); //Redirect to homepage if successfully logged in
+        // }
+
+        // if (errors.length > 0) {
+        //     res.status(400).render('pages/userLogin', {
+        //         scripts: ['/public/js/userLogin.js'],
+        //         context: { //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+        //             error: true,
+        //             errors: errors
+        //         }
+        //     });
+        //     return;
+        // }
     });
 
 /**
@@ -193,7 +214,7 @@ router
                 noPagination: true
             }
         });
-        // if (req.session.user) res.redirect('/');
+        // if (req.session.user) res.redirect('/'); reviewLater
         // else res.render('pages/userRegister', {
         //     scripts: ['/public/js/userRegister.js'],
         //     context: {

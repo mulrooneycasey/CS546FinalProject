@@ -413,6 +413,7 @@ router.post('/comment/:postId', async (req, res) => {
     //                 //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
     //                 error: true,
     //                 errors: errors
+    //post, loggedIn, truncination, posts error: true errors: errors all in 
     //                 }
     //             });
     //     }

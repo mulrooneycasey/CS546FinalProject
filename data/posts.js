@@ -89,7 +89,7 @@ async function createReview(postID, username, comment, rating){
 
     //do i need to make a database for reviews and comments
     uReviews.push(newReview);
-    let rating = 0;
+    rating = 0;
     for(let i=0; i<uReviews.length; i++){
         rating+=uReviews[i].ratingNum;
     }
@@ -148,34 +148,60 @@ async function getAllPosts(){
   return postList;
 }
 
-//This function is to get, starting from an index, numberPosts posts, with the most recent ones being first
-async function getPostsByIndex(startingIndex, numberPosts){
+//This function is to get, starting from an index, numberPosts posts, with the most recent ones being first, from array postList
+async function getPostsByIndex(startingIndex, numberPosts, postList){
     if (!startingIndex) throw "Error: No startingIndex";
     if (typeof startingIndex !== 'number') throw "Error: startingIndex must be a number.";
     if (startingIndex < 0) throw "Error: Cannot have a negative startingIndex";
     if (!numberPosts) throw "Error: No numberPosts";
     if (typeof numberPosts !== 'number') throw "Error: numberPosts must be a number.";
     if (numberPosts < 0) throw "Error: Cannot have a negative numberPosts";
-    
-    const postList = await getAllPosts();
     if (startingIndex > postList.length -1) throw "Error: Index cannot exceed length of all posts";
     if (startingIndex + numberPosts - 1) throw "Error: Posts exceeded the number of total posts";
 
+    dateArr = [];
     for (let post of postList){
         let date = post['date'];
         let time = post['time'];
-
+        let day = date + " " + time;
+        dDay = new Date(day);
+        dateArr.push(dDay);
     }
 
+    dateArr.sort(helpers.compareNumbers); //All dates are now sorted with the most recent as 0
+    answer = [];
+    for (let i = startingIndex; i < numberPosts-1; i++){
+        answer.push(dateArr[i]);
+    }
+    return answer;
 }
 
-tempo = new Date();
-console.log(tempo);
-console.log(tempo.toDateString())
-console.log(tempo.toTimeString())
-idk = "";
-idk = tempo.toDateString() + " " + tempo.toTimeString();
-console.log(new Date(idk))
+async function filterPosts(keywordArr, postList){
+    if (!keywordArr) throw "Error: No keywordArr given";
+    if (!Array.isArray(keywordArr)) throw "Error: given input is not an array.";
+
+    for (let keyword of keywordArr){
+        if (typeof keyword !== 'string') throw "Error: An element of the array is not a string."
+        if (keyword.trim().length === 0){
+            throw "Error: Keyword in the given array is either an empty string or only whitespace."
+        }
+    }
+
+    answer = [];
+    for (let post of postList){
+        postKeywords = post['keywords'];
+        contained = true;
+        while (i < keywordArr.length){
+            if (!postKeywords.includes(keywordArr[i])) {
+                contained = false
+                break;
+            }
+        }
+        if (contained) answer.push(post);
+    }
+
+    return answer;
+}
 
 
 module.exports = {
@@ -183,5 +209,7 @@ module.exports = {
     createReview,
     getAllPosts,
     getPostById,
+    filterPosts,
+    getPostsByIndex,
     createComment
 };

@@ -3,4 +3,20 @@ const users = mongoCollections.users;
 const { ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
 
-module.exports = {};
+async function createUser(firstName, lastName, email, username, password, city, state){
+
+}
+
+async function changeUsername(){
+
+}
+
+async function changePassword(){
+
+}
+
+module.exports = {
+    createUser,
+    changeUsername,
+    changePassword
+};

@@ -7,6 +7,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const xss = require('xss');
 const data = require('../data');
+const helpers = require('../helpers');
 const userData = data.users;
 const postData = data.posts;
 /** Include any helper functions here. */
@@ -165,11 +166,10 @@ router
          */
         //uncomment when ready reviewLater - Nick
         // let errors = [];
-        // let usernameInput = req.body.usernameInput;
+        // let emailInput = req.body.emailInput;
         // let passwordInput = req.body.passwordInput;
-        // let the
         // try {
-        //     let theUser = await userData.checkUser(usernameInput, passwordInput); //Might need to be implemented in data/users.js using find({}) and iterating through all until finding matching username, returing entire user - Nick reviewLater
+        //     let theUser = await userData.checkUser(emailInput, passwordInput); //Might need to be implemented in data/users.js using find({}) and iterating through all until finding matching username, returing entire user - Nick reviewLater
         // }
         // catch (e){
         //     errors.push(e); //This block is to catch the error of 'Either invalid password or username'
@@ -228,6 +228,61 @@ router
          * guess if you're confused by what any of this means, you can look at the "PUT /account" 
          * route for reference. - Chance 
          */
+        // let theUserData = req.body;
+        // let errors = [];
+
+        // theUserData.usernameInput = theUserData.usernameInput.trim();
+        // theUserData.passwordInput = theUserData.passwordInput.trim();
+        // theUserData.firstInput = theUserData.firstInput.trim();
+        // theUserData.lastInput = theUserData.lastInput.trim();
+        // theUserData.emailInput = theUserData.emailInput.trim();
+
+        // try {
+        //     const newUser = await UserData.createUser(
+        //     theUserData.firstInput,
+        //     theUserData.lastInput,
+        //     theUserData.emailInput,
+        //     theUserData.usernameInput,
+        //     theUserData.passwordInput,
+        //     'Hoboken',
+        //     'NJ'
+        //     );
+        //     if (newUser["userInserted"] === true) res.redirect('/'); //Might need to be adjusted based on createUser reviewLater
+        //     else {
+        //         errors.push("Internal Server Error");
+        //         res.status(500).render('pages/userRegister', {
+        //             scripts: ['/public/js/userRegister.js'],
+        //             context: { 
+        //                 //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+        //                 error: true,
+        //                 errors: errors
+        //                 }
+        //             });
+        //     }
+        // } catch (e) {
+        //     errors.push(e.toString()); //Check if this works reviewLater; In general, this is jank but hopefully its ok?
+        //     res.status(400).render('pages/userRegister', {
+        //         scripts: ['/public/js/userRegister.js'],
+        //         context: { 
+        //             //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+        //             error: true,
+        //             errors: errors
+        //             }
+        //         });
+        // }
+
+        // if (errors.length > 0) {
+        //     res.status(400).render('pages/userRegister', {
+        //     scripts: ['/public/js/userRegister.js'],
+        //     context: { 
+        //         //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+        //         error: true,
+        //         errors: errors
+        //         }
+        //     });
+        // }
+
+        
     });
 
 /**

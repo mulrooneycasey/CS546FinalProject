@@ -2,7 +2,11 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const xss = require('xss');
+const data = require('../data');
+const userData = data.users;
+const postData = data.posts;
 
+//store username as case sensitive, but actually use the true case.
 
 /**
  * "GET /account": 
@@ -56,6 +60,8 @@ router
         let errors = [];
         let usernameInput = req.body.usernameInput;
         let passwordInput = req.body.passwordInput;
+        let firstNameInput = req.body.firstNameInput;
+        let lastNameInput = req.body.lastNameInput;
         // I commented out the phone number input because our database proposal doesn't include a 
         // phone number field. Feel free to uncomment this line if this is accounted for. - Chance
         // let phoneNumInput = req.body.phoneNumInput;
@@ -66,11 +72,13 @@ router
         try {
             /* Insert code that fetches the post by its ID here. Once you do, modify or delete the 
              * lines below. */
-            // let postId = undefined;
+            // let userId = req.session.user._id;
             // updateUserResult = await users.updateUser(
-            //     xss(postId),
+            //     xss(userId),
             //     xss(usernameInput),
             //     xss(passwordInput),
+            //     xss(firstNameInput), //This line and the one below could cause error based on xss, I honestly dont know what xss is - Nick
+            //     xss(lastNameInput),
             //     xss(phoneNumInput),
             //     xss(emailInput)
             // );

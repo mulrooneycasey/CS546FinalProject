@@ -62,9 +62,16 @@ router.get('/', async (req, res) => {
      * Insert code that, if the user is logged in, determines whether the user is an admin or not 
      * here. - Chance 
      */
-    
+    // if (loggedIn === True){
+    //     const isAdmin = req.session.user.isAdmin;
+    // } 
+    // -Nick
+
     // Render the landing page, with an "About" section and the 5 most recent postings.
-    /** Insert the code for obtaining the 5 most recent postings here. */
+    /** Insert the code for obtaining the 5 most recent postings here. 
+     *  Use a function to get all of the postings, probably add it in mongoDB
+     *  Then get the most recent five by checking their dates and comparing them - Nick
+    */
     res.render('pages/home', {
         scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
         context: {

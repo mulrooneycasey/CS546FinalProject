@@ -129,8 +129,51 @@ async function createComment(postID, username, comment){
     return;
 }
 
+async function getAllPosts(){
+  const postCollection = await posts();
+  const postList = await postCollection.find({}).toArray();
+  if (!postList) throw 'Error: Could not get all posts';
+
+  for (const post of postList){ //turn to strings for use in getPostById
+    post["_id"] = post["_id"].toString();
+  }
+  return postList;
+}
+
+//This function is to get, starting from an index, numberPosts posts, with the most recent ones being first
+async function getPostsByIndex(startingIndex, numberPosts){
+    if (!startingIndex) throw "Error: No startingIndex";
+    if (typeof startingIndex !== 'number') throw "Error: startingIndex must be a number.";
+    if (startingIndex < 0) throw "Error: Cannot have a negative startingIndex";
+    if (!numberPosts) throw "Error: No numberPosts";
+    if (typeof numberPosts !== 'number') throw "Error: numberPosts must be a number.";
+    if (numberPosts < 0) throw "Error: Cannot have a negative numberPosts";
+    
+    const postList = await getAllPosts();
+    if (startingIndex > postList.length -1) throw "Error: Index cannot exceed length of all posts";
+    if (startingIndex + numberPosts - 1) throw "Error: Posts exceeded the number of total posts";
+
+    for (let post of postList){
+        let date = post['date'];
+        let time = post['time'];
+
+    }
+
+}
+
+tempo = new Date();
+console.log(tempo);
+console.log(tempo.toDateString())
+console.log(tempo.toTimeString())
+idk = "";
+idk = tempo.toDateString() + " " + tempo.toTimeString();
+console.log(new Date(idk))
+
+
 module.exports = {
     createPost,
     createReview,
+    getAllPosts,
+    getPostById,
     createComment
 };

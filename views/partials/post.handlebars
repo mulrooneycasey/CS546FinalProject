@@ -15,6 +15,16 @@
                         <h2 class="card-subtitle mb-2 h5">{{#length comments 'comment'}}{{/length}}</h2>
                     </div>
                 </div>
+                {{#if loggedIn}}
+                    <div class="col-auto ml-auto mr-auto py-3">
+                        <div class="form-inline justify-content-center">
+                            <button type="button" class="btn btn-outline-warning" data-toggle="button" aria-pressed="false">
+                                <span class="sr-only">Add this Post to Favorites</span>
+                                <i class="bi bi-bookmark-star"></i>
+                            </button>
+                        </div>
+                    </div>
+                {{/if}}
                 <div class="w-100"></div>
                 <div class="col w-auto">
                     <div class="text-center">
@@ -41,16 +51,18 @@
                 </div>
             </div>
             <div class="card-body text-body">
-                <div class="row justify-content-between mb-1">
-                    <div class="col-auto ml-auto ml-md-1 mr-auto py-3">
-                        <div class="form-inline justify-content-center">
-                            <button type="button" class="btn btn-outline-warning" data-toggle="button" aria-pressed="false">
-                                <span class="sr-only">Add this Post to Favorites</span>
-                                <i class="bi bi-bookmark-star"></i>
-                            </button>
+                {{#if loggedIn}}
+                    <div class="row justify-content-between mb-1">
+                        <div class="col-auto ml-auto ml-md-1 mr-auto py-3">
+                            <div class="form-inline justify-content-center">
+                                <button type="button" class="btn btn-outline-warning" data-toggle="button" aria-pressed="false">
+                                    <span class="sr-only">Add this Post to Favorites</span>
+                                    <i class="bi bi-bookmark-star"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                {{/if}}
                 <h2 class="card-subtitle font-weight-bold">Description:</h2>
                 <p class="card-text mb-4">{{description}}</p>
                 <h2 class="card-subtitle font-weight-bold mb-3">Reviews:</h2>

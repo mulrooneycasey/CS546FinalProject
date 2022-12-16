@@ -2,7 +2,7 @@
     <div class="mb-3 p-2">
         <div class="row w-100">
             <div class="col-auto ml-auto mr-auto">
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createPostModal">Create Post</button>
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createPostModal"{{#unless this.context.loggedIn}} disabled aria-disabled="true"{{/unless}}>Create Post</button>
             </div>
         </div>
     </div>
@@ -88,7 +88,7 @@
         {{#if this.context.posts}}
         <div class="container-fluid" id="post-area"></div>
             <script type="text/template" id="handlebarsTemplate">
-                    {{#each this.context.posts}} {{> post this trunc=../context/trunc mgmtPage=../context/mgmtPage }} {{/each}}
+                    {{#each this.context.posts}} {{> post this trunc=../context/trunc mgmtPage=../context/mgmtPage loggedIn=../context/loggedIn }} {{/each}}
             </script>
         </div>
         {{else}}

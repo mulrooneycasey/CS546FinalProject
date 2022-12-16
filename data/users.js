@@ -30,7 +30,7 @@ async function createUser(firstName, lastName, email, username, password){
     if(at ==-1){
         throw "not a proper email";
     }
-    if(email.includes('.', at)){
+    if(!email.includes('.', at)){
         throw "not a proper email";
     }
     //username length of 5, no special characters only letters and numbers
@@ -52,7 +52,7 @@ async function createUser(firstName, lastName, email, username, password){
     if(!insertInfo.acknowledged || !insertInfo.insertedId){
         throw "Error: could not add movie";
     }
-    const newId = insertedInfo.insertedId.toString();
+    const newId = insertInfo.insertedId.toString();
     let user = await this.getUserById(newId);
     user['_id']=user['_id'].toString();
     return user;
@@ -490,7 +490,7 @@ module.exports = {
     getUserById,
     addFavorite,
     addComment,
-    addRating
+    addRating,
     makePost,
     makeComment,
     makeReview

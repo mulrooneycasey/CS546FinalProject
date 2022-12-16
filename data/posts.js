@@ -20,7 +20,7 @@ async function createPost(firstName, lastName, object, image, location){
     lastName.trim();
     location.trim();
     object.trim();
-    if(firstname=='' || lastName=='' || location=='' || object==''){
+    if(firstName=='' || lastName=='' || location=='' || object==''){
         throw "first name, last name, location, and object has to be a string";
     }
     

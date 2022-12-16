@@ -13,23 +13,21 @@
             <div class="form-group row">
                 <label for="usernameInput" class="col-sm-2 col-form-label col-form-label-lg">Username:</label>
                 <div class="col-sm-6 col-auto offset-md-1">
-                    <input type="text" class="form-control form-control-lg" id="usernameInput" name="usernameInput" size="16" minlength="4" maxlength="64" placeholder="Enter username" aria-required="false">
+                    <input type="text" class="form-control form-control-lg" id="usernameInput" name="usernameInput" pattern="[A-Za-z*\d]{5,20}" placeholder="Enter username" aria-required="false">
                 </div>
                 <div class="col-sm-4 col-lg-auto">
-                    <span class="small text-muted">Must include alphanumeric (A-Z, 0-9) characters.</span>
+                    <span class="small text-muted">Must contain at least 5 characters, only alphanumeric (A-Z, 0-9)</span>
                 </div>
             </div>
             <div class="form-group row">
                 <label for="passwordInput" class="col-sm-2 col-form-label col-form-label-lg">Password:</label>
                 <div class="col-sm-6 col-auto offset-md-1">
-                    <input type="password" class="form-control form-control-lg" id="passwordInput" name="passwordInput" minlength="6" pattern="[A-Z]+|[a-z]+|[0-9]+|[^\w\s]+" placeholder="Enter valid password" aria-required="false">
+                    <input type="password" class="form-control form-control-lg" id="passwordInput" name="passwordInput" pattern="(?=.*\d)(?=.*[!@#$%^&*_=+-])(?=.*[a-z])(?=.*[A-Z]).{6,64}" placeholder="Enter valid password" aria-required="false">
                 </div>
                 <div class="col-sm-4 col-lg-auto">
                     <span class="small text-muted">Must contain at least 1 uppercase charater, 1 lowercase character, 1 number, and 1 special character.</span>
                 </div>
             </div>
-            {{!-- This is where the phone number section would go, but our database proposal doesn't 
-            include a phone number field, so I left it out for now. - Chance --}}
             <div class="w-100"></div>
             <div class="text-center">
                 <button type="submit" class="btn btn-primary mb-2">Update</button>

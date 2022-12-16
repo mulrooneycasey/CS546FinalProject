@@ -15,7 +15,7 @@ async function createPost(firstName, lastName, object, image, location){
     typeof location!='string' || typeof object!='string'){
         throw "first name, last name, location, and object has to be a string";
     }
-    //im assuming an object is supposed to be a string description
+
     firstName.trim();
     lastName.trim();
     location.trim();
@@ -37,8 +37,7 @@ async function createPost(firstName, lastName, object, image, location){
         throw "Could not add post";
     }
     const newId = insertInfo.insertedId.toString();
-    let post=await getPostById(newId);
-    return post;
+    return newId;
 }
 
 async function getPostById(id){
@@ -86,8 +85,6 @@ async function createReview(postID, username, comment, rating){
     const original = getPostById(postID);
     const uReviews=original['reviews'];
     let update;
-
-    //do i need to make a database for reviews and comments
     uReviews.push(newReview);
     rating = 0;
     for(let i=0; i<uReviews.length; i++){
@@ -99,7 +96,7 @@ async function createReview(postID, username, comment, rating){
     if(info.modifiedCount==0){
         throw "post did not update";
     }
-    return newReview['_id'];
+    return newReview;
 }
 
 async function createComment(postID, username, comment){
@@ -134,7 +131,7 @@ async function createComment(postID, username, comment){
     if(info.modifiedCount==0){
         throw "post did not update";
     }
-    return;
+    return newComment;
 }
 
 async function getAllPosts(){

@@ -4,6 +4,7 @@ const postData = require('./posts');
 const { ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
 const helpers = require('../helpers');
+const posts = require('./posts');
 
 //make usernames case insensitive
 async function createUser(firstName, lastName, email, username, password){
@@ -45,8 +46,8 @@ async function createUser(firstName, lastName, email, username, password){
     }
 
     const userCollection = await users()
-    //need to hash the password
-    let newUser = {firstName: firstName, lastName: lastName, email: email, username: username, password: password, city: 'Hoboken', state: 'New Jersey', isAdmin: false, favorites: [], posts: [], rating: [], comments: []};
+    const hash = await bcrypt.hash(password, 10);
+    let newUser = {firstName: firstName, lastName: lastName, email: email, username: username, password: hash, city: 'Hoboken', state: 'New Jersey', isAdmin: false, favorites: [], posts: [], rating: [], comments: []};
     const insertInfo = await userCollection.insertOne(newUser);
     if(!insertInfo.acknowledged || !insertInfo.insertedId){
         throw "Error: could not add movie";
@@ -83,9 +84,9 @@ async function changeFirstName(id, password, change){
     if(user==null){
         throw "user does not exist";
     }
-    let pass=user.password;
-
-    if(pass!=password){
+    let pass=user['password'];
+    let match=await bcrypt.compare(password, pass);
+    if(!match){
         throw "password does not match";
     }
     if(!change || typeof change!='string'){
@@ -115,9 +116,9 @@ async function changeLastName(id, password, change){
     if(user==null){
         throw "user does not exist";
     }
-    let pass=user.password;
-
-    if(pass!=password){
+    let pass=user['password'];
+    let match=await bcrypt.compare(password, pass);
+    if(!match){
         throw "password does not match";
     }
     if(!change || typeof change!='string'){
@@ -147,9 +148,9 @@ async function changeUsername(id, password, change){
     if(user==null){
         throw "user does not exist";
     }
-    let pass=user.password;
-
-    if(pass!=password){
+    let pass=user['password'];
+    let match=await bcrypt.compare(password, pass);
+    if(!match){
         throw "password does not match";
     }
     if(!change || typeof change!='string'){
@@ -179,9 +180,9 @@ async function changePassword(id, password, change){
     if(user==null){
         throw "user does not exist";
     }
-    let pass=user.password;
-
-    if(pass!=password){
+    let pass=user['password'];
+    let match=await bcrypt.compare(password, pass);
+    if(!match){
         throw "password does not match";
     }
     if(!change || typeof change!='string'){
@@ -196,11 +197,8 @@ async function changePassword(id, password, change){
         throw "password needs a number, special character, and uppercase with no spaces"
     }
     const userCollection = await users();
-    if(pass==change){
-        throw "password is the same as before";
-    }
-    //
-    const update = {password: change};
+    const hash = await bcrypt.hash(password, 10);
+    const update = {password: hash};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
         throw "Error: name did not update";
@@ -255,7 +253,52 @@ async function changeEmail(id, password, change){
     return await this.getUserById(id);
 }
 
+async function makePost(id, firstName, lastName, object, image, location){
+    let user = this.getUserById(id);
+    if(user==null){
+        throw "user does not exist";
+    }
+    const newPost = posts.createPost(firstName, lastName, object, image, location);
+    let ogPosts = user['posts'];
+    ogPosts.push(newPost);
+    const update = {posts: ogPosts};
+    const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
+    if(info.modifiedCount==0){
+        throw "Error: posts did not update";
+    }
+    return await this.getUserById(id);
+}
 
+async function makeComment(postID, username, comment){
+    let user = this.getUserById(id);
+    if(user==null){
+        throw "user does not exist";
+    }
+    const newComment = posts.createComment(postID, username, comment);
+    let ogComments = user['comments'];
+    ogComments.push(newComment);
+    const update = {comments: ogComments};
+    const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
+    if(info.modifiedCount==0){
+        throw "Error: posts did not update";
+    }
+    return await this.getUserById(id);
+}
+async function makeReview(postID, username, comment, rating){
+    let user = this.getUserById(id);
+    if(user==null){
+        throw "user does not exist";
+    }
+    const newReview = posts.createReview(postID, username, comment);
+    let ogReviews = user['reviews'];
+    ogReviews.push(newReview);
+    const update = {reviews: ogReviews};
+    const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
+    if(info.modifiedCount==0){
+        throw "Error: posts did not update";
+    }
+    return await this.getUserById(id);
+}
 
 
 async function addFavorite(postId, userId){
@@ -448,5 +491,7 @@ module.exports = {
     addFavorite,
     addComment,
     addRating
-
+    makePost,
+    makeComment,
+    makeReview
 };

@@ -27,12 +27,18 @@ async function createPost(firstName, lastName, object, image, location){
     //not sure how to do images with mongodb
 
     const postCollection = await posts();
-    let newPost = {firstName: firstName, lastName: lastName, object: object, image: image, location: location};
+    const d = new Date();
+    const date = (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
+    time=d.getTime();
+    let newPost = {firstName: firstName, lastName: lastName, description: object, image: image, 
+        location: location, time: time, date: date, overallRating: 5, reviews: [], comments: [], status: "pending"};
     const insertInfo = await postCollection.insertOne(newPost);
     if(!insertInfo.acknowledged || !insertInfo.insertedId){
         throw "Could not add post";
     }
-    return;
+    const newId = insertInfo.insertedId.toString();
+    let post=await getPostById(newId);
+    return post;
 }
 
 async function getPostById(id){
@@ -78,15 +84,17 @@ async function createReview(postID, username, comment, rating){
     const newReview = {username: username, comment: comment, rating: rating, _id: new ObjectId()};
     const postCollection = await posts();
     const original = getPostById(postID);
-    const reviews=original['reviews'];
+    const uReviews=original['reviews'];
     let update;
-    if(reviews==null){
-        update.reviews=[newReview];
+
+    //do i need to make a database for reviews and comments
+    uReviews.push(newReview);
+    let rating = 0;
+    for(let i=0; i<uReviews.length; i++){
+        rating+=uReviews[i].ratingNum;
     }
-    else{
-        update.reviews.push(newReview);
-    }
-    //I think we need to add something to calculate overall rating? - Nick reviewLater
+    rating = rating/uReviews.length;
+    update={overallRating: rating, reviews: uReviews};
     const info = await postCollection.updateOne({_id: ObjectId(postID)}, {$set: update});
     if(info.modifiedCount==0){
         throw "post did not update";

@@ -7,7 +7,7 @@ const helpers = require('../helpers');
 const posts = require('./posts');
 
 //make usernames case insensitive
-async function createUser(firstName, lastName, email, username, password){
+async function createUser(firstName, lastName, email, username, password){//returns whole user object with id as a string
     if(!firstName || !lastName || !email || !username || !password){
         throw "to sign up need a first name, last name, email address, username, and password";
     }
@@ -47,7 +47,7 @@ async function createUser(firstName, lastName, email, username, password){
 
     const userCollection = await users()
     const hash = await bcrypt.hash(password, 10);
-    let newUser = {firstName: firstName, lastName: lastName, email: email, username: username, password: hash, city: 'Hoboken', state: 'New Jersey', isAdmin: false, favorites: [], posts: [], rating: [], comments: []};
+    let newUser = {firstName: firstName, lastName: lastName, email: email, username: username, password: hash, city: 'Hoboken', state: 'New Jersey', isAdmin: false, favorites: [], posts: [], reviews: [], comments: []};
     const insertInfo = await userCollection.insertOne(newUser);
     if(!insertInfo.acknowledged || !insertInfo.insertedId){
         throw "Error: could not add movie";
@@ -58,7 +58,7 @@ async function createUser(firstName, lastName, email, username, password){
     return user;
 }
 
-async function getUserById(id){
+async function getUserById(id){ //returns whole user with id as a string
     if(!id){
         throw "Error: no id provided";
     }
@@ -253,30 +253,32 @@ async function changeEmail(id, password, change){
     return await this.getUserById(id);
 }
 
-async function makePost(id, firstName, lastName, object, image, location){
-    let user = this.getUserById(id);
+async function makePost(id, firstName, lastName, object, image, location){//returns postId of the new post
+    let user = await this.getUserById(id);
     if(user==null){
         throw "user does not exist";
     }
-    const newPost = posts.createPost(firstName, lastName, object, image, location);
+    const newPost = await posts.createPost(firstName, lastName, object, image, location);
     let ogPosts = user['posts'];
     ogPosts.push(newPost);
+    let userCollection = await users();
     const update = {posts: ogPosts};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
         throw "Error: posts did not update";
     }
-    return await this.getUserById(id);
+    return newPost;
 }
 
-async function makeComment(postID, username, comment){
-    let user = this.getUserById(id);
+async function makeComment(id, postID, username, comment){ //returns whole user of id with id as a string, id refers to userId
+    let user = await getUserById(id);
     if(user==null){
         throw "user does not exist";
     }
-    const newComment = posts.createComment(postID, username, comment);
+    const newComment = await posts.createComment(postID, username, comment);
     let ogComments = user['comments'];
-    ogComments.push(newComment);
+    ogComments.push(newComment['_id'].toString());
+    let userCollection = await users();
     const update = {comments: ogComments};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
@@ -284,14 +286,15 @@ async function makeComment(postID, username, comment){
     }
     return await this.getUserById(id);
 }
-async function makeReview(postID, username, comment, rating){
-    let user = this.getUserById(id);
+async function makeReview(id, postID, username, comment, rating){ //returns whole user of id with id as a string
+    let user = await getUserById(id);
     if(user==null){
         throw "user does not exist";
     }
-    const newReview = posts.createReview(postID, username, comment);
+    const newReview = await posts.createReview(postID, username, comment, rating);
     let ogReviews = user['reviews'];
-    ogReviews.push(newReview);
+    ogReviews.push(newReview['_id'].toString());
+    let userCollection = await users();
     const update = {reviews: ogReviews};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){

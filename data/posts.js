@@ -4,7 +4,7 @@ const {ObjectId} = require('mongodb');
 const bcrypt = require('bcrypt');
 const helpers = require('../helpers');
 
-async function createPost(firstName, lastName, object, image, location){
+async function createPost(firstName, lastName, object, image, location){ //returns postId
     if(!firstName || !lastName || !object || !image || !location){
         throw "missing item";
     }
@@ -40,7 +40,7 @@ async function createPost(firstName, lastName, object, image, location){
     return newId;
 }
 
-async function getPostById(id){
+async function getPostById(id){ //returns whole post object with postId as a string
     if(!id){
         throw "Error: no id provided";
     }
@@ -60,7 +60,7 @@ async function getPostById(id){
     return post;
 }
 
-async function createReview(postID, username, comment, rating){
+async function createReview(postID, username, comment, rating){ //returns whole review with its id as a objectId
     if(!postID || !username || !comment || !rating){
         throw "missing info for review";
     }
@@ -99,7 +99,7 @@ async function createReview(postID, username, comment, rating){
     return newReview;
 }
 
-async function createComment(postID, username, comment){
+async function createComment(postID, username, comment){//returns whole comment object with its id as an objectId
     if(!postID || !username || !comment){
         throw "missing info for review";
     }
@@ -116,7 +116,7 @@ async function createComment(postID, username, comment){
     if(!ObjectId.isValid(postID)){
         throw "not valid post id";
     }
-    const newComment = {username: username, comment: comment};
+    const newComment = {username: username, comment: comment, _id: new ObjectId()};
     const postCollection = await posts();
     const original = await getPostById(postID);
     const comments=original['comments'];
@@ -135,7 +135,7 @@ async function createComment(postID, username, comment){
     return newComment;
 }
 
-async function getAllPosts(){
+async function getAllPosts(){ //returns all posts
   const postCollection = await posts();
   const postList = await postCollection.find({}).toArray();
   if (!postList) throw 'Error: Could not get all posts';
@@ -174,7 +174,7 @@ async function getPostsByIndex(startingIndex, numberPosts, postList){
     return answer;
 }
 
-async function filterPosts(keywordArr, postList){
+async function filterPosts(keywordArr, postList){ //returns postList, filter with the given keywordArr
     if (!keywordArr) throw "Error: No keywordArr given";
     if (!Array.isArray(keywordArr)) throw "Error: given input is not an array.";
 

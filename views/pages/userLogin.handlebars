@@ -1,4 +1,4 @@
-<form class="mt-sm-2 mt-lg-5 p-3" method="POST" action="/login">
+<form class="mt-sm-2 mt-lg-5 p-3 needs-validation" method="POST" action="/login" novalidate>
     <div class="container-fluid align-items-center">
         <div class="form-group row">
             <label for="emailInput" class="col-sm-3 col-auto col-form-label col-form-label-lg">Email:</label>
@@ -24,7 +24,7 @@
         </div>
         {{#if error}}
             <div class="alert alert-danger mt-2 mb-1" role="alert">
-                <h6 class="alert-heading">You had the following error(s):</h6>
+                <h1 class="alert-heading h6">You had the following error(s):</h1>
                 <ul class="list-group list-group-flush">
                     {{#each errors}}
                         <li class="list-group-item">{{this}}</li>

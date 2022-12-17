@@ -170,7 +170,7 @@ async function getPostsByIndex(startingIndex, numberPosts, postList){
 
     dateArr.sort(helpers.compareNumbers); //All dates are now sorted with the most recent as 0
     answer = [];
-    for (let i = startingIndex; i < numberPosts-1; i++){
+    for (let i = startingIndex; i < numberPosts; i++){
         let currentPost = await getPostById(dateArr[i]['id']);
         answer.push(currentPost);
 

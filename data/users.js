@@ -5,7 +5,7 @@ const { ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
 const helpers = require('../helpers');
 const posts = require('./posts');
-const { users } = require('.');
+
 
 //make usernames case insensitive
 async function checkForUser(username){

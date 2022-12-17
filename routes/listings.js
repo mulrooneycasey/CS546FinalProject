@@ -60,7 +60,6 @@ router
             else {
                 currentList = await postData.getPostsByIndex(0, 5, currentList);
             }
-            console.log(currentList);
             res.render('pages/listings', {
                 scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                 context: {
@@ -92,37 +91,18 @@ router.get('/:postId', async (req, res) => {
      * Once you add the user to the session, you can delete the line below and uncomment the other 
      * one. - Chance 
      */
-    const loggedIn = false;
+    // const loggedIn = false;
     // If there is the user logged in, then enable them to create posts and to logout.
-    // const loggedIn = typeof req.session.user !== 'undefined';
+    const loggedIn = typeof req.session.user !== 'undefined';
     /** 
      * Insert code that fetches the post by its ID here. Once you do, modify or delete the lines 
      * below. 
      */
+    let thePost = postData.getPostById(postId);
     res.render('pages/soloListing', {
         scripts: ['/public/js/soloListing.js'],
         context: {
-            post: { //I think we can just change this to post when it all works reviewLater
-                postId: 1,
-                firstName: 'Andrew',
-                lastName: 'Capro',
-                description: 'post description',
-                image: 'img.png',
-                location: 'Hoboken, 10th St.',
-                time: new Date().toTimeString(),
-                date: new Date().toDateString(),
-                keywords: ['test1', 'test2', 'test3'],
-                overallRating: 5,
-                reviews: [{
-                    user: 'Andrew Capro',
-                    ratingNum: 5,
-                    description: 'this was a real thing'
-                }],
-                comments: [{
-                    name: 'Casey Mulrooney',
-                    comment: 'this is cool'
-                }]
-            },
+            post: thePost,
             loggedIn: loggedIn,
             trunc: false,
             noPagination: true

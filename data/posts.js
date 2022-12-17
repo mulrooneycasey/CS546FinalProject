@@ -275,6 +275,63 @@ async function searchPosts(searchField, postList){
     return answer;
 }
 
+
+async function deletePost(postID){//deletes post
+    if(!postID){
+        throw "need postID";
+    }
+    if(typeof postID!='string'){
+        throw "postID needs to be a string";
+    }
+    postID.trim();
+    if(postID==='' || !ObjectId.isValid(postID)){
+        throw "postID is not a valid";
+    }
+    const postCollection = await posts();
+    const del = await postCollection.deleteOne({_id: ObjectId(postID)});
+    if(del.deletedCount==0){
+        throw "Error: did not delete post id";
+    }
+    return {deleteed: true};
+}
+
+async function postApproval(postID, isAdmin, approval){//changes status of post and if denied deletes it
+    if(!postID || !isAdmin || !approval){
+        throw "missing info for approval";
+    }
+    if(typeof postID!='string' || typeof isAdmin!='boolean' || 
+    typeof approval!='string'){
+        throw "type of info is wrong for approval";
+    }
+    postID.trim();
+    approval.trim();
+    if(postID=='' || approval==''){
+        throw "postid or approval is empty";
+    }
+    if(!ObjectId.isValid(postID)){
+        throw "not valid post id";
+    }
+    if(!isAdmin){
+        throw "Error: need admin status to approve or deny posts"
+    }
+    if(approval!=='approve' || approval !=='deny'){
+        throw "Error: need to prove or deny";
+    }
+    const postCollection = await posts();
+    if(approval===true){
+        const update = {status: 'approved'};
+        const info =postCollection.updateOne({_id: ObjectId(postID)}, {$set: update});
+        if(info.modifiedCount==0){
+            throw "Error: name did not update";
+        }
+        return await this.getPostById(postID);
+    }
+    else{
+        this.deletePost(postID);
+        return "post was deleted";
+    }
+}
+
 module.exports = {
     createPost,
     createReview,
@@ -284,5 +341,7 @@ module.exports = {
     getPostsByIndex,
     createComment,
     searchPosts,
-    getPostsByKeywords
+    getPostsByKeywords,
+    deletePost,
+    postApproval
 };

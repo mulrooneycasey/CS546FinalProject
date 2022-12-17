@@ -292,12 +292,12 @@ async function deleteAccount(id, password, isAdmin){
     return {deleted: true};
 }
 
-async function makePost(id, firstName, lastName, object, image, location){//returns postId of the new post
+async function makePost(id, firstName, lastName, object, image, location, keywords){//returns postId of the new post
     let user = await this.getUserById(id);
     if(user==null){
         throw "user does not exist";
     }
-    const newPost = await posts.createPost(firstName, lastName, object, image, location);
+    const newPost = await posts.createPost(firstName, lastName, object, image, location, keywords);
     let ogPosts = user['posts'];
     ogPosts.push(newPost);
     let userCollection = await users();

@@ -78,8 +78,30 @@ router
         /** 
          * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
          */
+        if (!req.session.user){
+            res.status(403).render('pages/accountMgmt', {
+                scripts: ['/public/js/accountMgmt.js'],
+                context: {
+                    mgmtPage: true,
+                    loggedIn: false,
+                    error: true,
+                    errors: ['You are not currently logged in.']
+                }
+            });
+            return;
+        }
         const postId = await userData.makePost(req.session.user['_id'], req.session.user['firstName'], req.session.user['lastName'], res.body.descriptionInput, res.body.imageInput, res.body.locationInput)
-        
+        const thePost = await postData.getPostById(postId);
+        res.render('pages/soloListing', {
+            scripts: ['/public/js/soloListing.js'],
+            context: {
+                post: thePost,
+                loggedIn: loggedIn,
+                trunc: false,
+                noPagination: true
+            }
+        });
+        return;
         //descriptionInput, imageInput, locationInput, keywordInput
     });
 
@@ -89,6 +111,7 @@ router
  */
 router.get('/:postId', async (req, res) => {
     const postId = req.params.postId;
+    console.log(postId);
     //const post = postData.getPostById(postId);
     /** 
      * Once you add the user to the session, you can delete the line below and uncomment the other 
@@ -101,16 +124,24 @@ router.get('/:postId', async (req, res) => {
      * Insert code that fetches the post by its ID here. Once you do, modify or delete the lines 
      * below. 
      */
-    let thePost = postData.getPostById(postId);
+    errors = [];
+    let thePost = undefined
+    try {
+        thePost = postData.getPostById(postId);
+    }catch (e){
+        //render some error;
+    }
+
     res.render('pages/soloListing', {
         scripts: ['/public/js/soloListing.js'],
         context: {
             post: thePost,
             loggedIn: loggedIn,
             trunc: false,
-            noPagination: true
+            noPagination: true,
         }
     });
+    return;
 });
 
 module.exports = router;

@@ -128,6 +128,7 @@ router.get('/:postId', async (req, res) => {
     try {
         thePost = await postData.getPostById(postId);
     }catch (e){
+        //console.log(e);
         res.render('pages/soloListing', {
             scripts: ['/public/js/soloListing.js'],
             context: {

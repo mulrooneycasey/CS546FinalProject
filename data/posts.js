@@ -34,7 +34,7 @@ async function createPost(firstName, lastName, object, image, location, keywords
     const date = (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
     time=d.toTimeString();
     let newPost = {firstName: firstName, lastName: lastName, description: object, image: image,
-        location: location, time: time, date: date, overallRating: 5, reviews: [], comments: [], status: "pending", keywords: keywords};
+        location: location, time: time, date: date, overallRating: 5, reviews: [], comments: [], status: "pending", keywords: keywords.split("; ")};
     const insertInfo = await postCollection.insertOne(newPost);
     if(!insertInfo.acknowledged || !insertInfo.insertedId){
         throw "Could not add post";
@@ -56,6 +56,7 @@ async function getPostById(id){ //returns whole post object with postId as a str
     }
     const postCollection = await posts();
     let post= await postCollection.findOne({_id: ObjectId(id)});
+    console.log(post);
     if(post===null){
         throw "no post with that id";
     }

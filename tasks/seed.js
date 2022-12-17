@@ -10,8 +10,8 @@ async function main() {
     //create users and their posts
     //user one
     const andrew1 = await users.createUser('Andrew', 'Capro', 'acapro@gmail.com', 'acapro', 'Andrew123!') //create returns whole user object with id as a string
-    const aPost1 = await users.makePost(andrew1['_id'], 'Andrew', 'Capro', 'Dumbbells and Backpack', "../public/photos/img.png", '3 Cool Ln.', 'Dumbbells and Backpack') //make creates the post, and adds it to user as well, returns postId
-    await users.makePost(andrew1['_id'], 'Andrew', 'Capro', 'Potted Plant', '../public/photos/img2.jpg', '400 West St.', 'Potted Plant')
+    const aPost1 = await users.makePost(andrew1['_id'], 'Andrew', 'Capro', 'Dumbbells and Backpack', "../public/photos/img.png", '3 Cool Ln.', 'Dumbbells; and; Backpack') //make creates the post, and adds it to user as well, returns postId
+    await users.makePost(andrew1['_id'], 'Andrew', 'Capro', 'Potted Plant', '../public/photos/img2.jpg', '400 West St.', 'Potted; Plant')
     const aPostID = aPost1
 
     //user two
@@ -26,7 +26,7 @@ async function main() {
     //user three
     const casey1 = await users.createUser('Casey', 'Mulrooney', 'cmulrooney@gmail.com', 'cmulrooney', 'Casey123!')
     const cPost1 = await users.makePost(casey1['_id'], 'Casey', 'Mulrooney', 'Mulch', '../public/photos/img4.jpg', '300 Bloomfield Ave.', 'Mulch')
-    await users.makePost(casey1['_id'], 'Casey', 'Mulrooney', 'White Chairs', '../public/photos/img5.jpg', 'Outside Babbio Center', 'White Chairs')
+    await users.makePost(casey1['_id'], 'Casey', 'Mulrooney', 'White Chairs', '../public/photos/img5.jpg', 'Outside Babbio Center', 'White; Chairs')
     const cPostID = cPost1.toString()
     await users.makeReview(casey1['_id'], aPostID, 'nmule', 'This is a cool thing!', 2) 
     await users.makeReview(casey1['_id'], nPostID, 'cmulrooney', 'This is fake!', 4)
@@ -34,7 +34,7 @@ async function main() {
 
     //user four
     const chance1 = await users.createUser('Chancelor', 'Assiamah', 'cassiamah@gmail.com', 'cassiamah', 'Chancelor123!')
-    const chPost = await users.makePost(chance1['_id'], 'Chancelor', 'Assiamah', 'Kids Bike', '../public/photos/img6.jpg', '800 Washington St.', 'Kids Bike')
+    const chPost = await users.makePost(chance1['_id'], 'Chancelor', 'Assiamah', 'Kids Bike', '../public/photos/img6.jpg', '800 Washington St.', 'Kids; Bike')
     await users.makeReview(chance1['_id'], cPostID, 'cassiamah', 'It was exactly where the picture depicted!', 3)
     await users.makeComment(chance1['_id'], nPostID, 'cassiamah', 'no where to be found')
 

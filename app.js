@@ -27,7 +27,10 @@ const handlebarsInstance = exphbs.create({
         },
         kwPrinter: (keywords, sep) => {
             if (typeof keywords === 'undefined') return;
-            else return keywords.join(sep + ' ')
+            else {
+                console.log(typeof keywords)
+            return keywords.join(sep + ' ')
+            }
         }
     },
     partialsDir: ['views/partials/']

@@ -66,7 +66,7 @@
                 <h2 class="card-subtitle font-weight-bold">Description:</h2>
                 <p class="card-text mb-4">{{description}}</p>
                 <h2 class="card-subtitle font-weight-bold mb-3">Reviews:</h2>
-                <div class="row row-cols-1 justify-content-center">{{#each reviews}} {{> review }} {{/each}}</div>
+                <div id="review-area" class="row row-cols-1 justify-content-center">{{#each reviews}} {{> review }} {{/each}}</div>
                 <div class="row row-cols-1 align-items-center">
                     <div class="col mb-2">
                         <button type="button" class="btn btn-primary active" data-toggle="button" aria-pressed="true">Show More</button>
@@ -88,7 +88,7 @@
                 <h2 class="card-subtitle mb-4 h4">Overall Rating: {{overallRating}} (out of {{#length reviews 'review'}}{{/length}})</h2>
                 <hr>
                 <h2 class="card-subtitle font-weight-bold mb-3 h4">Comments:</h2>
-                <div class="row row-cols-1 justify-content-center">{{#each comments}} {{> comment }} {{/each}}</div>
+                <div id="comment-area" class="row row-cols-1 justify-content-center">{{#each comments}} {{> comment }} {{/each}}</div>
                 <div class="row row-cols-1">
                     <div class="col align-self-center mb-2">
                         <button type="button" class="btn btn-primary active" data-toggle="button" aria-pressed="true">Show More</button>
@@ -122,14 +122,6 @@
                 </div>
                 <h2 class="card-subtitle font-weight-bold h3">Keywords:</h2>
                 <p class="card-text mb-3">{{#kwPrinter keywords ';'}}{{/kwPrinter}}</p>
-                <div class="form-group mb-1">
-                    <label class="font-weight-bold font-italic" for="placed-sighted-select">Placed or Sighted?</label>
-                    <select class="form-control" id="placed-sighted-select" disabled>
-                        <option value="" selected></option>
-                        <option value="placed">Placed by Poster</option>
-                        <option value="sighted">Sighted by Poster</option>
-                    </select>
-                </div>
             </div>
             {{#if isAdmin}}
                 <div class="d-flex align-self-center">

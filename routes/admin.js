@@ -13,7 +13,19 @@ router.get('/admin', async (req, res) => {
      * Once you add the user to the session, you can delete the line below and uncomment the 
      * other ones to restore the correct functionality. - Chance 
      */
-    res.redirect('/admin/listings');
+    if (req.session.user && req.session.user['isAdmin'] === true) res.redirect('/admin/listings');
+    else if (!req.session.user) res.redirect('/login')
+    else{
+        res.status(403).render('pages/listings', {
+            scripts: ['/public/js/listings.js'],
+            context: {
+                mgmtPage: true,
+                loggedIn: false,
+                error: true,
+                errors: ['You are not currently logged in.']
+            }
+        });
+    }
     // if (req.session.user) res.redirect('/admin/listings');
     // else res.redirect('/login');
 });
@@ -31,14 +43,68 @@ router.get('/admin/listings', async (req, res) => {
      */
     // // If the user is logged in, then they should gain access to the "Listings" page without a 
     // // problem.
-    // if (req.session.user) {
+    if (req.session.user && req.session.user['isAdmin'] === true) {
         /** 
          * If the user has clicked a specific page (say, page 3), then we need to move the cursor 
          * in the database so that the corresponding posts are displayed. We must keep in mind any 
          * filtered keyword(s) the user has selected and/or any keyword the user has searched.
          */
-        
-    // }
+        try{
+            let currentList = await postData.getAllPosts();
+            currentList.sort(helpers.compareNumbers)
+            // console.log(currentList);
+            if (req.query.search){
+                searchField = req.query.search;
+                searchArr = searchField.split(' ');
+                currentList = await postData.filterPosts(searchArr, currentList);
+            }
+            if (req.query.filter){
+                filterField = req.query.filter;
+                filterArr = filterField.split(' ');
+                currentList = await postData.filterPosts(filterArr, currentList)
+            }
+            if (req.query.page){
+                pageField = req.query.page;
+                pageField = parseInt(pageField);
+                currentList = await postData.getPostsByIndex(pageField*10-10, 5, currentList);
+            }
+            else {
+                currentList = await postData.getPostsByIndex(0, 5, currentList);
+            }
+            res.render('pages/listings', {
+                scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
+                context: {
+                    posts: currentList,
+                    allKeywords: allKeywords,
+                    loggedIn: loggedIn,
+                    trunc: true,
+                    isAdmin: true
+                }
+            })
+            }catch (e){
+                console.log(e);
+            }
+    }else if (!req.session.user){
+        res.status(403).render('pages/accountMgmt', {
+            scripts: ['/public/js/accountMgmt.js'],
+            context: {
+                mgmtPage: true,
+                loggedIn: false,
+                error: true,
+                errors: ['You are not currently logged in.']
+            }
+        });
+    } else{
+        res.status(403).render('pages/accountMgmt', {
+            scripts: ['/public/js/accountMgmt.js'],
+            context: {
+                mgmtPage: true,
+                loggedIn: false,
+                error: true,
+                errors: ['You are not an admin.']
+            }
+        });
+    }
     // // Else, redirect the user to the "Sign In" page.
     // else res.redirect('/login');
 });

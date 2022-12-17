@@ -39,8 +39,8 @@ router
          */
         //Beginning of nick filter/page/search
         try{
-            let currentList = await postData.getAllPosts();
-            currentList.sort(helpers.compareNumbers)
+            let currentList = await postData.getAllPosts();//
+            currentList.sort(helpers.compareNumbers)//
             // console.log(currentList);
             if (req.query.search){
                 searchField = req.query.search;
@@ -58,7 +58,7 @@ router
                 currentList = await postData.getPostsByIndex(pageField*10-10, 5, currentList);
             }
             else {
-                currentList = await postData.getPostsByIndex(0, 5, currentList);
+                currentList = await postData.getPostsByIndex(0, 5, currentList);//
             }
             res.render('pages/listings', {
                 scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
@@ -127,9 +127,18 @@ router.get('/:postId', async (req, res) => {
     errors = [];
     let thePost = undefined
     try {
-        thePost = postData.getPostById(postId);
+        thePost = await postData.getPostById(postId);
+        console.log(thePost);
     }catch (e){
-        //render some error;
+        res.render('pages/soloListing', {
+            scripts: ['/public/js/soloListing.js'],
+            context: {
+                loggedIn: loggedIn,
+                noPagination: true,
+                error: true,
+                errors: [e]
+            }
+        });
     }
 
     res.render('pages/soloListing', {

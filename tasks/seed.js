@@ -16,6 +16,7 @@ async function main() {
 
     //user two
     const nick1 = await users.createUser('Nick', 'Mule', 'nmule@gmail.com', 'nmule', 'Nick123!') //whole user as an object
+    await users.makeAdmin(nick1['_id'])
     const nPost = await users.makePost(nick1['_id'], 'Nick', 'Mule', 'Couch', '../public/photos/img3.jpg', '800 Washington St.', 'Couch') //returns postId
     const nPostID = nPost
     //console.log(nick1['_id'])

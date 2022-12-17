@@ -10,7 +10,15 @@ const constructorMethod = app => {
     app.use('/listings', listingsRoutes);
     app.use('/admin', adminRoutes);
     app.use('*', (req, res) => {
-        res.status(404).json({error: 'Not found.'});
+        res.render('pages/soloListing', {
+            scripts: ['/public/js/soloListing.js'],
+            context: {
+                loggedIn: false,
+                noPagination: true,
+                error: true,
+                errors: ["No page found."]
+            }
+        });
     });
 };
 

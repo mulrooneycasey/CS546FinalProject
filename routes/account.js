@@ -40,13 +40,15 @@ router
                     loggedIn: true
                 }
             });
-        // // Else, render the "Account Management" page as if the user is not logged in with an 
-        // // error message.
+        // // // Else, render the "Account Management" page as if the user is not logged in with an 
+        // // // error message.
         else {
+            console.log(req.session.user);
             res.status(403).render('pages/accountMgmt', {
                 scripts: ['/public/js/accountMgmt.js'],
                 context: {
                     mgmtPage: true,
+                    noPagination: true,
                     loggedIn: false,
                     error: true,
                     errors: ['You are not currently logged in.']

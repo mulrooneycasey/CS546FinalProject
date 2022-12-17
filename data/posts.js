@@ -53,7 +53,7 @@ async function getPostById(id){ //returns whole post object with postId as a str
     }
     const postCollection = await posts();
     let post= await postCollection.findOne({_id: ObjectId(id)});
-    if(post==null){
+    if(post===null){
         throw "no post with that id";
     }
     post['_id']=post['_id'].toString();

@@ -233,8 +233,9 @@ async function makeAdmin(id){
     if(user==null){
         throw "user does not exist";
     }
+    const userCollection = await users();
     const update={isAdmin: true};
-    const info= await movieCollection.updateOne({_id: ObjectId(id)}, {$set: update});
+    const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
         throw "Error: name did not update";
     }

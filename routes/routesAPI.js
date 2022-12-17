@@ -172,8 +172,7 @@ router
         let passwordInput = req.body.passwordInput;
         let theUser = undefined;
         try {
-            theUser = await userData.checkUser(emailInput, passwordInput);  
-            console.log(theUser); //Might need to be implemented in data/users.js using find({}) and iterating through all until finding matching username, returing entire user - Nick reviewLater
+            theUser = await userData.checkUser(emailInput, passwordInput);  //Might need to be implemented in data/users.js using find({}) and iterating through all until finding matching username, returing entire user - Nick reviewLater
         }
         catch (e){
             console.log(e);
@@ -193,7 +192,7 @@ router
             return;
         }
 
-        else if (typeof theUser !== undefined){
+        else if (typeof theUser !== 'undefined'){
             req.session.user = theUser;
             console.log(req.session.user);
             res.redirect('/'); //Redirect to homepage if successfully logged in

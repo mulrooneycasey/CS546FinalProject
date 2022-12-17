@@ -50,16 +50,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                <label for="placedSightedSelect" class="col-auto col-md-4 col-form-label col-form-label-lg">Placed or Sighted?</label>
-                                <div class="col-auto col-md-7 p-1 offset-1 offset-md-0">
-                                    <select class="form-control" id="placedSightedSelect">
-                                        <option value="" selected></option>
-                                        <option value="placed">Placed</option>
-                                        <option value="sighted">Sighted</option>
-                                    </select>
-                                </div>
-                            </div>
                         </form>
                     </div>
                 </div>
@@ -71,9 +61,9 @@
         </div>
     </div>
     {{#if this.context.allKeywords}}
-        <div class="float-right">
-            <div class="row w-100 mb-2 ml-auto">
-                <div class="col-9 col-md-10 p-1">
+        <div>
+            <div class="row w-100 mb-2">
+                <div class="col-auto p-1 ml-auto mr-auto">
                     <form class="form-inline">
                         <div class="input-group">
                             <div class="input-group-prepend mr-1">
@@ -87,7 +77,7 @@
                                 {{/each}}
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-outline-primary mt-2 ml-auto mr-auto">Apply</button>
+                        <button type="submit" class="btn btn-outline-primary mt-2 mx-3">Apply</button>
                     </form>
                 </div>
             </div>

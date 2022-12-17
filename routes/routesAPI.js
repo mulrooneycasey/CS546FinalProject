@@ -182,7 +182,6 @@ router
 
         else if (typeof theUser !== 'undefined'){
             req.session.user = theUser;
-            console.log(req.session.user);
             res.redirect('/'); //Redirect to homepage if successfully logged in
         }
 

@@ -30,11 +30,11 @@
                     <div class="text-center">
                         <div class="card-footer">
                             {{#if mgmtPage}}
-                                <form action="/account/listings/{{postId}}">
+                                <form action="/account/listings/{{_id}}">
                                     <button type="submit" class="btn btn-outline-primary btn-sm">Go to Post</button>
                                 </form>
                             {{else}}
-                                <form action="/listings/{{postId}}">
+                                <form action="/listings/{{_id}}">
                                     <button type="submit" class="btn btn-outline-primary btn-sm">Go to Post</button>
                                 </form>
                             {{/if}}
@@ -73,7 +73,7 @@
                     </div>
                     {{#unless ownPost}}
                         <div class="col mb-2 p-2">
-                            <form class="form-inline" method="POST" action="/review/{{postId}}">
+                            <form class="form-inline" method="POST" action="/review/{{_id}}">
                                 <label for="review-textarea" class="sr-only">Textbox for Your Review:</label>
                                 <textarea class="form-control w-100" id="review-textarea" aria-required="true" maxlength="500" required></textarea>
                                 <div class="container-fluid my-auto p-2">
@@ -94,7 +94,7 @@
                         <button type="button" class="btn btn-primary active" data-toggle="button" aria-pressed="true">Show More</button>
                     </div>
                     <div class="col mb-2 p-2">
-                        <form class="form-inline" method="POST" action="/comment/{{postId}}">
+                        <form class="form-inline" method="POST" action="/comment/{{_id}}">
                             <label for="comment-textarea" class="sr-only">Textbox for Your Comment:</label>
                             <textarea class="form-control w-100" id="comment-textarea" maxlength="100" aria-required="true" required></textarea>
                             <div class="container-fluid my-auto p-2">
@@ -126,7 +126,7 @@
             {{#if isAdmin}}
                 <div class="d-flex align-self-center">
                     <div class="card-footer">
-                        <form method="POST" action="/admin/listings/{{postId}}">
+                        <form method="POST" action="/admin/listings/{{_id}}">
                             <div class="form-group">
                                 <div class="form-check">
                                     <label class="form-check-label" for="real-object-check">Real Object?</label>

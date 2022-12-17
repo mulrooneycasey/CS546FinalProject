@@ -111,12 +111,6 @@ router
  */
 router.get('/:postId', async (req, res) => {
     const postId = req.params.postId;
-    //const post = postData.getPostById(postId);
-    /** 
-     * Once you add the user to the session, you can delete the line below and uncomment the other 
-     * one. - Chance 
-     */
-    // const loggedIn = false;
     // If there is the user logged in, then enable them to create posts and to logout.
     const loggedIn = typeof req.session.user !== 'undefined';
     /** 

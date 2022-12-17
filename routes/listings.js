@@ -90,7 +90,7 @@ router
             });
             return;
         }
-        const postId = await userData.makePost(req.session.user['_id'], req.session.user['firstName'], req.session.user['lastName'], res.body.descriptionInput, res.body.imageInput, res.body.locationInput)
+        const postId = await userData.makePost(req.session.user['_id'], req.session.user['firstName'], req.session.user['lastName'], res.body.descriptionInput, res.body.imageInput, res.body.locationInput, res.body.keywordInput)
         const thePost = await postData.getPostById(postId);
         res.render('pages/soloListing', {
             scripts: ['/public/js/soloListing.js'],

@@ -277,7 +277,7 @@ async function makeComment(id, postID, username, comment){ //returns whole user 
     }
     const newComment = await posts.createComment(postID, username, comment);
     let ogComments = user['comments'];
-    ogComments.push(newComment['_id'].toString());
+    ogComments.push(newComment);
     let userCollection = await users();
     const update = {comments: ogComments};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
@@ -293,7 +293,7 @@ async function makeReview(id, postID, username, comment, rating){ //returns whol
     }
     const newReview = await posts.createReview(postID, username, comment, rating);
     let ogReviews = user['reviews'];
-    ogReviews.push(newReview['_id'].toString());
+    ogReviews.push(newReview);
     let userCollection = await users();
     const update = {reviews: ogReviews};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});

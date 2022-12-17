@@ -343,6 +343,27 @@ async function makeReview(id, postID, username, comment, rating){ //returns whol
     return await this.getUserById(id);
 }
 
+async function approvePost(postID, userID, status){//send admin approval of post status to posts.js
+    if(!postID || !userID || !status){
+        throw "missing info for approval";
+    }
+    if(typeof postID!='string' || typeof userID!='string' || 
+    typeof status!='string'){
+        throw "type of info is wrong for approval";
+    }
+    postID.trim();
+    userID.trim();
+    status.trim();
+    if(postID=='' || userID=='' || status==''){
+        throw "postid, useris, or status is empty";
+    }
+    let user = this.getUserById(userID);
+    let approved = posts.postApproval(postID, user['isAdmin'], status);
+    return approved;
+}
+
+//
+
 
 async function addFavorite(postId, userId){
   if (!postId) throw "Error: Must supply postId";
@@ -538,5 +559,6 @@ module.exports = {
     makeComment,
     makeReview,
     checkForUser,
-    deleteAccount
+    deleteAccount,
+    approvePost
 };

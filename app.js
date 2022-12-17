@@ -28,8 +28,7 @@ const handlebarsInstance = exphbs.create({
         kwPrinter: (keywords, sep) => {
             if (typeof keywords === 'undefined') return;
             else {
-                console.log(typeof keywords)
-            return keywords.join(sep + ' ')
+                return keywords.join(sep + ' ')
             }
         }
     },

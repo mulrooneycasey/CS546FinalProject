@@ -56,7 +56,6 @@ async function getPostById(id){ //returns whole post object with postId as a str
     }
     const postCollection = await posts();
     let post= await postCollection.findOne({_id: ObjectId(id)});
-    console.log(post);
     if(post===null){
         throw "no post with that id";
     }
@@ -211,24 +210,37 @@ async function filterPosts(keywordArr, postList){ //returns postList, filter wit
 }
 
 async function getPostsByKeywords(keywords){
-    if(!keywords.isArray()){
+    if(typeof keywords!='string'){
         throw "keywords needs to be a string";
     }
-    if(keywords=={}){
-        throw "keywords cannot be empty";
+    keywords.trim();
+    if(keywords!=''){
+        throw "keywords cannot be white space";
     }
+    
+    //making list of keywords
+    let filter={};
+    let space;
+    while(keywords!=''){
+        space=keywords.indexOf(' ');
+        if(space!=-1){
+            filter.push(keywords.substring(space));
+            keywords=keywords.substring(space+1);
+        }
+    }
+    filter.push(keywords);
     
     let posts = await this.getAllPosts();
     let filtered={};
     let found = true;
     for(let i=0; i<posts.length; i++){
-        for(let j=0; j<keywords.length; j++){
-            if(!posts[i]['keywords'].includes(keywords[j])){
+        for(let j=0; j<filter.length; j++){
+            if(!posts[i]['keywords'].includes(filters[j])){
                 found=false;
             }
         }
         if(found){
-            filtered.push(posts[i]);
+            filtered.push(post[i]);
         }
     }
     return filtered;

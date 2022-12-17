@@ -4,7 +4,7 @@ const {ObjectId} = require('mongodb');
 const bcrypt = require('bcrypt');
 const helpers = require('../helpers');
 
-async function createPost(firstName, lastName, object, image, location){ //returns postId
+async function createPost(firstName, lastName, object, image, location, keywords){ //returns postId
     if(!firstName || !lastName || !object || !image || !location){
         throw "missing item";
     }
@@ -30,8 +30,8 @@ async function createPost(firstName, lastName, object, image, location){ //retur
     const d = new Date();
     const date = (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
     time=d.toTimeString();
-    let newPost = {firstName: firstName, lastName: lastName, description: object, image: image, 
-        location: location, time: time, date: date, overallRating: 5, reviews: [], comments: [], status: "pending"};
+    let newPost = {firstName: firstName, lastName: lastName, description: object, image: image,
+        location: location, time: time, date: date, overallRating: 5, reviews: [], comments: [], status: "pending", keywords: keywords};
     const insertInfo = await postCollection.insertOne(newPost);
     if(!insertInfo.acknowledged || !insertInfo.insertedId){
         throw "Could not add post";

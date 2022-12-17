@@ -78,6 +78,9 @@ router
         /** 
          * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
          */
+        const postId = await userData.makePost(req.session.user['_id'], req.session.user['firstName'], req.session.user['lastName'], res.body.descriptionInput, res.body.imageInput, res.body.locationInput)
+        
+        //descriptionInput, imageInput, locationInput, keywordInput
     });
 
 /**

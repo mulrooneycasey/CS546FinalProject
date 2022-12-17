@@ -193,6 +193,7 @@ async function filterPosts(keywordArr, postList){ //returns postList, filter wit
     for (let post of postList){
         postKeywords = post['keywords'];
         contained = true;
+        let i = 0;
         while (i < keywordArr.length){
             if (!postKeywords.includes(keywordArr[i])) {
                 contained = false

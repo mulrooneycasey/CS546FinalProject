@@ -25,7 +25,10 @@ const handlebarsInstance = exphbs.create({
                 outputHtml += '<option value="' + i + '">' + i + '</option>'
             return new Handlebars.SafeString(outputHtml);
         },
-        kwPrinter: (keywords, sep) => keywords.join(sep + ' ')
+        kwPrinter: (keywords, sep) => {
+            if (typeof keywords === 'undefined') return;
+            else return keywords.join(sep + ' ')
+        }
     },
     partialsDir: ['views/partials/']
 });

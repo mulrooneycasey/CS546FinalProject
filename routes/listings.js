@@ -23,7 +23,7 @@ router
          * I recommend using projection to get the keywords for every user. Remove the line below 
          * once you're ready to do this. - Chance 
          */
-        const allKeywords = [];
+        let allKeywords = [];
         /** 
          * Once you add the user to the session, you can delete the line below and uncomment the 
          * other one. - Chance 
@@ -44,8 +44,7 @@ router
             // console.log(currentList);
             if (req.query.search){
                 searchField = req.query.search;
-                searchArr = searchField.split(' ');
-                currentList = await postData.filterPosts(searchArr, currentList);
+                currentList = await postData.searchPosts(searchField, currentList);
             }
             if (req.query.filter){
                 filterField = req.query.filter;
@@ -59,6 +58,12 @@ router
             }
             else {
                 currentList = await postData.getPostsByIndex(0, 5, currentList);//
+            }
+            for (let post of currentList){
+                theKeywords = post['keywords']
+                for (let keyword of theKeywords){
+                    allKeywords.push(keyword)
+                }
             }
             res.render('pages/listings', {
                 scripts: ['/public/js/listings.js', '/public/js/pagination.js'],

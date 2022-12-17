@@ -69,6 +69,7 @@ router.get('/', async (req, res) => {
      */
     if (loggedIn === true){
         const isAdmin = req.session.user['isAdmin'];
+        if (isAdmin) res.redirect('/admin')
     } 
     // -Nick reviewLater
     const allKeywords = [];

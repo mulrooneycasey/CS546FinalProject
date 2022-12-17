@@ -158,9 +158,8 @@ async function getPostsByIndex(startingIndex, numberPosts, postList){
     if (typeof numberPosts !== 'number') throw "Error: numberPosts must be a number.";
     if (numberPosts < 0) throw "Error: Cannot have a negative numberPosts";
     if (startingIndex > postList.length -1) throw "Error: Index cannot exceed length of all posts";
-    if (startingIndex + numberPosts > postList.length) throw "Error: Posts exceeded the number of total posts";
 
-    dateArr = [];
+    let dateArr = [];
     for (let post of postList){ //add objects with associated objectId's then change helper to do correct function, then use getpostbyid to get all of them
         let date = post['date']; //  12/16/2022
         let theDate = date.split("/");
@@ -172,8 +171,11 @@ async function getPostsByIndex(startingIndex, numberPosts, postList){
     }
 
     dateArr.sort(helpers.compareNumbers); //All dates are now sorted with the most recent as 0
-    answer = [];
-    for (let i = startingIndex; i < numberPosts; i++){
+    let answer = [];
+    let maxLength = 0;
+    if (numberPosts >= postList.length) maxLength = postList.length;
+    else maxLength = numberPosts
+    for (let i = startingIndex; i < maxLength; i++){
         let currentPost = await getPostById(dateArr[i]['id']);
         answer.push(currentPost);
 
@@ -248,6 +250,31 @@ async function getPostsByKeywords(keywords){
     return filtered;
 } 
 
+async function searchPosts(searchField, postList){
+    if (!searchField) throw "Error: No searchField given";
+    if (typeof searchField !== "string") throw "Error: given input is not a string.";
+    searchField = searchField.trim();
+    if (searchField.length === 0) throw "Error searchField cannot be only whitespace.";
+
+    answer = [];
+    for (let post of postList){
+        let postKeywords = post['keywords'];
+        let postTitle = post['description'];
+        let containedInKeyword = false;
+        let i = 0;
+        let regEx1 = new RegExp(searchField.toLowerCase());
+        while (i < postKeywords.length){
+            if (regEx1.test(postKeywords[i].toLowerCase())) {
+                containedInKeyword = true;
+                break;
+            }
+            i++;
+        }
+        if (regEx1.test(postTitle.toLowerCase()) || containedInKeyword) answer.push(post)
+    }
+    return answer;
+}
+
 module.exports = {
     createPost,
     createReview,
@@ -256,5 +283,6 @@ module.exports = {
     filterPosts,
     getPostsByIndex,
     createComment,
+    searchPosts,
     getPostsByKeywords
 };

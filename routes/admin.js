@@ -2,13 +2,17 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const xss = require('xss');
+const data = require('../data')
+const userData = data.users;
+const postData = data.posts;
+const helpers = require('../helpers')
 
 /**
  * "GET /admin": 
  *   If logged in, redirects you to the listings route;
  *   Else, you're not logged in, redirects you to the "Sign In" page.
  */
-router.get('/admin', async (req, res) => {
+router.get('/', async (req, res) => {
     /** 
      * Once you add the user to the session, you can delete the line below and uncomment the 
      * other ones to restore the correct functionality. - Chance 
@@ -36,11 +40,12 @@ router.get('/admin', async (req, res) => {
  *   Else, you're not logged in, redirects you to the "Sign In" page.
  *   Can have additional queries, like "?page=3".
  */
-router.get('/admin/listings', async (req, res) => {
+router.get('/listings', async (req, res) => {
     /** 
      * Once you add the user to the session, you can uncomment the other lines to restore the 
      * correct functionality. - Chance 
      */
+    const allKeywords = [];
     // // If the user is logged in, then they should gain access to the "Listings" page without a 
     // // problem.
     if (req.session.user && req.session.user['isAdmin'] === true) {
@@ -71,12 +76,18 @@ router.get('/admin/listings', async (req, res) => {
             else {
                 currentList = await postData.getPostsByIndex(0, 5, currentList);
             }
+            for (let post of currentList){
+                theKeywords = post['keywords']
+                for (let keyword of theKeywords){
+                    allKeywords.push(keyword)
+                }
+            }
             res.render('pages/listings', {
                 scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                 context: {
                     posts: currentList,
                     allKeywords: allKeywords,
-                    loggedIn: loggedIn,
+                    loggedIn: true,
                     trunc: true,
                     isAdmin: true
                 }
@@ -99,7 +110,7 @@ router.get('/admin/listings', async (req, res) => {
             scripts: ['/public/js/accountMgmt.js'],
             context: {
                 mgmtPage: true,
-                loggedIn: false,
+                loggedIn: true,
                 error: true,
                 errors: ['You are not an admin.']
             }

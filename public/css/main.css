@@ -9,3 +9,12 @@
   .carousel-indicators .active {
     background-color: #444;
   }
+
+  .btn-primary, .btn-info, .btn-outline-primary {
+    color: rgb(255, 255, 255); 
+    background-color: #0072ee;
+  }
+
+  a {
+    color: #0072ee
+  }

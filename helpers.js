@@ -32,7 +32,7 @@ function containsUpper(str){
 }
 
 function compareNumbers(a, b) {
-    return a - b;
+    return a.date - b.date;
 }
 
 

@@ -29,7 +29,7 @@ async function createPost(firstName, lastName, object, image, location){ //retur
     const postCollection = await posts();
     const d = new Date();
     const date = (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
-    time=d.getTime();
+    time=d.toTimeString();
     let newPost = {firstName: firstName, lastName: lastName, description: object, image: image, 
         location: location, time: time, date: date, overallRating: 5, reviews: [], comments: [], status: "pending"};
     const insertInfo = await postCollection.insertOne(newPost);
@@ -148,28 +148,32 @@ async function getAllPosts(){ //returns all posts
 
 //This function is to get, starting from an index, numberPosts posts, with the most recent ones being first, from array postList
 async function getPostsByIndex(startingIndex, numberPosts, postList){
-    if (!startingIndex) throw "Error: No startingIndex";
+    if (typeof startingIndex === 'undefined') throw "Error: No startingIndex";
     if (typeof startingIndex !== 'number') throw "Error: startingIndex must be a number.";
     if (startingIndex < 0) throw "Error: Cannot have a negative startingIndex";
-    if (!numberPosts) throw "Error: No numberPosts";
+    if (typeof numberPosts === 'undefined') throw "Error: No numberPosts";
     if (typeof numberPosts !== 'number') throw "Error: numberPosts must be a number.";
     if (numberPosts < 0) throw "Error: Cannot have a negative numberPosts";
     if (startingIndex > postList.length -1) throw "Error: Index cannot exceed length of all posts";
-    if (startingIndex + numberPosts - 1) throw "Error: Posts exceeded the number of total posts";
+    if (startingIndex + numberPosts > postList.length) throw "Error: Posts exceeded the number of total posts";
 
     dateArr = [];
-    for (let post of postList){
-        let date = post['date'];
+    for (let post of postList){ //add objects with associated objectId's then change helper to do correct function, then use getpostbyid to get all of them
+        let date = post['date']; //  12/16/2022
+        let theDate = date.split("/");
+
         let time = post['time'];
-        let day = date + " " + time;
-        dDay = new Date(day);
-        dateArr.push(dDay);
+        let day = theDate[0] + " " + theDate[1] + " " + theDate[2] + " " + time;
+        let dDay = new Date(day);
+        dateArr.push({date: dDay, id: post['_id']});
     }
 
     dateArr.sort(helpers.compareNumbers); //All dates are now sorted with the most recent as 0
     answer = [];
     for (let i = startingIndex; i < numberPosts-1; i++){
-        answer.push(dateArr[i]);
+        let currentPost = await getPostById(dateArr[i]['id']);
+        answer.push(currentPost);
+
     }
     return answer;
 }

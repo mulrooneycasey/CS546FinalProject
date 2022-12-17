@@ -21,39 +21,39 @@ router
          * Once you add the user to the session, you can delete the line below and uncomment the 
          * other ones to restore the correct functionality. - Chance 
          */
-        res.render('pages/accountMgmt', {
-            scripts: ['/public/js/accountMgmt.js'],
-            context: {
-                mgmtPage: true,
-                noPagination: true,
-                loggedIn: true
-            }
-        });
+        // res.render('pages/accountMgmt', {
+        //     scripts: ['/public/js/accountMgmt.js'],
+        //     context: {
+        //         mgmtPage: true,
+        //         noPagination: true,
+        //         loggedIn: true
+        //     }
+        // });
         // // If the user is logged in, then they should gain access to the "Account Management" page 
         // // without a problem.
-        // if (req.session.user)
-        //     res.render('pages/accountMgmt', {
-        //         scripts: ['/public/js/accountMgmt.js'],
-        //         context: {
-        //             mgmtPage: true,
-        //             noPagination: true,
-        //             loggedIn: true
-        //         }
-        //     });
+        if (req.session.user)
+            res.render('pages/accountMgmt', {
+                scripts: ['/public/js/accountMgmt.js'],
+                context: {
+                    mgmtPage: true,
+                    noPagination: true,
+                    loggedIn: true
+                }
+            });
         // // Else, render the "Account Management" page as if the user is not logged in with an 
         // // error message.
-        // else {
-        //     res.status(403).render('pages/accountMgmt', {
-        //         scripts: ['/public/js/accountMgmt.js'],
-        //         context: {
-        //             mgmtPage: true,
-        //             loggedIn: false,
-        //             error: true,
-        //             errors: ['You are not currently logged in.']
-        //         }
-        //     });
-        //     return;
-        // }
+        else {
+            res.status(403).render('pages/accountMgmt', {
+                scripts: ['/public/js/accountMgmt.js'],
+                context: {
+                    mgmtPage: true,
+                    loggedIn: false,
+                    error: true,
+                    errors: ['You are not currently logged in.']
+                }
+            });
+            return;
+        }
     })
     .put(async (req, res) => {
         // Error checking on fields in req.body and (most) error rendering will be handled by AJAX.

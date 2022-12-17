@@ -180,22 +180,25 @@ router
             errors.push(e); //This block is to catch the error of 'Either invalid password or username'
         } //theUser is now a whole user object after this part
         
-        if (typeof theUser !== undefined){
+        if (errors.length > 0) {
+            console.log();
+            res.status(400).render('pages/userLogin', {
+                scripts: ['/public/js/userLogin.js'],
+                context: { 
+                    noPagination: true,
+                    error: true,
+                    errors: errors
+                }
+            });
+            return;
+        }
+
+        else if (typeof theUser !== undefined){
             req.session.user = theUser;
             console.log(req.session.user);
             res.redirect('/'); //Redirect to homepage if successfully logged in
         }
 
-        // if (errors.length > 0) {
-        //     res.status(400).render('pages/userLogin', {
-        //         scripts: ['/public/js/userLogin.js'],
-        //         context: { //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
-        //             error: true,
-        //             errors: errors
-        //         }
-        //     });
-        //     return;
-        // }
     });
 
 /**

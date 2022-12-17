@@ -9,7 +9,11 @@ const posts = require('./posts');
 
 //make usernames case insensitive
 async function checkForUser(username){
-    const userColletion = await users();
+    try {
+        const userCollection = await users();
+    } catch (e){
+        return false
+    }
     username.toLowerCase();
     let users = {}
     users= await userCollection.find({});
@@ -51,7 +55,7 @@ async function createUser(firstName, lastName, email, username, password){//retu
     if(username.length<5 || helpers.containsSpec(username)){
         throw "not a valid username";
     }
-    let checker = this.checkForUser(username);
+    let checker = await this.checkForUser(username);
     if(checker){
         throw "username already exists";
     }
@@ -225,7 +229,7 @@ async function changePassword(id, password, change){
 
 
 async function makeAdmin(id){
-    let user = this.getUserById(id);
+    let user = await this.getUserById(id);
     if(user==null){
         throw "user does not exist";
     }
@@ -238,7 +242,7 @@ async function makeAdmin(id){
 }
 
 async function changeEmail(id, password, change){
-    let user = this.getUserById(id);
+    let user = await this.getUserById(id);
     if(user==null){
         throw "user does not exist";
     }
@@ -271,7 +275,7 @@ async function changeEmail(id, password, change){
 }
 
 async function deleteAccount(id, password, isAdmin){
-    let user = this.getUserById(id);
+    let user = await this.getUserById(id);
     if(user==null){
         throw "user does not exist";
     }
@@ -532,5 +536,6 @@ module.exports = {
     makePost,
     makeComment,
     makeReview,
+    checkForUser,
     deleteAccount
 };

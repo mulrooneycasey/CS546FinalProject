@@ -59,17 +59,17 @@ router.get('/', async (req, res) => {
      * Once you add the user to the session, you can delete the line below and uncomment the other 
      * one. - Chance 
      */
-    const loggedIn = false;
+    // const loggedIn = false;
     // If there is the user logged in, then enable them to logout.
-    // const loggedIn = typeof req.session.user !== 'undefined'; reviewLater
+    const loggedIn = typeof req.session.user !== 'undefined'; //reviewLater
 
     /** 
      * Insert code that, if the user is logged in, determines whether the user is an admin or not 
      * here. - Chance 
      */
-    // if (loggedIn === True){
-    //     const isAdmin = req.session.user['isAdmin'];
-    // } 
+    if (loggedIn === true){
+        const isAdmin = req.session.user['isAdmin'];
+    } 
     // -Nick reviewLater
 
     // Render the landing page, with an "About" section and the 5 most recent postings.
@@ -143,19 +143,20 @@ router
          * Once you add the user to the session, you can delete the line below and uncomment the 
          * other ones to restore the correct functionality. - Chance 
          */
-        res.render('pages/userLogin', {
-            scripts: ['/public/js/userLogin.js'],
-            context: {
-                noPagination: true
-            }
-        });
-        // if (req.session.user) res.redirect('/'); reviewLater
-        // else res.render('pages/userLogin', {
+        // res.render('pages/userLogin', {
         //     scripts: ['/public/js/userLogin.js'],
         //     context: {
         //         noPagination: true
         //     }
         // });
+
+        if (req.session.user) res.redirect('/'); // reviewLater
+        else res.render('pages/userLogin', {
+            scripts: ['/public/js/userLogin.js'],
+            context: {
+                noPagination: true
+            }
+        });
     })
     .post(async (req, res) => {
         /** 
@@ -166,20 +167,24 @@ router
          * reference. - Chance
          */
         //uncomment when ready reviewLater - Nick
-        // let errors = [];
-        // let emailInput = req.body.emailInput;
-        // let passwordInput = req.body.passwordInput;
-        // try {
-        //     let theUser = await userData.checkUser(emailInput, passwordInput); //Might need to be implemented in data/users.js using find({}) and iterating through all until finding matching username, returing entire user - Nick reviewLater
-        // }
-        // catch (e){
-        //     errors.push(e); //This block is to catch the error of 'Either invalid password or username'
-        // } //theUser is now a whole user object after this part
+        let errors = [];
+        let emailInput = req.body.emailInput;
+        let passwordInput = req.body.passwordInput;
+        let theUser = undefined;
+        try {
+            theUser = await userData.checkUser(emailInput, passwordInput);  
+            console.log(theUser); //Might need to be implemented in data/users.js using find({}) and iterating through all until finding matching username, returing entire user - Nick reviewLater
+        }
+        catch (e){
+            console.log(e);
+            errors.push(e); //This block is to catch the error of 'Either invalid password or username'
+        } //theUser is now a whole user object after this part
         
-        // if (typeof theUser !== undefined){
-        //     req.session.user = theUser;
-        //     res.redirect('/'); //Redirect to homepage if successfully logged in
-        // }
+        if (typeof theUser !== undefined){
+            req.session.user = theUser;
+            console.log(req.session.user);
+            res.redirect('/'); //Redirect to homepage if successfully logged in
+        }
 
         // if (errors.length > 0) {
         //     res.status(400).render('pages/userLogin', {
@@ -230,48 +235,48 @@ router
          * route for reference. - Chance 
          */ 
         //reviewLater Nick
-        // let theUserData = req.body; 
-        // let errors = [];
+        let theUserData = req.body; 
+        let errors = [];
 
-        // theUserData.usernameInput = theUserData.usernameInput.trim();
-        // theUserData.passwordInput = theUserData.passwordInput.trim();
-        // theUserData.firstInput = theUserData.firstInput.trim();
-        // theUserData.lastInput = theUserData.lastInput.trim();
-        // theUserData.emailInput = theUserData.emailInput.trim();
+        theUserData.usernameInput = theUserData.usernameInput.trim();
+        theUserData.passwordInput = theUserData.passwordInput.trim();
+        theUserData.firstInput = theUserData.firstInput.trim();
+        theUserData.lastInput = theUserData.lastInput.trim();
+        theUserData.emailInput = theUserData.emailInput.trim();
 
-        // try {
-        //     const newUser = await UserData.createUser(
-        //     theUserData.firstInput,
-        //     theUserData.lastInput,
-        //     theUserData.emailInput,
-        //     theUserData.usernameInput,
-        //     theUserData.passwordInput,
-        //     'Hoboken',
-        //     'NJ'
-        //     );
-        //     if (newUser["userInserted"] === true) res.redirect('/'); //Might need to be adjusted based on createUser reviewLater
-        //     else {
-        //         errors.push("Internal Server Error");
-        //         res.status(500).render('pages/userRegister', {
-        //             scripts: ['/public/js/userRegister.js'],
-        //             context: { 
-        //                 //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
-        //                 error: true,
-        //                 errors: errors
-        //                 }
-        //             });
-        //     }
-        // } catch (e) {
-        //     errors.push(e.toString()); //Check if this works reviewLater; In general, this is jank but hopefully its ok?
-        //     res.status(400).render('pages/userRegister', {
-        //         scripts: ['/public/js/userRegister.js'],
-        //         context: { 
-        //             //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
-        //             error: true,
-        //             errors: errors
-        //             }
-        //         });
-        // }
+        try {
+            const newUser = await userData.createUser(
+            theUserData.firstInput,
+            theUserData.lastInput,
+            theUserData.emailInput,
+            theUserData.usernameInput,
+            theUserData.passwordInput,
+            );
+            if (newUser['firstName'] === theUserData.firstInput) {
+                res.redirect('/'); //Might need to be adjusted based on createUser reviewLater
+            }
+            else {
+                errors.push("Internal Server Error");
+                res.status(500).render('pages/userRegister', {
+                    scripts: ['/public/js/userRegister.js'],
+                    context: { 
+                        noPagination: true,
+                        error: true,
+                        errors: errors
+                        }
+                    });
+            }
+        } catch (e) {
+            errors.push(e.toString()); //Check if this works reviewLater; In general, this is jank but hopefully its ok?
+            res.status(400).render('pages/userRegister', {
+                scripts: ['/public/js/userRegister.js'],
+                context: { 
+                    noPagination: true,
+                    error: true,
+                    errors: errors
+                    }
+                });
+        }
 
         // if (errors.length > 0) { //this part is prob not needed
         //     res.status(400).render('pages/userRegister', {

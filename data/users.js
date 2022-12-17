@@ -369,7 +369,7 @@ const checkUser = async (email, password) => { //I just ripped this off of my la
   if (password.length < 6) throw "Error: Password must be atleast 6 characters aside from bordering whitespace.";
   if (!helpers.containsUpper(password)) throw "Error: Password must contain atleast one uppercase character.";
   if (!helpers.containsNum(password)) throw "Error: Password must contain atleast one number.";
-  if (!helpers.containsSpec(password)) throw "Error: Password must contain atleast one special character.";
+  if (!helpers.containsSpec(password) && !helpers.containsPunct(password)) throw "Error: Password must contain atleast one special character.";
   const userCollection = await users();
 
   let tempArray = await userCollection.find({}).toArray();

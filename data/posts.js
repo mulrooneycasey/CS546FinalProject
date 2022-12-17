@@ -63,7 +63,7 @@ async function getPostById(id){ //returns whole post object with postId as a str
     return post;
 }
 
-async function createReview(postID, username, comment, rating){ //returns whole review with its id as a objectId
+async function createReview(postID, username, comment, rating){ //returns review id as a string
     if(!postID || !username || !comment || !rating){
         throw "missing info for review";
     }
@@ -99,10 +99,10 @@ async function createReview(postID, username, comment, rating){ //returns whole 
     if(info.modifiedCount==0){
         throw "post did not update";
     }
-    return newReview["_id"];
+    return newReview["_id"].toString();
 }
 
-async function createComment(postID, username, comment){//returns whole comment object with its id as an objectId
+async function createComment(postID, username, comment){//returns comment object id as a string
     if(!postID || !username || !comment){
         throw "missing info for review";
     }
@@ -138,7 +138,7 @@ async function createComment(postID, username, comment){//returns whole comment 
     return newComment["_id"];
 }
 
-async function getAllPosts(){ //returns all posts
+async function getAllPosts(){ //returns all posts with ids as a string
   const postCollection = await posts();
   const postList = await postCollection.find({}).toArray();
   if (!postList) throw 'Error: Could not get all posts';
@@ -209,6 +209,7 @@ async function filterPosts(keywordArr, postList){ //returns postList, filter wit
     return answer;
 }
 
+//returns all the posts that has keywords
 async function getPostsByKeywords(keywords){
     if(typeof keywords!='string'){
         throw "keywords needs to be a string";
@@ -237,6 +238,7 @@ async function getPostsByKeywords(keywords){
         for(let j=0; j<filter.length; j++){
             if(!posts[i]['keywords'].includes(filters[j])){
                 found=false;
+                break;
             }
         }
         if(found){

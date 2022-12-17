@@ -1,11 +1,16 @@
 <div class="row row-cols-1">
-    {{#if this.context.post}}
+    {{#unless this.context.error}}
         {{#with this.context.post}} {{> post }} {{/with}}
-    {{else}}
+    {{/unless}}
+    {{#if this.context.error}}
         <div class="col">
             <div class="alert alert-danger" role="alert">
-                <h3 class="alert-heading">Uh oh...</h3>
-                <p>No post with that ID was found.</p>
+                <h1 class="alert-heading h3">Uh oh...</h1>
+                <ul class="list-group list-group-flush">
+                    {{#each this.context.errors}}
+                        <li class="list-group-item bg-transparent">{{this}}</li>
+                    {{/each}}
+                </ul>
             </div>
         </div>
     {{/if}}

@@ -18,3 +18,11 @@
   a {
     color: #0072ee
   }
+
+  .btn-outline-success {
+    color: #008a00;
+  }
+
+  .nav-link {
+    color: #000000 !important; 
+  }

@@ -194,16 +194,17 @@ async function filterPosts(keywordArr, postList){ //returns postList, filter wit
         }
     }
 
-    answer = [];
+    answer = []; //FIX THIS TO NOT WORK IF COUCH AND WHITE
     for (let post of postList){
         postKeywords = post['keywords'];
-        contained = true;
+        containsAllKeywords = false;
         let i = 0;
         while (i < keywordArr.length){
             if (!postKeywords.includes(keywordArr[i])) {
                 contained = false
                 break;
             }
+            i++;
         }
         if (contained) answer.push(post);
     }

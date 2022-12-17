@@ -46,10 +46,21 @@ router
                 searchField = req.query.search;
                 currentList = await postData.searchPosts(searchField, currentList);
             }
-            if (req.query.filter){
+            if (req.query.filter){ //not fully done reviewLater - Nick
+                //console.log("is this running?")
                 filterField = req.query.filter;
-                filterArr = filterField.split(' ');
-                currentList = await postData.filterPosts(filterArr, currentList)
+                console.log(filterField);
+                if (typeof filterField === "string") {
+                    filterArr = filterField.split('filter=');
+                    if (filterArr[0] === '') filterArr.shift();
+                }
+                let filterArr1 = [];
+                for (let filter of filterArr){
+                    //console.log(filter.length)
+                    if (filter.slice(-1) === "&") filterArr1.push( filter.substring(0, filter.length-1))
+                    else filterArr1.push(filter);
+                }
+                currentList = await postData.filterPosts(filterArr1, currentList)
             }
             if (req.query.page){
                 pageField = req.query.page;

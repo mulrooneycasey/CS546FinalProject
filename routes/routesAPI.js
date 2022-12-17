@@ -71,42 +71,30 @@ router.get('/', async (req, res) => {
         const isAdmin = req.session.user['isAdmin'];
     } 
     // -Nick reviewLater
-
+    const allKeywords = [];
     // Render the landing page, with an "About" section and the 5 most recent postings.
     /** Insert the code for obtaining the 5 most recent postings here. 
      *  Use a function to get all of the postings, probably add it in mongoDB
      *  Then get the most recent five by checking their dates and comparing them - Nick reviewLater
     */
-    res.render('pages/home', {
-        scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
-        context: {
-            posts: [{
-                postId: 1,
-                firstName: 'Andrew',
-                lastName: 'Capro',
-                description: 'post description',
-                image: 'img.png',
-                location: 'Hoboken, 10th St.',
-                time: new Date().toTimeString(),
-                date: new Date().toDateString(),
-                keywords: ['test1', 'test2', 'test3'],
-                overallRating: 5,
-                reviews: [{
-                    user: 'Andrew Capro',
-                    ratingNum: 5,
-                    description: 'this was a real thing'
-                }],
-                comments: [{
-                    name: 'Casey Mulrooney',
-                    comment: 'this is cool'
-                }]
-            }],
-            loggedIn: loggedIn,
-            trunc: true,
-            isAdmin: false,
-            noPagination: true
-        }
-    });
+    try{
+        let currentList = await postData.getAllPosts();
+        currentList.sort(helpers.compareNumbers)
+        currentList = await postData.getPostsByIndex(0, 5, currentList);
+        res.render('pages/homeInfo', {
+            scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
+            context: {
+                posts: currentList,
+                allKeywords: allKeywords,
+                loggedIn: loggedIn,
+                trunc: true,
+                isAdmin: false,
+                isHome: true
+            }
+        })
+        }catch (e){
+            console.log(e);
+    }
 });
 
 /**

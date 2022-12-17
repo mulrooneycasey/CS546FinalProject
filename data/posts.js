@@ -15,15 +15,18 @@ async function createPost(firstName, lastName, object, image, location, keywords
     typeof location!='string' || typeof object!='string'){
         throw "first name, last name, location, and object has to be a string";
     }
-
+    if(typeof keywords != ' undefined' && typeof keywords != 'string'){
+        throw "keywords has to be a string";
+    }
     firstName.trim();
     lastName.trim();
     location.trim();
     object.trim();
+    keywords.trim();
     if(firstName=='' || lastName=='' || location=='' || object==''){
         throw "first name, last name, location, and object has to be a string";
     }
-    
+
     //not sure how to do images with mongodb
 
     const postCollection = await posts();
@@ -88,7 +91,7 @@ async function createReview(postID, username, comment, rating){ //returns whole 
     uReviews.push(newReview);
     rating = 0;
     for(let i=0; i<uReviews.length; i++){
-        rating+=uReviews[i].ratingNum;
+        rating+=uReviews[i]['rating'];
     }
     rating = rating/uReviews.length;
     update={overallRating: rating, reviews: uReviews};

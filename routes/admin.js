@@ -60,8 +60,7 @@ router.get('/listings', async (req, res) => {
             // console.log(currentList);
             if (req.query.search){
                 searchField = req.query.search;
-                searchArr = searchField.split(' ');
-                currentList = await postData.filterPosts(searchArr, currentList);
+                currentList = await postData.searchPosts(searchField, currentList);
             }
             if (req.query.filter){
                 filterField = req.query.filter;

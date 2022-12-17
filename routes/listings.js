@@ -31,7 +31,7 @@ router
         // const loggedIn = false;
         // If there is the user logged in, then enable them to create posts and to logout.
         const loggedIn = typeof req.session.user !== 'undefined';
-
+        if (loggedIn && req.session.user['isAdmin']) res.redirect('/admin/listings')
         /** 
          * If the user has clicked a specific page (say, page 3), then we need to move the cursor 
          * in the database so that the corresponding posts are displayed. We must keep in mind any 

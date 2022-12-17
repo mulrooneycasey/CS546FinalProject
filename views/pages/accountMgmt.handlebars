@@ -1,12 +1,13 @@
 {{#if this.context.loggedIn}}
-    <form class="mt-sm-2 mt-lg-5 p-3" method="POST" action="/account">
+    <form class="mt-sm-2 mt-lg-5 p-3" action="/account">
         <div class="container-fluid align-items-center">
             <div class="form-group row">
                 <label for="emailInput" class="col-sm-3 col-auto col-form-label col-form-label-lg">Email:</label>
                 <div class="col-sm-6 col-lg-3">
                     <input type="email" class="form-control form-control-lg" id="emailInput" name="emailInput" size="16" minlength="3" maxlength="64" placeholder="Enter email" aria-required="false">
                 </div>
-                <div class="col-sm-4 col-lg-auto">
+                <div class="w-100"></div>
+                <div class="col-sm-3 col-auto">
                     <span class="small text-muted">Must be a valid email address.</span>
                 </div>
             </div>
@@ -15,7 +16,8 @@
                 <div class="col-sm-6 col-auto offset-md-1">
                     <input type="text" class="form-control form-control-lg" id="usernameInput" name="usernameInput" pattern="[A-Za-z*\d]{5,20}" placeholder="Enter username" aria-required="false">
                 </div>
-                <div class="col-sm-4 col-lg-auto">
+                <div class="w-100"></div>
+                <div class="col-sm-3 col-auto">
                     <span class="small text-muted">Must contain at least 5 characters, only alphanumeric (A-Z, 0-9)</span>
                 </div>
             </div>
@@ -24,7 +26,8 @@
                 <div class="col-sm-6 col-auto offset-md-1">
                     <input type="password" class="form-control form-control-lg" id="passwordInput" name="passwordInput" pattern="(?=.*\d)(?=.*[!@#$%^&*_=+-])(?=.*[a-z])(?=.*[A-Z]).{6,64}" placeholder="Enter valid password" aria-required="false">
                 </div>
-                <div class="col-sm-4 col-lg-auto">
+                <div class="w-100"></div>
+                <div class="col-sm-3 col-auto">
                     <span class="small text-muted">Must contain at least 1 uppercase charater, 1 lowercase character, 1 number, and 1 special character.</span>
                 </div>
             </div>

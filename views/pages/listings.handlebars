@@ -97,9 +97,7 @@
     <div class="row row-cols-1">
         {{#if this.context.posts}}
         <div class="container-fluid" id="post-area"></div>
-            <script type="text/template" id="handlebarsTemplate">
-                    {{#each this.context.posts}} {{> post this trunc=../context/trunc mgmtPage=../context/mgmtPage loggedIn=../context/loggedIn }} {{/each}}
-            </script>
+            {{#each this.context.posts}} {{> post this trunc=../context/trunc mgmtPage=../context/mgmtPage loggedIn=../context/loggedIn }} {{/each}}
         </div>
         {{else}}
             <div class="col">

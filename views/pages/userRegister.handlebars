@@ -1,4 +1,4 @@
-<form class="mt-sm-2 mt-lg-5 p-3" method="POST" action="/register">
+<form class="mt-sm-2 mt-lg-5 p-3 needs-validation" method="POST" action="/register" novalidate>
     <div class="container-fluid align-items-center">
         <div class="form-group row">
             <label for="firstInput" class="col-sm-3 col-auto col-form-label col-form-label-lg">First Name:</label>
@@ -6,7 +6,7 @@
                 <input type="text" class="form-control form-control-lg" id="firstInput" name="firstInput" pattern="[A-Za-z]{3,64}" placeholder="Enter first name" aria-required="true" required>
             </div>
             <div class="col-sm-4 col-auto">
-                <span class="small text-muted">Minimum 3 letters</span>
+                <span class="small text-muted">Must contain at least 3 alphabetic characters.</span>
             </div>
         </div>
         <div class="form-group row">
@@ -15,7 +15,7 @@
                 <input type="text" class="form-control form-control-lg" id="lastInput" name="lastInput" pattern="[A-Za-z]{3,64}" placeholder="Enter last name" aria-required="true" required>
             </div>
             <div class="col-sm-4 col-auto">
-                <span class="small text-muted">Minimum 3 letters</span>
+                <span class="small text-muted">Must contain at least 3 alphabetic characters.</span>
             </div>
         </div>
         <div class="form-group row">
@@ -24,7 +24,7 @@
                 <input type="text" class="form-control form-control-lg" id="usernameInput" name="usernameInput" pattern="[A-Za-z*\d]{5,20}" placeholder="Enter username" aria-required="true" required>
             </div>
             <div class="col-sm-4 col-auto">
-                <span class="small text-muted">Must contain at least 5 characters, only alphanumeric (A-Z, 0-9)</span>
+                <span class="small text-muted">Must contain at least 5 characters, only alphanumeric (A-Z, 0-9).</span>
             </div>
         </div>
         <div class="form-group row">
@@ -51,7 +51,7 @@
         </div>
         {{#if error}}
             <div class="alert alert-danger mt-2 mb-1" role="alert">
-                <h6 class="alert-heading">You had the following error(s):</h6>
+                <h1 class="alert-heading h6">You had the following error(s):</h1>
                 <ul class="list-group list-group-flush">
                     {{#each errors}}
                         <li class="list-group-item">{{this}}</li>

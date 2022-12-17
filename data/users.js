@@ -5,8 +5,22 @@ const { ObjectId } = require('mongodb');
 const bcrypt = require('bcrypt');
 const helpers = require('../helpers');
 const posts = require('./posts');
+const { users } = require('.');
 
 //make usernames case insensitive
+async function checkForUser(username){
+    const userColletion = await users();
+    username.toLowerCase();
+    let users = {}
+    users= await userCollection.find({});
+    for(let i=0; i<user.length; i++){
+        if(users[i]['username'].toLowerCase()==username){
+            return true;
+        }
+    }
+    return false;
+}
+
 async function createUser(firstName, lastName, email, username, password){//returns whole user object with id as a string
     if(!firstName || !lastName || !email || !username || !password){
         throw "to sign up need a first name, last name, email address, username, and password";
@@ -36,6 +50,10 @@ async function createUser(firstName, lastName, email, username, password){//retu
     //username length of 5, no special characters only letters and numbers
     if(username.length<5 || helpers.containsSpec(username)){
         throw "not a valid username";
+    }
+    let checker = this.checkForUser(username);
+    if(checker){
+        throw "username already exists";
     }
     if(password.length<5){
         throw "password is too short";
@@ -78,7 +96,6 @@ async function getUserById(id){ //returns whole user with id as a string
     return user;
 }
 
-//need to unhash passwords for this
 async function changeFirstName(id, password, change){
     let user = this.getUserById(id);
     if(user==null){
@@ -225,9 +242,9 @@ async function changeEmail(id, password, change){
     if(user==null){
         throw "user does not exist";
     }
-    let pass=user.password;
-
-    if(pass!=password){
+    let pass=user['password'];
+    let match=await bcrypt.compare(password, pass);
+    if(!match){
         throw "password does not match";
     }
     if(!change || typeof change!='string'){
@@ -251,6 +268,24 @@ async function changeEmail(id, password, change){
         throw "Error: name did not update";
     }
     return await this.getUserById(id);
+}
+
+async function deleteAccount(id, password, isAdmin){
+    let user = this.getUserById(id);
+    if(user==null){
+        throw "user does not exist";
+    }
+    let pass=user['password'];
+    let match=await bcrypt.compare(password, pass);
+    if(!match){
+        throw "password does not match";
+    }
+    const userCollection = await users();
+    const del = await userCollection.deleteOne({_id: ObjectId(id)});
+    if(del.deleteCount==0){
+        throw "Error: did not delete account";
+    }
+    return {deleted: true};
 }
 
 async function makePost(id, firstName, lastName, object, image, location){//returns postId of the new post
@@ -496,5 +531,6 @@ module.exports = {
     addRating,
     makePost,
     makeComment,
-    makeReview
+    makeReview,
+    deleteAccount
 };

@@ -396,33 +396,33 @@ router.post('/comment/:postId', async (req, res) => {
      * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
      */
     //reviewLater nick
-    // const userId = req.session.user['_id'];
-    // let errors = [];
-    // try{
-    //     await postData.createComment(postId, req.session.user['username'], req.body.comment.trim())
-    //     const result = await userData.addComment(postId, userId.toString())
-    //     if (result['commentInserted'] !== true){
-    //         res.status(500).render('pages/soloListing', {
-    //             scripts: ['/public/js/soloListing.js'],
-    //             context: { 
-    //                 //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
-    //                 error: true,
-    //                 errors: errors
+    const userId = req.session.user['_id'];
+    let errors = [];
+    try{
+        await userData.makeComment(req.session.user['_id'], postId, req.session.user['username'], req.body.comment.trim())
+        const result = await userData.addComment(postId, userId.toString())
+        if (result['commentInserted'] !== true){
+            res.status(500).render('pages/soloListing', {
+                scripts: ['/public/js/soloListing.js'],
+                context: { 
+                    noPagination: true,
+                    error: true,
+                    errors: errors
     //post, loggedIn, truncination, posts error: true errors: errors all in 
-    //                 }
-    //             });
-    //     }
-    // } catch (e){
-    //     errors.append(e.toString());
-    //     res.status(400).render('pages/soloListing', { //Maybe to the post's page?
-    //         scripts: ['/public/js/soloListing.js'],
-    //         context: { 
-    //             //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
-    //             error: true,
-    //             errors: errors
-    //             }
-    //         });
-    // }
+                    }
+                });
+        }
+    } catch (e){
+        errors.append(e.toString());
+        res.status(400).render('pages/soloListing', { //Maybe to the post's page?
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+                error: true,
+                errors: errors
+                }
+            });
+    }
 });
 
 module.exports = router;

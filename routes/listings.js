@@ -111,7 +111,6 @@ router
  */
 router.get('/:postId', async (req, res) => {
     const postId = req.params.postId;
-    console.log(postId);
     //const post = postData.getPostById(postId);
     /** 
      * Once you add the user to the session, you can delete the line below and uncomment the other 
@@ -128,7 +127,6 @@ router.get('/:postId', async (req, res) => {
     let thePost = undefined
     try {
         thePost = await postData.getPostById(postId);
-        console.log(thePost);
     }catch (e){
         res.render('pages/soloListing', {
             scripts: ['/public/js/soloListing.js'],

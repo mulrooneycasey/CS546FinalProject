@@ -135,11 +135,21 @@ async function getUserById(id){ //returns whole user with id as a string
 
 async function changeFirstName(id, password, change){//returns user with userID as a string
     let user = this.getUserById(id);
+    if(!password || !change){
+        throw "error: need password and new first name";
+    }
+    if(typeof password!='string' || typeof change!='string'){
+        throw "Error password and new first name needs to be strings";
+    }
     if(user==null){
         throw "user does not exist";
     }
     let pass=user['password'];
-    let match=await bcrypt.compare(password, pass);
+    try{
+        let match=await bcrypt.compare(password, pass);
+    }catch(e){
+
+    }
     if(!match){
         throw "password does not match";
     }
@@ -147,9 +157,6 @@ async function changeFirstName(id, password, change){//returns user with userID 
         throw "first name must be at least 3 letters";
     }
     change.trim()
-    if(change.length<3){
-        throw "first name must be at least 3 letters";
-    }
     if(helpers.containsNum(change) || helpers.containsPunct(change) || helpers.containsSpec(change)){
         throw "first name cannot have numbers punctuation, or special characters";
     }
@@ -167,16 +174,23 @@ async function changeFirstName(id, password, change){//returns user with userID 
 
 async function changeLastName(id, password, change){//returns user with userID as a string
     let user = this.getUserById(id);
+    if(!password || !change){
+        throw "error: need password and new last name";
+    }
+    if(typeof password!='string' || typeof change!='string'){
+        throw "Error password and new last name needs to be strings";
+    }
     if(user==null){
         throw "user does not exist";
     }
     let pass=user['password'];
-    let match=await bcrypt.compare(password, pass);
+    try{
+        let match=await bcrypt.compare(password, pass);
+    }catch(e){
+
+    }
     if(!match){
         throw "password does not match";
-    }
-    if(!change || typeof change!='string'){
-        throw "first name must be at least 3 letters";
     }
     change.trim()
     if(change.length<3){
@@ -199,23 +213,31 @@ async function changeLastName(id, password, change){//returns user with userID a
 
 async function changeUsername(id, password, change){//returns user with userID as a string
     let user = this.getUserById(id);
+    if(!password || !change){
+        throw "error: need password and new username";
+    }
+    if(typeof password!='string' || typeof change!='string'){
+        throw "Error password and new username needs to be strings";
+    }
     if(user==null){
         throw "user does not exist";
     }
     let pass=user['password'];
-    let match=await bcrypt.compare(password, pass);
+    try{
+        let match=await bcrypt.compare(password, pass);
+    }catch(e){
+
+    }
     if(!match){
         throw "password does not match";
     }
-    if(!change || typeof change!='string'){
-        throw "first name must be at least 3 letters";
-    }
     change.trim()
-    if(change.length<3){
-        throw "username must be at least 3 letters";
+    if(change.length<5 || helpers.containsSpec(change)){
+        throw "username must be 5 characters long and cannot contain special characters";
     }
-    if(helpers.containsNum(change) || helpers.containsPunct(change) || helpers.containsSpec(change)){
-        throw "username cannot have numbers punctuation, or special characters";
+    let checker = await this.checkForUser(change);
+    if(checker){
+        throw "username already exists";
     }
     const userCollection = await users();
     // if(user['username']==change){
@@ -234,18 +256,39 @@ async function changeUsername(id, password, change){//returns user with userID a
     return await this.getUserById(id);
 }
 
+/*const at = email.indexOf('@');
+    if(at ==-1){
+        throw "not a proper email";
+    }
+    if(!email.includes('.', at)){
+        throw "not a proper email";
+    }
+    //username length of 5, no special characters only letters and numbers
+    let checker2 = await checkForEmail(email);
+    if (checker2) throw "email already exists";
+    if(password.length<5){
+        throw "password is too short";
+    }*/
+
 async function changePassword(id, password, change){//returns use with userID as a string
     let user = this.getUserById(id);
+    if(!password || !change){
+        throw "error: need password and new password";
+    }
+    if(typeof password!='string' || typeof change!='string'){
+        throw "Error password and new password needs to be strings";
+    }
     if(user==null){
         throw "user does not exist";
     }
     let pass=user['password'];
-    let match=await bcrypt.compare(password, pass);
+    try{
+        let match=await bcrypt.compare(password, pass);
+    }catch(e){
+
+    }
     if(!match){
         throw "password does not match";
-    }
-    if(!change || typeof change!='string'){
-        throw "first name must be at least 3 letters";
     }
     change.trim();
     if(change.length<5){

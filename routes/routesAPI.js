@@ -257,7 +257,7 @@ router
                     });
             }
         } catch (e) {
-            errors.push(e.toString()); //Check if this works reviewLater; In general, this is jank but hopefully its ok?
+            errors.push(e); //Check if this works reviewLater; In general, this is jank but hopefully its ok?
             res.status(400).render('pages/userRegister', {
                 scripts: ['/public/js/userRegister.js'],
                 context: { 
@@ -396,33 +396,59 @@ router.post('/comment/:postId', async (req, res) => {
      * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
      */
     //reviewLater nick
+    let loggedIn = false;
+    let isAdmin = false;
+    if (req.session.user){
+        loggedIn = true;
+        if (req.session.user.isAdmin === true) isAdmin = true;
+    }
+    else{
+        res.status(403).redirect('/login')
+        return;
+    }
     const userId = req.session.user['_id'];
     let errors = [];
+    let comment = req.body['comment-textarea']
+    if (!comment) errors.push ("No comment given");
+    else if (comment !== "string") errors.push("Comment is not of type string.");
+    comment = comment.trim();
+    if (comment.length === 0) errors.push("Comment cannot be only whitespace.");
+    let result = undefined;
+    console.log(errors);
     try{
-        await userData.makeComment(req.session.user['_id'], postId, req.session.user['username'], req.body.comment.trim())
-        const result = await userData.addComment(postId, userId.toString())
-        if (result['commentInserted'] !== true){
+        result = await userData.makeComment(userId, postId, req.session.user.username, comment)
+        console.log(id);
+        if (result['_id'] !== userId){
+            console.log("this occurred")
             res.status(500).render('pages/soloListing', {
                 scripts: ['/public/js/soloListing.js'],
                 context: { 
                     noPagination: true,
                     error: true,
-                    errors: errors
+                    errors: errors,
+                    loggedIn: loggedIn,
+                    isAdmin: isAdmin
     //post, loggedIn, truncination, posts error: true errors: errors all in 
                     }
                 });
+                return;
         }
     } catch (e){
-        errors.append(e.toString());
+        errors.push(e);
         res.status(400).render('pages/soloListing', { //Maybe to the post's page?
             scripts: ['/public/js/soloListing.js'],
             context: { 
                 //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
                 error: true,
-                errors: errors
+                errors: errors,
+                noPagination: true,
+                LoggedIn: loggedIn,
+                isAdmin: isAdmin
                 }
             });
+            return;
     }
+    res.redirect(`/listings/${postId}`);
 });
 
 module.exports = router;

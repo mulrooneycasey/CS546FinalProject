@@ -104,11 +104,11 @@ async function createReview(postID, username, comment, rating){ //returns review
 
 async function createComment(postID, username, comment){//returns comment object id as a string
     if(!postID || !username || !comment){
-        throw "missing info for review";
+        throw "missing info for comment";
     }
     if(typeof postID!='string' || typeof username!='string' || 
     typeof comment!='string'){
-        throw "type of info is wrong for review";
+        throw "type of info is wrong for comment";
     }
     postID.trim();
     username.trim();

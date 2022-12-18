@@ -2,13 +2,21 @@
     <form class="mt-sm-2 mt-lg-5 p-3" action="/account">
         <div class="container-fluid align-items-center">
             <div class="form-group row">
-                <label for="emailInput" class="col-sm-3 col-auto col-form-label col-form-label-lg">Email:</label>
-                <div class="col-sm-6 col-lg-3">
-                    <input type="email" class="form-control form-control-lg" id="emailInput" name="emailInput" size="16" minlength="3" maxlength="64" placeholder="Enter email" aria-required="false">
+            <label for="firstInput" class="col-sm-2 col-form-label col-form-label-lg">First Name:</label>
+            <div class="col-sm-6 col-auto offset-md-1">
+                <input type="text" class="form-control form-control-lg" id="firstInput" name="firstInput" pattern="[A-Za-z]{3,64}" placeholder="Enter first name" aria-required="true" required>
+            </div>
+            <div class="col-sm-4 col-auto">
+                <span class="small text-muted">Must contain at least 3 alphabetic characters.</span>
+            </div>
+            </div>
+            <div class="form-group row">
+                <label for="lastInput" class="col-sm-2 col-form-label col-form-label-lg">Last Name:</label>
+                <div class="col-sm-6 col-auto offset-md-1">
+                    <input type="text" class="form-control form-control-lg" id="lastInput" name="lastInput" pattern="[A-Za-z]{3,64}" placeholder="Enter last name" aria-required="true" required>
                 </div>
-                <div class="w-100"></div>
-                <div class="col-sm-3 col-auto">
-                    <span class="small text-muted">Must be a valid email address.</span>
+                <div class="col-sm-4 col-auto">
+                    <span class="small text-muted">Must contain at least 3 alphabetic characters.</span>
                 </div>
             </div>
             <div class="form-group row">
@@ -19,6 +27,16 @@
                 <div class="w-100"></div>
                 <div class="col-sm-3 col-auto">
                     <span class="small text-muted">Must contain at least 5 characters, only alphanumeric (A-Z, 0-9)</span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="emailInput" class="col-sm-3 col-auto col-form-label col-form-label-lg">Email:</label>
+                <div class="col-sm-6  col-auto">
+                    <input type="email" class="form-control form-control-lg" id="emailInput" name="emailInput" size="16" minlength="3" maxlength="64" placeholder="Enter email" aria-required="false">
+                </div>
+                <div class="w-100"></div>
+                <div class="col-sm-3 col-auto">
+                    <span class="small text-muted">Must be a valid email address.</span>
                 </div>
             </div>
             <div class="form-group row">

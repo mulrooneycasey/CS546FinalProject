@@ -23,6 +23,7 @@ router
         if (loggedIn && req.session.user['isAdmin']) res.redirect('/admin/listings')
         //Beginning of nick filter/page/search
         let currentList = []
+        let errors = [];
         try{
             currentList = await postData.getAllPosts();
         } catch (e){
@@ -70,6 +71,22 @@ router
                     allKeywords.push(keyword)
                 }
             }
+            }catch (e){
+                errors.push(e);
+            }
+
+            if (errors.length > 0) { 
+                res.status(400).render('pages/listing', {
+                    scripts: ['/public/js/listing.js'],
+                    context: {
+                        error: true,
+                        errors: true,
+                        noPagination: true
+                    }
+                });
+                return;
+            }
+
             res.render('pages/listings', {
                 scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                 context: {
@@ -80,9 +97,7 @@ router
                     isAdmin: false
                 }
             })
-            }catch (e){
-                console.log(e);
-            }
+            return;
         })
     .post(async (req, res) => {
         /** 

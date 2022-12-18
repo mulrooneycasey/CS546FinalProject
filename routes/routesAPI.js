@@ -112,8 +112,8 @@ router.get('/about', async (req, res) => {
     res.render('pages/about', {
         context: {
             noPagination: true,
-            loggedIn: loggedIn, //change to loggedIn reviewLater
-            isAdmin: isAdmin //change to isAdmin
+            loggedIn: loggedIn, 
+            isAdmin: isAdmin 
         }
     });
 });
@@ -392,10 +392,6 @@ router.post('/comment/:postId', async (req, res) => {
     /** 
      * Insert the code that updates the user's collection of comments here.
      */
-    /** 
-     * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
-     */
-    //reviewLater nick
     let loggedIn = false;
     let isAdmin = false;
     if (req.session.user){
@@ -403,32 +399,55 @@ router.post('/comment/:postId', async (req, res) => {
         if (req.session.user.isAdmin === true) isAdmin = true;
     }
     else{
-        res.status(403).redirect('/login')
-        return;
+        res.status(403).render('pages/soloListing', { //Maybe to the post's page?
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+                error: true,
+                errors: ["You must be logged in to make a comment"],
+                noPagination: true,
+                LoggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
     }
+
     const userId = req.session.user['_id'];
     let errors = [];
     let comment = req.body['comment-textarea']
     if (!comment) errors.push ("No comment given");
-    else if (comment !== "string") errors.push("Comment is not of type string.");
+    else if (typeof comment !== "string") errors.push("Comment is not of type string.");
     comment = comment.trim();
     if (comment.length === 0) errors.push("Comment cannot be only whitespace.");
+    
+    if (errors.length > 0) { 
+            res.status(400).render('pages/soloListing', {
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                error: true,
+                errors: errors,
+                noPagination: true,
+                loggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
+        }
+
     let result = undefined;
-    console.log(errors);
+
     try{
         result = await userData.makeComment(userId, postId, req.session.user.username, comment)
-        console.log(id);
         if (result['_id'] !== userId){
-            console.log("this occurred")
             res.status(500).render('pages/soloListing', {
                 scripts: ['/public/js/soloListing.js'],
                 context: { 
                     noPagination: true,
                     error: true,
-                    errors: errors,
+                    errors: ["Internal Server Error"],
                     loggedIn: loggedIn,
                     isAdmin: isAdmin
-    //post, loggedIn, truncination, posts error: true errors: errors all in 
                     }
                 });
                 return;
@@ -448,6 +467,7 @@ router.post('/comment/:postId', async (req, res) => {
             });
             return;
     }
+
     res.redirect(`/listings/${postId}`);
 });
 

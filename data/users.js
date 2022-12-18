@@ -333,7 +333,7 @@ async function makePost(id, firstName, lastName, object, image, location, keywor
     }
     const newPost = await posts.createPost(firstName, lastName, object, image, location, keywords);
     let ogPosts = user['posts'];
-    ogPosts.push(newPost);
+    ogPosts.push(ObjectId(newPost));
     let userCollection = await users();
     const update = {posts: ogPosts};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
@@ -348,9 +348,16 @@ async function makeComment(id, postID, username, comment){ //returns whole user 
     if(user==null){
         throw "user does not exist";
     }
+    let userComments = user.comments; //array of id's
+    let count = 0;
+    let postComments = postData.getPostById(postID).comments; //array of comments
+    for (let comment in postComments){
+        if (userComments.includes(comment._id)) count++;
+    }
+    if (count > 3) throw "User cannot submit more than three comments per post.";
     const newComment = await posts.createComment(postID, username, comment);
     let ogComments = user['comments'];
-    ogComments.push(newComment);
+    ogComments.push(ObjectId(newComment));
     let userCollection = await users();
     const update = {comments: ogComments};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
@@ -366,7 +373,7 @@ async function makeReview(id, postID, username, comment, rating){ //returns whol
     }
     const newReview = await posts.createReview(postID, username, comment, rating);
     let ogReviews = user['reviews'];
-    ogReviews.push(newReview);
+    ogReviews.push(ObjectId(newReview));
     let userCollection = await users();
     const update = {reviews: ogReviews};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
@@ -419,6 +426,9 @@ async function favorite(userID, postID){//removes or adds favorite to post
     let newFavorite = user['favorites'];
     let update;
     let info;
+    for (let i = 0; i < user.favorites.length; i++){
+        user.favorites[i] = user.favorites[i].toString();
+    }
     if(user['favorites'].includes(postID)){
         try{
             await posts.removeFavorite(postID);

@@ -5,11 +5,11 @@ const {ObjectId} = require('mongodb');
 const bcrypt = require('bcrypt');
 const helpers = require('../helpers');
 
-async function createPost(username, object, image, location, keywords){ //returns postId
-    if(!username || !object || !image || !location || !keywords){
+async function createPost(username, object, image, location, keywords, placed){ //returns postId
+    if(!username || !object || !image || !location || !keywords || !placed){
         throw "missing item";
     }
-    if(typeof username!='string' || typeof location!='string' || typeof object!='string'){
+    if(typeof username!='string' || typeof location!='string' || typeof object!='string' || typeof placed !== "boolean"){
         throw "username, location, and object has to be a string";
     }
     if(typeof keywords != ' undefined' && typeof keywords != 'string'){
@@ -29,7 +29,7 @@ async function createPost(username, object, image, location, keywords){ //return
     const d = new Date();
     const date = (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
     time=d.toTimeString();
-    let newPost = {username: username, description: object, image: image,
+    let newPost = {username: username, description: object, image: image, placed: placed,
         location: location, time: time, date: date, overallRating: 5, reviews: [], comments: [], status: "pending", keywords: keywords.split("; "), favorites: 0};
     const insertInfo = await postCollection.insertOne(newPost);
     if(!insertInfo.acknowledged || !insertInfo.insertedId){

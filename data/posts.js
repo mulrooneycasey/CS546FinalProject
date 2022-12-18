@@ -4,7 +4,6 @@ const users = mongoCollections.users;
 const {ObjectId} = require('mongodb');
 const bcrypt = require('bcrypt');
 const helpers = require('../helpers');
-const userData = require('./users')
 
 async function createPost(firstName, lastName, object, image, location, keywords){ //returns postId
     if(!firstName || !lastName || !object || !image || !location || !keywords){
@@ -382,16 +381,38 @@ async function getAllPostsByUser(userId){
     if (!userId) throw "Error: Must supply userId";
     if (typeof userId != 'string') throw "Error: userId must be a string";
     userId = userId.trim();
-    if (userId.length() === 0) throw "Error: userId cannot be only whitespace";
+    if (userId.length === 0) throw "Error: userId cannot be only whitespace";
     if (!ObjectId.isValid(userId)) throw "Error: userId is not a valid objectId";
-    
-    const postCollection = await posts();
-    const postList = await postCollection.find({}).toArray();
+    const postList = await getAllPosts();
     if (!postList) throw 'Error: Could not get all posts';
     for (const post of postList){ //turn to strings for use in getPostById
         post["_id"] = post["_id"].toString();
     }
-    return postList;
+    let user = async () =>{//you might be wondering why I did this and why I did not just get the actual function from userData
+        if(!userId){  //CIRCULAR LOGIC ISNT ALLOWED IS WHY AHHHHHHHH
+            throw "Error: no userId provided";
+        }
+        if(typeof userId!='string' || userId.trim()==''){
+            throw "Error: userId is not a valid string";
+        }
+        userId=userId.trim();
+        if(!ObjectId.isValid(userId)){
+            throw "Error: userId is not valid";
+        }
+        const userCollection = await users();
+        let user= await userCollection.findOne({_id: ObjectId(userId)});
+        if(user==null){
+            throw "no post with that id";
+        }
+        user['_id']=user['_id'].toString();
+        return user;
+    }
+    let tUser = await user();
+    let answer = [];
+    for (const post of postList){
+        if (tUser.posts.includes(post._id)) answer.push(post);
+    }
+    return answer;
 }
 
 module.exports = {

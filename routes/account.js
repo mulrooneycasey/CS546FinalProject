@@ -183,11 +183,16 @@ router
             let result5 = undefined;
 
             try{
-                if (typeof firstName !== "undefined") result1 = await userData.changeFirstName(userId, password, firstName)
-                if (typeof lastName !== "undefined") result2 = await userData.changeLastName(userId, lastName, lastName)
+                if (typeof firstName !== "undefined") result1 = await userData.changeFirstName(userId, password, firstName) 
+                else result1 = await userData.changeFirstName(userId, password, req.session.user.firstName); //As a put, all fields must be updated; MongoDb might not like
+                if (typeof lastName !== "undefined") result2 = await userData.changeLastName(userId, lastName, lastName) //But i removed the error checking disallowing
+                else result2 = await userData.changeLastName(userId, password, req.session.user.lastName);
                 if (typeof username !== "undefined") result3 = await userData.changeUsername(userId, password, username)
+                else result3 = await userData.changeUsername(userId, password, req.session.user.lastName);
                 if (typeof email !== "undefined") result4 = await userData.changeEmail(userId, password, email);
+                else result4 = await userData.changeEmail(userId, password, req.session.user.lastName);
                 if (typeof passwordC !== "undefined") result5 = await userData.changePassword(userId, password, passwordC);
+                else result5 = await userData.changePassword(userId, password, req.session.user.lastName);
 
                 if ((typeof firstName !== "undefined" && result1['_id'] !== userId) || (typeof lastName !== "undefined" && result2['_id'] !== userId) ||
                 (typeof username !== "undefined" && result3['_id'] !== userId) || (typeof email !== "undefined" && result4['_id'] !== userId) ||
@@ -292,13 +297,15 @@ router
 
 
         let currentList = []
+        console.log(currentList)
         try{
-            currentList = await postData.getAllPosts(); //just change this to getAllPostsBy
+            currentList = await postData.getAllPostsByUser(req.session.user._id); //just change this to getAllPostsBy
         } catch (e){
             res.status(500).render('pages/listings', {
                 scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                 context: {
                     loggedIn: loggedIn,
+                    allKeywords,
                     isAdmin: false,
                     error: true,
                     errors: ["Internal Server Error"]
@@ -306,6 +313,7 @@ router
             })
             return;
         }
+        console.log(currentList)
 
         try{
             currentList.sort(helpers.compareNumbers)
@@ -355,6 +363,7 @@ router
                 context: {
                     loggedIn: loggedIn,
                     isAdmin: false,
+                    allKeywords,
                     error: true,
                     errors: errors
                 }

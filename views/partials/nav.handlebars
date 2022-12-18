@@ -3,7 +3,7 @@
     <span class="navbar-brand h3"><a href="/">Hoboken Curbside</a></span>
     <label for="navbar-toggler" hidden>navbar</label>
     <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-toggle" id="navbar-toggler">
-        <span class="navbar-toggler-icon"></span>
+        <span class="navbar-toggler-icon">.</span>
     </button>
     <div class="container">
         <div class="collapse navbar-collapse" id="navbar-toggle">
@@ -26,18 +26,18 @@
             </ul>
             {{!-- float: right; --}}
             {{#if trunc}}
-            <form class="form-inline">
-                <div class="input-group">
-                    <label for="search" hidden="true">Search</label>
-                    <input type="text" class="form-control mr-sm-2" id="search" name="search" placeholder="Search...">
-                    <div class="input-group-append">
-                        <button type="button" class="close invisible" aria-label="Clear Search">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                <form class="form-inline">
+                    <div class="input-group">
+                        <label for="search" aria-hidden="true" hidden="true">Search</label>
+                        <input type="text" class="form-control mr-sm-2" id="search" name="search" placeholder="Search...">
+                        <div class="input-group-append">
+                            <button type="button" class="close invisible" aria-label="Clear Search">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <button type="submit" class="btn btn-outline-success my-2">Search</button>
-            </form>
+                    <button type="submit" class="btn btn-outline-success my-2">Search</button>
+                </form>
             {{/if}}
         </div>
     </div>

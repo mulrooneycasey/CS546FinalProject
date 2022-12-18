@@ -10,6 +10,7 @@ async function main() {
     //create users and their posts
     //user one
     const andrew1 = await users.createUser('Andrew', 'Capro', 'acapro@gmail.com', 'acapro', 'Andrew123!', 22, "732-555-2234") //create returns whole user object with id as a string
+
     const aPost1 = await users.makePost(andrew1['_id'], 'acapro', 'Dumbbells and Backpack', "../public/photos/img.png", '3 Cool Ln.', 'Dumbbells; and; Backpack') //make creates the post, and adds it to user as well, returns postId
     await users.makePost(andrew1['_id'], 'acapro', 'Potted Plant', '../public/photos/img2.jpg', '400 West St.', 'Potted; Plant')
     const aPostID = aPost1

@@ -9,7 +9,7 @@ const xss = require('xss');
 const data = require('../data');
 const helpers = require('../helpers');
 const { addFavorite } = require('../data/users');
-const { ObjectID } = require('bson');
+const { ObjectId } = require('mongodb');
 const userData = data.users;
 const postData = data.posts;
 /** Include any helper functions here. */
@@ -227,6 +227,7 @@ router
     .route('/register')
     .get(async (req, res) => {
         if (req.session.user) res.redirect('/listings')
+
         res.render('pages/userRegister', {
             scripts: ['/public/js/userRegister.js'],
             context: {
@@ -235,7 +236,18 @@ router
         });
     })
     .post(async (req, res) => {
-        if (req.session.user) res.redirect('/listings')
+        if (req.session.user) {
+            res.status(403).render('pages/userRegister', {
+                scripts: ['/public/js/userRegister.js'],
+                context: { 
+                    noPagination: true,
+                    error: true,
+                    errors: ["You cannot register while logged in."]
+                    }
+                });
+                return;
+        }
+
         let errors = [];
         let firstName = req.body.firstInput
         let lastName = req.body.lastInput
@@ -408,7 +420,7 @@ router.post('/favorite/:postId', async (req, res) => {
     else if (typeof postId !== "string") errors.push("PostId must be a string.")
     else postId = postId.trim();
     if (postId.length === 0) errors.push("postId cannot be only whitespace");
-    else if (!ObjectID.isValid(postId)) errors.push("Must be a valid postId");
+    else if (!ObjectId.isValid(postId)) errors.push("Must be a valid postId");
 
     if (errors.length > 0) { 
         res.status(400).render('pages/soloListing', {
@@ -427,26 +439,31 @@ router.post('/favorite/:postId', async (req, res) => {
     try{
         const result = await userData.favorite(userId, postId)
         if (result['favoriteInserted'] !== true){
-            res.status(500).render('pages/soloListing', {
+            res.status(500).render('pages/soloListing', { //Maybe to the post's page?
                 scripts: ['/public/js/soloListing.js'],
                 context: { 
-                    noPagination: true,
                     error: true,
-                    errors: errors
+                    errors: ["Internal Server Error"],
+                    noPagination: true,
+                    LoggedIn: loggedIn,
+                    isAdmin: isAdmin
                     }
                 });
-            return;
+                return;
         }
     } catch (e){
-        errors.append(e.toString());
+        errors.push(e);
         res.status(400).render('pages/soloListing', { //Maybe to the post's page?
             scripts: ['/public/js/soloListing.js'],
             context: { 
-                noPagination: true;
                 error: true,
-                errors: errors
+                errors: errors,
+                noPagination: true,
+                LoggedIn: loggedIn,
+                isAdmin: isAdmin
                 }
             });
+            return;
         return;
     }
     
@@ -458,7 +475,7 @@ router.post('/favorite/:postId', async (req, res) => {
  *   Adds a review to the given post.
  */
 router.post('/review/:postId', async (req, res) => {  
-    const postId = req.params.postId.trim();
+    const postID = req.params.postId;
     /** 
      * Insert the code that updates the user's collection of reviews here.
      */
@@ -466,32 +483,104 @@ router.post('/review/:postId', async (req, res) => {
      * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
      */
     //reviewLater nick
-    // const userId = req.session.user['_id'];
-    // let errors = [];
-    // try{
-    //     await postData.createReview(postId, req.session.user['username'], req.body.comment.trim(), req.body.rating)
-    //     const result = await userData.addRating(postId, userId.toString())
-    //     if (result['ratingInserted'] !== true){
-    //         res.status(500).render('pages/soloListing', {
-    //             scripts: ['/public/js/soloListing.js'],
-    //             context: { 
-    //                 //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
-    //                 error: true,
-    //                 errors: errors
-    //                 }
-    //             });
-    //     }
-    // } catch (e){
-    //     errors.append(e.toString());
-    //     res.status(400).render('pages/soloListing', { //Maybe to the post's page?
-    //         scripts: ['/public/js/soloListing.js'],
-    //         context: { 
-    //             //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
-    //             error: true,
-    //             errors: errors
-    //             }
-    //         });
-    // }
+    let loggedIn = false;
+    let isAdmin = false;
+    if (req.session.user){
+        loggedIn = true;
+        if (req.session.user.isAdmin === true) isAdmin = true;
+    }
+    else{
+        res.status(403).render('pages/soloListing', { //Maybe to the post's page?
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                error: true,
+                errors: ["You must be logged in to rate a post"],
+                noPagination: true,
+                LoggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
+    }
+
+    const userId = req.session.user['_id'];
+    let errors = [];
+    let username = req.session.user.username;
+    let comment = req.body['review-textarea'];
+    let rating = req.body['review-rating'];
+    rating = parseInt(rating);
+    
+
+    if(!postID || !username || !comment || !rating){
+        errors.push( "missing info for review");
+    }
+    else if(typeof postID!='string' || typeof username!='string' || 
+    typeof comment!='string' || typeof rating!='number'){
+        errors.push( "type of info is wrong for review");
+    }
+    else {
+        postID.trim();
+        username.trim();
+        comment.trim();
+    }
+    if (typeof postID ==='string' && typeof username ==='string' && 
+    typeof comment ==='string' && typeof rating ==='number'){
+        if(postID=='' || username=='' || comment==''){
+            errors.push( "postid, username, or comment is empty");
+        }
+        if(rating<1 || rating>5){
+            errors.push( "rating needs to be 1-5");
+        }
+        if(!ObjectId.isValid(postID)){
+            errors.push( "not valid post id");
+        }
+    }
+
+    if (errors.length > 0) { 
+        res.status(400).render('pages/soloListing', {
+        scripts: ['/public/js/soloListing.js'],
+        context: { 
+            error: true,
+            errors: errors,
+            noPagination: true,
+            loggedIn: loggedIn,
+            isAdmin: isAdmin
+            }
+        });
+        return;
+    }
+
+    try{
+        const result = await userData.makeReview(userId, postID, username, comment, rating);
+        if (result['username'] !== username){
+            res.status(500).render('pages/soloListing', { //Maybe to the post's page?
+                scripts: ['/public/js/soloListing.js'],
+                context: { 
+                    error: true,
+                    errors: ["Internal server error"],
+                    noPagination: true,
+                    LoggedIn: loggedIn,
+                    isAdmin: isAdmin
+                    }
+                });
+                return;
+        }
+    } catch (e){
+        errors.push(e);
+        res.status(400).render('pages/soloListing', { //Maybe to the post's page?
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                error: true,
+                errors: errors,
+                noPagination: true,
+                LoggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
+    }
+
+    res.redirect(`/listings/${postID}`)
 });
 
 /**
@@ -531,7 +620,7 @@ router.post('/comment/:postId', async (req, res) => {
     else if (typeof comment !== "string") errors.push("Comment is not of type string.");
     else comment = comment.trim();
     if (typeof comment === "string" && comment.length === 0) errors.push("Comment cannot be only whitespace.");
-    if (typeof comment === "string" && !ObjectID.isValid(postId)) errors.push("PostId must be a valid objectId");
+    if (typeof comment === "string" && !ObjectId.isValid(postId)) errors.push("PostId must be a valid objectId");
     
     if (errors.length > 0) { 
         res.status(400).render('pages/soloListing', {

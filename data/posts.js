@@ -284,11 +284,12 @@ async function deletePost(postID){//deletes post
         throw "postID is not a valid";
     }
     const postCollection = await posts();
+    const postExists = await this.getPostById(postID);
     const del = await postCollection.deleteOne({_id: ObjectId(postID)});
     if(del.deletedCount==0){
         throw "Error: did not delete post id";
     }
-    return {deleteed: true};
+    return {deleted: true};
 }
 
 async function postApproval(postID, isAdmin, approval){//changes status of post and if denied deletes it
@@ -311,7 +312,7 @@ async function postApproval(postID, isAdmin, approval){//changes status of post 
         throw "Error: need admin status to approve or deny posts"
     }
     if(approval!=='approve' || approval !=='deny'){
-        throw "Error: need to prove or deny";
+        throw "Error: need to approve or deny";
     }
     const postCollection = await posts();
     if(approval===true){
@@ -414,12 +415,22 @@ async function getAllPostsByUser(userId){
     return answer;
 }
 
-async function updatePostsByUser(userID, newUsername){
+async function updatePostsByUser(userId, newUsername){
     if (!userId) throw "Error: Must supply userId";
     if (typeof userId != 'string') throw "Error: userId must be a string";
     userId = userId.trim();
     if (userId.length === 0) throw "Error: userId cannot be only whitespace";
     if (!ObjectId.isValid(userId)) throw "Error: userId is not a valid objectId";
+    if(!newUsername){
+        throw "Error: need new username";
+    }
+    if(typeof newUsername != 'string'){
+        throw "Error: username needs to be a string";
+    }
+    newUsername.trim();
+    if(newUsername==''){
+        throw "Error: username cannot be only white space";
+    }
     let posts = await this.getAllPostsByUser(userID);
     let currPost;
     let update;

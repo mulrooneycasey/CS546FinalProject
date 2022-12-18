@@ -55,20 +55,21 @@ async function checkForEmail(email){ //I made a new function because the other o
     return false;
 }
 
-async function createUser(firstName, lastName, email, username, password, age){//returns whole user object with id as a string
-    if(!firstName || !lastName || !email || !username || !password || !age){
-        throw "to sign up need a first name, last name, email address, username, password, and age";
+async function createUser(firstName, lastName, email, username, password, age, phoneNumber){//returns whole user object with id as a string
+    if(!firstName || !lastName || !email || !username || !password || !age || !phoneNumber){
+        throw "to sign up need a first name, last name, email address, username, password, age, and phone number";
     }
     if(typeof firstName!='string' || typeof lastName!='string' || typeof email!='string' ||
-    typeof username!='string' || typeof password!='string'){
+    typeof username!='string' || typeof password!='string' || typeof phoneNumber != 'string' || typeof age != "number"){
         throw "inputs are not valid strings";
     }
-    if (typeof age !== "number" && age >= 13) throw "age given is invalid.";
+    if (typeof age !== "number" || age < 13) throw "age given is invalid.";
     firstName.trim();
     lastName.trim();
     email.trim();
     username.trim();
     password.trim();
+    phoneNumber.trim();
     if (firstName.length === 0 || lastName.length === 0 || email.length === 0 || username.length === 0 || password.length === 0) throw "An element cannot be only whitespace."
     if(firstName.length<3 || lastName.length<3){
         throw "first name or last name are too short";
@@ -100,10 +101,13 @@ async function createUser(firstName, lastName, email, username, password, age){/
     helpers.containsSpec(password)) || helpers.containsSpace(password)){
         throw "password needs a number, special character, and uppercase with no spaces"
     }
+    let phoneLiteral = /[1-9]{3,}-[1-9]{3,}-[1-9]{4,}/
+    if (!phoneLiteral.test(phoneNumber)) throw "must be a valid phone number of format ###-###-####"
+
 
     const userCollection = await users()
     const hash = await bcrypt.hash(password, 10);
-    let newUser = {firstName: firstName, lastName: lastName, email: email, username: username, password: hash, city: 'Hoboken', state: 'New Jersey', age: age, isAdmin: false, favorites: [], posts: [], reviews: [], comments: []};
+    let newUser = {firstName: firstName, lastName: lastName, email: email, username: username, password: hash, city: 'Hoboken', state: 'New Jersey', age: age, phoneNumber: phoneNumber, isAdmin: false, favorites: [], posts: [], reviews: [], comments: []};
     const insertInfo = await userCollection.insertOne(newUser);
     if(!insertInfo.acknowledged || !insertInfo.insertedId){
         throw "Error: could not add movie";
@@ -332,12 +336,12 @@ async function deleteAccount(id, password){
     return {deleted: true};
 }
 
-async function makePost(id, firstName, lastName, object, image, location, keywords){//returns postId of the new post
+async function makePost(id, username, object, image, location, keywords){//returns postId of the new post
     let user = await this.getUserById(id);
     if(user==null){
         throw "user does not exist";
     }
-    const newPost = await posts.createPost(firstName, lastName, object, image, location, keywords);
+    const newPost = await posts.createPost(username, object, image, location, keywords);
     let ogPosts = user['posts'];
     ogPosts.push(newPost);
     let userCollection = await users();

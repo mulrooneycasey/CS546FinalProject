@@ -255,14 +255,17 @@ router
         let username = xss(req.body.usernameInput)
         let password = xss(req.body.passwordInput)
         let email = xss(req.body.emailInput)
+        let age = parseInt(xss(req.body.ageInput));
+        let phoneNumber = xss(req.body.phoneInput);
         //Error checking
-        if(!firstName || !lastName || !email || !username || !password){
+        if(!firstName || !lastName || !email || !username || !password || !age || !phoneNumber){
             errors.push( "to sign up need a first name, last name, email address, username, and password");
         }
         else if (typeof firstName!='string' || typeof lastName!='string' || typeof email!='string' ||
-        typeof username!='string' || typeof password!='string'){
+        typeof username!='string' || typeof password!='string' || typeof phoneNumber != 'string'){
             errors.push( "inputs are not valid strings");
         }
+        if (typeof age !== "number" || age < 13) errors.push("age given is invalid.");
         else{
             firstName.trim();
             lastName.trim();
@@ -302,7 +305,10 @@ router
             helpers.containsSpec(password)) || helpers.containsSpace(password)){
                 errors.push( "password needs a number, special character, and uppercase with no spaces")
             }
+            let phoneLiteral = /[1-9]{3,}-[1-9]{3,}-[1-9]{4,}/
+            if (!phoneLiteral.test(phoneNumber)) throw "must be a valid phone number of format ###-###-####"
         }
+
         if (errors.length > 0) { //Similar to login, error page is not shown for registration if there is an error reviewLater
             res.status(400).render('pages/userRegister', {
             scripts: ['/public/js/userRegister.js'],
@@ -317,7 +323,7 @@ router
     
 
         try {
-            const newUser = await userData.createUser(firstName, lastName, email, username, password);
+            const newUser = await userData.createUser(firstName, lastName, email, username, password, age, phoneNumber);
             if (newUser['firstName'] === firstName) {
                 res.redirect('/login'); 
             }

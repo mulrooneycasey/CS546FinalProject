@@ -71,12 +71,12 @@ router
 
         let errors = [];
         let userId = req.session.user._id
-        let username = req.body.usernameInput;
-        let password = req.body.confirmationPasswordInput //NOTE: password is the CONFIRMATION PASSWORD, NOT THE CHANGE TO PASSWORD
-        let firstName = req.body.firstNameInput;
-        let lastName = req.body.lastNameInput;
-        let email = req.body.emailInput;
-        let passwordC = req.body.passwordInput;
+        let username = xss(req.body.usernameInput);
+        let password = xss(req.body.confirmationPasswordInput) //NOTE: password is the CONFIRMATION PASSWORD, NOT THE CHANGE TO PASSWORD
+        let firstName = xss(req.body.firstNameInput);
+        let lastName = xss(req.body.lastNameInput);
+        let email = xss(req.body.emailInput);
+        let passwordC = xss(req.body.passwordInput);
 
         if (typeof password !== "undefined") errors.push("Password must be supplied to change any information.")
         else{
@@ -318,11 +318,11 @@ router
         try{
             currentList.sort(helpers.compareNumbers)
             if (req.query.search){
-                let searchField = req.query.search;
+                let searchField = xss(req.query.search);
                 currentList = await postData.searchPosts(searchField, currentList);
             }
             if (req.query.filter){ //works if we have keywords as one words only!
-                let filterField = req.query.filter;
+                let filterField = xss(req.query.filter);
                 let filterArr = [];
                 if (typeof filterField === "string") {
                     filterArr.push(filterField)
@@ -333,7 +333,7 @@ router
                 }
             }
             if (req.query.page){
-                let pageField = req.query.page;
+                let pageField = xss(req.query.page);
                 pageField = parseInt(pageField);
                 currentList = await postData.getPostsByIndex(pageField*10-10, 10, currentList);
             }
@@ -393,7 +393,7 @@ router.get('/listings/:postId', async (req, res) => {
          * other ones to restore the correct functionality. - Chance 
          */
         //mgmtPage: true and ownPost: true
-        let postId = req.params.postId;
+        let postId = xss(req.params.postId);
         const loggedIn = typeof req.session.user !== 'undefined';
         let isAdmin = false;
         if (loggedIn && req.session.user.isAdmin) isAdmin = true;

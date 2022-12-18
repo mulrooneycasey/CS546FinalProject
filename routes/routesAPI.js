@@ -250,11 +250,11 @@ router
         }
 
         let errors = [];
-        let firstName = req.body.firstInput
-        let lastName = req.body.lastInput
-        let username = req.body.usernameInput
-        let password = req.body.passwordInput
-        let email = req.body.emailInput
+        let firstName = xss(req.body.firstInput)
+        let lastName = xss(req.body.lastInput)
+        let username = xss(req.body.usernameInput)
+        let password = xss(req.body.passwordInput)
+        let email = xss(req.body.emailInput)
         //Error checking
         if(!firstName || !lastName || !email || !username || !password){
             errors.push( "to sign up need a first name, last name, email address, username, and password");
@@ -387,7 +387,7 @@ router.get('/logout', async (req, res) => {
  *   Favorites the given post.
  */
 router.post('/favorite/:postId', async (req, res) => {
-    let postId = req.params.postId; //use just favorite()
+    let postId = xss(req.params.postId); //use just favorite()
     /** 
      * Insert the code that appends the ObjectId (MongoDB) of the post to the user's list of 
      * favorites here.

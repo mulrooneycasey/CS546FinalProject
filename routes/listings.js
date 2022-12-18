@@ -42,11 +42,11 @@ router
             currentList.sort(helpers.compareNumbers)//
             // console.log(currentList);
             if (req.query.search){
-                let searchField = req.query.search;
+                let searchField = xss(req.query.search);
                 currentList = await postData.searchPosts(searchField, currentList);
             }
             if (req.query.filter){ //works if we have keywords as one words only!
-                let filterField = req.query.filter;
+                let filterField = xss(req.query.filter);
                 let filterArr = [];
                 if (typeof filterField === "string") {
                     filterArr.push(filterField)
@@ -57,7 +57,7 @@ router
                 }
             }
             if (req.query.page){
-                let pageField = req.query.page;
+                let pageField = xss(req.query.page);
                 pageField = parseInt(pageField);
                 currentList = await postData.getPostsByIndex(pageField*10-10, 10, currentList);
             }
@@ -110,12 +110,12 @@ router
             return;
         }
 
-        let userId = req.session.user;
-        let firstName = req.session.user.firstName;
-        let lastName = req.session.user.lastName;
-        let object = req.body.descriptionInput;
-        let image = req.body.imageInput;
-        let location = req.body.locationInput;
+        let userId = xss(req.session.user);
+        let firstName = xss(req.session.user.firstName);
+        let lastName = xss(req.session.user.lastName);
+        let object = xss(req.body.descriptionInput);
+        let image = xss(req.body.imageInput);
+        let location = xss(req.body.locationInput);
 
         if(!firstName || !lastName || !object || !image || !location || !keywords){
             throw "missing item";
@@ -191,7 +191,7 @@ router
  *   Takes us to the "Individual Listing" page for the given post.
  */
 router.get('/:postId', async (req, res) => {
-    let postId = req.params.postId;
+    let postId = xss(req.params.postId);
     const loggedIn = typeof req.session.user !== 'undefined';
     if (loggedIn && req.session.user.isAdmin) res.redirect(`/admin/listings/${postId}`)
     errors = [];

@@ -62,8 +62,9 @@ router.get('/', async (req, res) => {
      * Insert code that, if the user is logged in, determines whether the user is an admin or not 
      * here. - Chance 
      */
-    if (loggedIn === true){
-        const isAdmin = req.session.user['isAdmin'];
+    let isAdmin = false;
+    if (loggedIn){
+        isAdmin = req.session.user['isAdmin'];
         if (isAdmin) res.redirect('/admin')
     } 
     const allKeywords = [];
@@ -83,12 +84,23 @@ router.get('/', async (req, res) => {
                 allKeywords: allKeywords,
                 loggedIn: loggedIn,
                 trunc: true,
-                isAdmin: false,
+                isAdmin: isAdmin,
                 isHome: true
             }
         })
     } catch (e) {
-            console.log(e);
+        res.render('pages/homeInfo', {
+            scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
+            context: {
+                allKeywords: allKeywords,
+                loggedIn: loggedIn,
+                trunc: true,
+                isAdmin: isAdmin,
+                isHome: true,
+                error: true,
+                errors: ["Internal Server Error.", e]
+            }
+        })
     }
 });
 
@@ -112,8 +124,8 @@ router.get('/about', async (req, res) => {
     res.render('pages/about', {
         context: {
             noPagination: true,
-            loggedIn: loggedIn, //change to loggedIn reviewLater
-            isAdmin: isAdmin //change to isAdmin
+            loggedIn: loggedIn, 
+            isAdmin: isAdmin 
         }
     });
 });
@@ -128,17 +140,6 @@ router.get('/about', async (req, res) => {
 router
     .route('/login')
     .get(async (req, res) => {
-        /** 
-         * Once you add the user to the session, you can delete the line below and uncomment the 
-         * other ones to restore the correct functionality. - Chance 
-         */
-        // res.render('pages/userLogin', {
-        //     scripts: ['/public/js/userLogin.js'],
-        //     context: {
-        //         noPagination: true
-        //     }
-        // });
-
         if (req.session.user) res.redirect('/'); 
         else res.render('pages/userLogin', {
             scripts: ['/public/js/userLogin.js'],
@@ -156,9 +157,25 @@ router
          * reference. - Chance
          */
         //uncomment when ready reviewLater - Nick
+        if (req.session.user) res.redirect('/');
         let errors = [];
         let emailInput = req.body.emailInput;
         let passwordInput = req.body.passwordInput;
+        if (!emailInput || !passwordInput) errors.push("Email or password not provided.")
+        else if (typeof emailInput !== "string" || typeof passwordInput !== "string") errors.push("Email or password is not a string.");
+        emailInput = emailInput.trim();
+        emailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; //Sourced from https://www.w3resource.com/javascript/form/email-validation.php for the regular expression -Nicholas Mule 
+        if (emailInput.length === 0) errors.push( "Error: Email cannot be only whitespace.");
+        if (!emailFormat.test(emailInput)) errors.push("Email is invalid format.");
+        passwordInput = passwordInput.trim();
+        if (passwordInput === "") errors.push("Error: Password cannot be only whitespace.")
+        if (helpers.containsSpace(passwordInput)) errors.push( "Error: Password cannot contain a whitespace within.");
+        if (passwordInput.length < 6) errors.push("Error: Password must be atleast 6 characters aside from bordering whitespace.");
+        if (!helpers.containsUpper(passwordInput)) errors.push( "Error: Password must contain atleast one uppercase character.");
+        if (!helpers.containsNum(passwordInput)) errors.push( "Error: Password must contain atleast one number.");
+        if (!helpers.containsSpec(passwordInput) && !helpers.containsPunct(passwordInput)) errors.push( "Error: Password must contain atleast one special character.");
+        
+        
         let theUser = undefined;
         try {
             theUser = await userData.checkUser(emailInput, passwordInput); 
@@ -258,7 +275,7 @@ router
                     });
             }
         } catch (e) {
-            errors.push(e.toString()); //Check if this works reviewLater; In general, this is jank but hopefully its ok?
+            errors.push(e); //Check if this works reviewLater; In general, this is jank but hopefully its ok?
             res.status(400).render('pages/userRegister', {
                 scripts: ['/public/js/userRegister.js'],
                 context: { 
@@ -393,37 +410,83 @@ router.post('/comment/:postId', async (req, res) => {
     /** 
      * Insert the code that updates the user's collection of comments here.
      */
-    /** 
-     * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
-     */
-    //reviewLater nick
+    let loggedIn = false;
+    let isAdmin = false;
+    if (req.session.user){
+        loggedIn = true;
+        if (req.session.user.isAdmin === true) isAdmin = true;
+    }
+    else{
+        res.status(403).render('pages/soloListing', { //Maybe to the post's page?
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+                error: true,
+                errors: ["You must be logged in to make a comment"],
+                noPagination: true,
+                LoggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
+    }
+
     const userId = req.session.user['_id'];
     let errors = [];
+    let comment = req.body['comment-textarea']
+    if (!comment) errors.push ("No comment given");
+    else if (typeof comment !== "string") errors.push("Comment is not of type string.");
+    comment = comment.trim();
+    if (comment.length === 0) errors.push("Comment cannot be only whitespace.");
+    
+    if (errors.length > 0) { 
+            res.status(400).render('pages/soloListing', {
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                error: true,
+                errors: errors,
+                noPagination: true,
+                loggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
+        }
+
+    let result = undefined;
+
     try{
-        await userData.makeComment(req.session.user['_id'], postId, req.session.user['username'], req.body.comment.trim())
-        const result = await userData.addComment(postId, userId.toString())
-        if (result['commentInserted'] !== true){
+        result = await userData.makeComment(userId, postId, req.session.user.username, comment)
+        if (result['_id'] !== userId){
             res.status(500).render('pages/soloListing', {
                 scripts: ['/public/js/soloListing.js'],
                 context: { 
                     noPagination: true,
                     error: true,
-                    errors: errors
-    //post, loggedIn, truncination, posts error: true errors: errors all in 
+                    errors: ["Internal Server Error"],
+                    loggedIn: loggedIn,
+                    isAdmin: isAdmin
                     }
                 });
+                return;
         }
     } catch (e){
-        errors.append(e.toString());
+        errors.push(e);
         res.status(400).render('pages/soloListing', { //Maybe to the post's page?
             scripts: ['/public/js/soloListing.js'],
             context: { 
                 //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
                 error: true,
-                errors: errors
+                errors: errors,
+                noPagination: true,
+                LoggedIn: loggedIn,
+                isAdmin: isAdmin
                 }
             });
+            return;
     }
+
+    res.redirect(`/listings/${postId}`);
 });
 
 module.exports = router;

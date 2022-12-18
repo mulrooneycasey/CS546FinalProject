@@ -80,18 +80,8 @@ router
                     isAdmin: false
                 }
             })
-            return;
-            } catch (e){
-                res.status(400).render('pages/listings', {
-                scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
-                context: {
-                    loggedIn: loggedIn,
-                    isAdmin: false,
-                    error: true,
-                    errors: errors
-                }
-            })
-            return;
+            }catch (e){
+                console.log(e);
             }
         })
     .post(async (req, res) => {
@@ -143,47 +133,16 @@ router
         
         if (errors.length > 0) { 
             res.status(400).render('pages/soloListing', {
-            scripts: ['/public/js/soloListing.js'],
-            context: { 
-                error: true,
-                errors: errors,
-                noPagination: true,
-                loggedIn: loggedIn,
-                isAdmin: isAdmin
-                }
-            });
-            return;
-        }
-        
-        let postId = undefined;
-        try{
-            postId = await userData.makePost(userId, firstName, lastName, object, image, location, keyword)
-            if (!ObjectId.isValid(postId)){
-                res.render('pages/soloListing', {
-                    scripts: ['/public/js/soloListing.js'],
-                    context: {
-                        loggedIn: loggedIn,
-                        trunc: false,
-                        noPagination: true,
-                        error: true,
-                        errors: ["Internal Server Error"]
-                    }
-                });
-            }
-        } catch (e){
-            res.render('pages/soloListing', {
                 scripts: ['/public/js/soloListing.js'],
                 context: {
-                    loggedIn: loggedIn,
+                    post: thePost,
+                    loggedIn: true,
                     trunc: false,
-                    noPagination: true,
-                    error: true,
-                    errors: errors
+                    noPagination: true
                 }
             });
         }
-
-        res.redirect(`/listings/${postId}`)
+        //descriptionInput, imageInput, locationInput, keywordInput
     });
 
 /**

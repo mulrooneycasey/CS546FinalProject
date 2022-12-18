@@ -49,6 +49,15 @@
             </div>
             </div>
             <div class="form-group row">
+            <label for="ageInput" class="col-sm-3 col-auto col-form-label col-form-label-lg">Age:</label>
+            <div class="col-sm-6 col-auto">
+                <input type="number" class="form-control form-control-lg" id="ageInput" name="ageInput" min="18" max="100" placeholder="Enter age" aria-required="true" required>
+            </div>
+            <div class="col-sm-4 col-auto">
+                <span class="small text-muted">Must be atleast 18</span>
+            </div>
+            </div>
+            <div class="form-group row">
                 <label for="passwordInput" class="col-sm-2 col-form-label col-form-label-lg">New Password:</label>
                 <div class="col-sm-6 col-auto offset-md-1">
                     <input type="password" class="form-control form-control-lg" id="passwordInput" name="passwordInput" pattern="(?=.*\d)(?=.*[!@#$%^&*_=+-])(?=.*[a-z])(?=.*[A-Z]).{6,64}" placeholder="Enter valid password" aria-required="false">

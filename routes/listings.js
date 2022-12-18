@@ -23,6 +23,7 @@ router
         if (loggedIn && req.session.user['isAdmin']) res.redirect('/admin/listings')
         //Beginning of nick filter/page/search
         let currentList = []
+        let errors = [];
         try{
             currentList = await postData.getAllPosts();
         } catch (e){

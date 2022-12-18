@@ -158,10 +158,11 @@ router
          * reference. - Chance
          */
         //uncomment when ready reviewLater - Nick
+        //req.body = xss(req.body);
         if (req.session.user) res.redirect('/');
         let errors = [];
-        let emailInput = req.body.emailInput;
-        let passwordInput = req.body.passwordInput;
+        let emailInput = xss(req.body.emailInput);
+        let passwordInput = xss(req.body.passwordInput);
         if (!emailInput || !passwordInput) errors.push("Email or password not provided.")
         else if (typeof emailInput !== "string" || typeof passwordInput !== "string") errors.push("Email or password is not a string.");
         if (typeof emailInput === "string" && typeof passwordInput === "string") {
@@ -292,6 +293,8 @@ router
             if(checker){
                 errors.push( "username already exists");
             }
+            let checker2 = await userData.checkForEmail(email);
+            if (checker2) errors.push("Email already in use")
             if(password.length<5){
                 errors.push( "password is too short");
             }

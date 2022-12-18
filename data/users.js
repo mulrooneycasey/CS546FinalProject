@@ -43,6 +43,18 @@ async function checkForUser(username){ //I made a new function because the other
     return false;
 }
 
+async function checkForEmail(email){ //I made a new function because the other one does not work for some reason i cant figure out, yet somehow this one does
+    const userCollection = await users();
+    email = email.toLowerCase();
+    const allUsers = await userCollection.find({}).toArray();
+    for (let user of allUsers){
+        let temp = "";
+        if (user) temp = user.email;
+        if (temp && temp === email) return true;
+    }
+    return false;
+}
+
 async function createUser(firstName, lastName, email, username, password){//returns whole user object with id as a string
     if(!firstName || !lastName || !email || !username || !password){
         throw "to sign up need a first name, last name, email address, username, and password";
@@ -78,6 +90,8 @@ async function createUser(firstName, lastName, email, username, password){//retu
     if(checker){
         throw "username already exists";
     }
+    let checker2 = await checkForEmail(email);
+    if (checker2) throw "email already exists";
     if(password.length<5){
         throw "password is too short";
     }
@@ -634,5 +648,6 @@ module.exports = {
     checkForUser,
     deleteAccount,
     approvePost,
+    checkForEmail,
     favorite
 };

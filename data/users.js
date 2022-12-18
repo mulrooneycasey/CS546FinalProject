@@ -393,7 +393,7 @@ async function makePost(id, username, object, image, location, keywords){//retur
     }
     const newPost = await posts.createPost(username, object, image, location, keywords);
     let ogPosts = user['posts'];
-    ogPosts.push(newPost['_id']);
+    ogPosts.push(ObjectId(newPost));
     let userCollection = await users();
     const update = {posts: ogPosts};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});

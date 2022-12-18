@@ -379,12 +379,17 @@ async function deleteAccount(id, password){
     return {deleted: true};
 }
 
-async function makePost(id, username, object, image, location, keywords){//returns postId of the new post
+async function makePost(id, username, object, image, location, keywords, placed){//returns postId of the new post
     let user = await this.getUserById(id);
     if(user==null){
         throw "user does not exist";
     }
-    const newPost = await posts.createPost(username, object, image, location, keywords);
+    if (typeof placed !== "string") throw "placed must be a string"
+    let placedB = undefined;
+    if (placed.toLowerCase() === "true") placedB = true;
+    else if (placed.toLowerCase() === "false") placedB = false;
+    else throw "placed must be a boolean value (true/false)";
+    const newPost = await posts.createPost(username, object, image, location, keywords, placedB);
     let ogPosts = user['posts'];
     ogPosts.push(ObjectId(newPost));
     let userCollection = await users();

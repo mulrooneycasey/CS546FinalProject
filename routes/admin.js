@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
                 mgmtPage: true,
                 loggedIn: false,
                 error: true,
-                errors: ['You are not currently logged in.']
+                errors: ['Admins only.']
             }
         });
     }

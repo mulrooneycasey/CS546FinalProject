@@ -1,8 +1,10 @@
 const mongoCollections = require('../config/mongoCollections');
 const posts = mongoCollections.posts;
+const users = mongoCollections.users;
 const {ObjectId} = require('mongodb');
 const bcrypt = require('bcrypt');
 const helpers = require('../helpers');
+const userData = require('./users')
 
 async function createPost(firstName, lastName, object, image, location, keywords){ //returns postId
     if(!firstName || !lastName || !object || !image || !location || !keywords){
@@ -376,6 +378,22 @@ async function removeFavorite(postID){//removes favorite from a post, returns po
     return await this.getPostById(id);
 }
 
+async function getAllPostsByUser(userId){
+    if (!userId) throw "Error: Must supply userId";
+    if (typeof userId != 'string') throw "Error: userId must be a string";
+    userId = userId.trim();
+    if (userId.length() === 0) throw "Error: userId cannot be only whitespace";
+    if (!ObjectId.isValid(userId)) throw "Error: userId is not a valid objectId";
+    
+    const postCollection = await posts();
+    const postList = await postCollection.find({}).toArray();
+    if (!postList) throw 'Error: Could not get all posts';
+    for (const post of postList){ //turn to strings for use in getPostById
+        post["_id"] = post["_id"].toString();
+    }
+    return postList;
+}
+
 module.exports = {
     createPost,
     createReview,
@@ -389,5 +407,6 @@ module.exports = {
     deletePost,
     postApproval,
     favoritePost,
-    removeFavorite
+    removeFavorite,
+    getAllPostsByUser
 };

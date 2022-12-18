@@ -156,7 +156,7 @@ router
             return;
         }
         
-        const postId = undefined;
+        let postId = undefined;
         try{
             postId = await userData.makePost(userId, firstName, lastName, object, image, location, keyword)
             if (!ObjectId.isValid(postId)){
@@ -192,7 +192,7 @@ router
  *   Takes us to the "Individual Listing" page for the given post.
  */
 router.get('/:postId', async (req, res) => {
-    const postId = req.params.postId;
+    let postId = req.params.postId;
     const loggedIn = typeof req.session.user !== 'undefined';
     if (loggedIn && req.session.user.isAdmin) res.redirect(`/admin/listings/${postId}`)
     errors = [];

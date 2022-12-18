@@ -384,7 +384,7 @@ router.get('/logout', async (req, res) => {
  *   Favorites the given post.
  */
 router.post('/favorite/:postId', async (req, res) => {
-    const postId = req.params.postId; //use just favorite()
+    let postId = req.params.postId; //use just favorite()
     /** 
      * Insert the code that appends the ObjectId (MongoDB) of the post to the user's list of 
      * favorites here.
@@ -477,7 +477,7 @@ router.post('/favorite/:postId', async (req, res) => {
  *   Adds a review to the given post.
  */
 router.post('/review/:postId', async (req, res) => {  
-    const postID = req.params.postId;
+    let postID = req.params.postId;
     /** 
      * Insert the code that updates the user's collection of reviews here.
      */
@@ -590,7 +590,7 @@ router.post('/review/:postId', async (req, res) => {
  *   Comments on the given post.
  */
 router.post('/comment/:postId', async (req, res) => {    
-   const postId = req.params.postId;
+   let postId = req.params.postId;
     /** 
      * Insert the code that updates the user's collection of comments here.
      */
@@ -613,6 +613,14 @@ router.post('/comment/:postId', async (req, res) => {
                 }
             });
             return;
+    }
+
+    if (!postId) errors.push("Error: Must supply postId");
+    else if (typeof postId != 'string') errors.push("Error: postId must be a string");
+    else {
+        postId = postId.trim();
+        if (postId.length === 0) errors.push("Error: postId cannot be only whitespace");
+        else if (!ObjectId.isValid(postId)) errors.push("Error: postId is not a valid objectId");
     }
 
     const userId = req.session.user['_id'];

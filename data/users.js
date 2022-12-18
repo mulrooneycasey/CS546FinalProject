@@ -140,13 +140,13 @@ async function changeFirstName(id, password, change){//returns user with userID 
         throw "first name cannot have numbers punctuation, or special characters";
     }
     const userCollection = await users();
-    if(users['firstName']==change){
-        throw "name is the same as before";
-    }
+    // if(user['firstName']==change){ Because of put implementation, im going to only check this in the route
+    //     throw "name is the same as before";
+    // }
     const update = {firstName: change};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
-        throw "Error: name did not update";
+        throw "Error: first name did not update";
     }
     return await this.getUserById(id);
 }
@@ -172,13 +172,13 @@ async function changeLastName(id, password, change){//returns user with userID a
         throw "last name cannot have numbers punctuation, or special characters";
     }
     const userCollection = await users();
-    if(users['lastName']==change){
-        throw "name is the same as before";
-    }
+    // if(user['lastName']==change){
+    //     throw "name is the same as before";
+    // }
     const update = {lastName: change};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
-        throw "Error: name did not update";
+        throw "Error: last name did not update";
     }
     return await this.getUserById(id);
 }
@@ -204,13 +204,13 @@ async function changeUsername(id, password, change){//returns user with userID a
         throw "username cannot have numbers punctuation, or special characters";
     }
     const userCollection = await users();
-    if(users['username']==change){
-        throw "username is the same as before";
-    }
+    // if(user['username']==change){
+    //     throw "username is the same as before";
+    // }
     const update = {username: change};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
-        throw "Error: name did not update";
+        throw "Error: username did not update";
     }
     return await this.getUserById(id);
 }
@@ -241,7 +241,7 @@ async function changePassword(id, password, change){//returns use with userID as
     const update = {password: hash};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
-        throw "Error: name did not update";
+        throw "Error: password did not update";
     }
     return await this.getUserById(id);
 }

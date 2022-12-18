@@ -6,7 +6,7 @@
                 <input type="text" class="form-control form-control-lg" id="firstInput" name="firstInput" pattern="[A-Za-z]{3,64}" placeholder="Enter first name" aria-required="true" required>
             </div>
             <div class="col-sm-4 col-auto">
-                <span class="small text-muted">Must contain at least 3 alphabetic characters.</span>
+                <span class="small text-muted">Must contain at least 3 letters.</span>
             </div>
         </div>
         <div class="form-group row">
@@ -15,7 +15,7 @@
                 <input type="text" class="form-control form-control-lg" id="lastInput" name="lastInput" pattern="[A-Za-z]{3,64}" placeholder="Enter last name" aria-required="true" required>
             </div>
             <div class="col-sm-4 col-auto">
-                <span class="small text-muted">Must contain at least 3 alphabetic characters.</span>
+                <span class="small text-muted">Must contain at least 3 letters.</span>
             </div>
         </div>
         <div class="form-group row">
@@ -34,6 +34,24 @@
             </div>
             <div class="col-sm-4 col-auto">
                 <span class="small text-muted">Must be a valid email address.</span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="phoneInput" class="col-sm-3 col-auto col-form-label col-form-label-lg">Phone Number:</label>
+            <div class="col-sm-6 col-auto offset-md-1">
+                <input type="tel" class="form-control form-control-lg" id="phoneInput" name="phoneInput" placeholder="Enter phone number" pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}" aria-required="true" required>
+            </div>
+            <div class="col-sm-4 col-auto">
+                <span class="small text-muted">Must be a valid phone number.<br>Format: XXX-XXX-XXXX</span>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="ageInput" class="col-sm-3 col-auto col-form-label col-form-label-lg">Age:</label>
+            <div class="col-sm-6 col-auto offset-md-1">
+                <input type="number" class="form-control form-control-lg" id="ageInput" name="ageInput" min="18" max="100" placeholder="Enter age" aria-required="true" required>
+            </div>
+            <div class="col-sm-4 col-auto">
+                <span class="small text-muted">Must be atleast 18</span>
             </div>
         </div>
         <div class="form-group row">

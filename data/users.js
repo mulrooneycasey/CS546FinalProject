@@ -55,19 +55,21 @@ async function checkForEmail(email){ //I made a new function because the other o
     return false;
 }
 
-async function createUser(firstName, lastName, email, username, password){//returns whole user object with id as a string
-    if(!firstName || !lastName || !email || !username || !password){
-        throw "to sign up need a first name, last name, email address, username, and password";
+async function createUser(firstName, lastName, email, username, password, age, phoneNumber){//returns whole user object with id as a string
+    if(!firstName || !lastName || !email || !username || !password || !age || !phoneNumber){
+        throw "to sign up need a first name, last name, email address, username, password, age, and phone number";
     }
     if(typeof firstName!='string' || typeof lastName!='string' || typeof email!='string' ||
-    typeof username!='string' || typeof password!='string'){
+    typeof username!='string' || typeof password!='string' || typeof phoneNumber != 'string' || typeof age != "number"){
         throw "inputs are not valid strings";
     }
+    if (typeof age !== "number" || age < 13) throw "age given is invalid.";
     firstName.trim();
     lastName.trim();
     email.trim();
     username.trim();
     password.trim();
+    phoneNumber.trim();
     if (firstName.length === 0 || lastName.length === 0 || email.length === 0 || username.length === 0 || password.length === 0) throw "An element cannot be only whitespace."
     if(firstName.length<3 || lastName.length<3){
         throw "first name or last name are too short";
@@ -99,10 +101,13 @@ async function createUser(firstName, lastName, email, username, password){//retu
     helpers.containsSpec(password)) || helpers.containsSpace(password)){
         throw "password needs a number, special character, and uppercase with no spaces"
     }
+    let phoneLiteral = /[1-9]{3,}-[1-9]{3,}-[1-9]{4,}/
+    if (!phoneLiteral.test(phoneNumber)) throw "must be a valid phone number of format ###-###-####"
+
 
     const userCollection = await users()
     const hash = await bcrypt.hash(password, 10);
-    let newUser = {firstName: firstName, lastName: lastName, email: email, username: username, password: hash, city: 'Hoboken', state: 'New Jersey', isAdmin: false, favorites: [], posts: [], reviews: [], comments: []};
+    let newUser = {firstName: firstName, lastName: lastName, email: email, username: username, password: hash, city: 'Hoboken', state: 'New Jersey', age: age, phoneNumber: phoneNumber, isAdmin: false, favorites: [], posts: [], reviews: [], comments: []};
     const insertInfo = await userCollection.insertOne(newUser);
     if(!insertInfo.acknowledged || !insertInfo.insertedId){
         throw "Error: could not add movie";
@@ -374,12 +379,12 @@ async function deleteAccount(id, password){
     return {deleted: true};
 }
 
-async function makePost(id, firstName, lastName, object, image, location, keywords){//returns postId of the new post
+async function makePost(id, username, object, image, location, keywords){//returns postId of the new post
     let user = await this.getUserById(id);
     if(user==null){
         throw "user does not exist";
     }
-    const newPost = await posts.createPost(firstName, lastName, object, image, location, keywords);
+    const newPost = await posts.createPost(username, object, image, location, keywords);
     let ogPosts = user['posts'];
     ogPosts.push(ObjectId(newPost));
     let userCollection = await users();
@@ -594,97 +599,7 @@ const checkUser = async (email, password) => { //I just ripped this off of my la
   throw "Error: Either the email or the password is invalid.";
 };
 
-async function addRating(reviewId, userId){
-  if (!reviewId) throw "Error: Must supply reviewId";
-  if (typeof reviewId != 'string') throw "Error: reviewId must be a string";
-  reviewId = reviewId.trim();
-  if (reviewId.length() === 0) throw "Error: reviewId cannot be only whitespace";
-  if (!ObjectId.isValid(reviewId)) throw "Error: reviewId is not a valid objectId"; //dumb question but should it be a string still at first? - Nick
 
-  if (!userId) throw "Error: Must supply userId";
-  if (typeof userId != 'string') throw "Error: userId must be a string";
-  userId = userId.trim();
-  if (userId.length() === 0) throw "Error: userId cannot be only whitespace";
-  if (!ObjectId.isValid(userId)) throw "Error: userId is not a valid objectId"; //dumb question but should it be a string still at first? - Nick
-
-  const userCollection = await users();
-  const user = await getUserById(userId);
-  
-  //Maybe should check if the review exists? but not exactly because this is used with createReview soo
-
-  let newRatings = user['ratings'];
-  newRatings.push(reviewId);
-  
-
-  let newUser = {};
-  newUser['firstName'] = user['firstName'];
-  newUser['lastName'] = user['lastName'];
-  newUser['email'] = user['email'];
-  newUser['username'] = user['username'];
-  newUser['city'] = user['city'];
-  newUser['state'] = user['state'];
-  newUser['isAdmin'] = user['isAdmin']
-  newUser['favorites'] = user['favorites']
-  newUser['posts'] = user['posts'];
-  newUser['ratings'] = newRatings
-  newUser['comments'] = user['comments'];
-
-  const updatedInfo = await userCollection.updateOne(
-    {_id: ObjectId(userId)},
-    {$set: newUser}
-  );
-  if (updatedInfo.modifiedCount === 0) {
-    throw 'Error: could not update favorites successfully';
-  }
-
-  return {ratingInserted: true};
-}
-
-async function addComment(commentId, userId){
-  if (!commentId) throw "Error: Must supply commentId";
-  if (typeof commentId != 'string') throw "Error: commentId must be a string";
-  commentId = commentId.trim();
-  if (commentId.length() === 0) throw "Error: commentId cannot be only whitespace";
-  if (!ObjectId.isValid(commentId)) throw "Error: commentId is not a valid objectId"; //dumb question but should it be a string still at first? - Nick
-
-  if (!userId) throw "Error: Must supply userId";
-  if (typeof userId != 'string') throw "Error: userId must be a string";
-  userId = userId.trim();
-  if (userId.length() === 0) throw "Error: userId cannot be only whitespace";
-  if (!ObjectId.isValid(userId)) throw "Error: userId is not a valid objectId"; //dumb question but should it be a string still at first? - Nick
-
-  const userCollection = await users();
-  const user = await getUserById(userId);
-  
-  //Maybe should check if the review exists? but not exactly because this is used with createReview soo
-
-  let newComments = user['comments'];
-  newComments.push(commentId);
-  
-
-  let newUser = {};
-  newUser['firstName'] = user['firstName'];
-  newUser['lastName'] = user['lastName'];
-  newUser['email'] = user['email'];
-  newUser['username'] = user['username'];
-  newUser['city'] = user['city'];
-  newUser['state'] = user['state'];
-  newUser['isAdmin'] = user['isAdmin']
-  newUser['favorites'] = user['favorites']
-  newUser['posts'] = user['posts'];
-  newUser['ratings'] = user['ratings']
-  newUser['comments'] = newComments
-
-  const updatedInfo = await userCollection.updateOne(
-    {_id: ObjectId(userId)},
-    {$set: newUser}
-  );
-  if (updatedInfo.modifiedCount === 0) {
-    throw 'Error: could not update favorites successfully';
-  }
-
-  return {commentInserted: true};
-}
 
 
 module.exports = {
@@ -698,8 +613,6 @@ module.exports = {
     checkUser,
     getUserById,
     addFavorite,
-    addComment,
-    addRating,
     makePost,
     makeComment,
     makeReview,

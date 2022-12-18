@@ -47,7 +47,7 @@ app.use(session({
     secret: 'hoboken curbside', // This can be changed to whatever you think works best. - Chance
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 30000 } // This can be changed to whatever you think works best. - Chance
+    cookie: { maxAge: 300000 } // This can be changed to whatever you think works best. - Chance
 }));
 /** rest of middleware code goes here */
 

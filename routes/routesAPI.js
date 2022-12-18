@@ -163,6 +163,7 @@ router
         let passwordInput = req.body.passwordInput;
         if (!emailInput || !passwordInput) errors.push("Email or password not provided.")
         else if (typeof emailInput !== "string" || typeof passwordInput !== "string") errors.push("Email or password is not a string.");
+        if (typeof emailInput === "string" && typeof passwordInput === "string") {
         emailInput = emailInput.trim();
         emailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; //Sourced from https://www.w3resource.com/javascript/form/email-validation.php for the regular expression -Nicholas Mule 
         if (emailInput.length === 0) errors.push( "Error: Email cannot be only whitespace.");
@@ -174,18 +175,27 @@ router
         if (!helpers.containsUpper(passwordInput)) errors.push( "Error: Password must contain atleast one uppercase character.");
         if (!helpers.containsNum(passwordInput)) errors.push( "Error: Password must contain atleast one number.");
         if (!helpers.containsSpec(passwordInput) && !helpers.containsPunct(passwordInput)) errors.push( "Error: Password must contain atleast one special character.");
-        
+        }
+        if (errors.length > 0) { //Login does not show this even if it occurs, not sure why. Might have to do with js script? - Nick
+            res.status(400).render('pages/userLogin', {
+                scripts: ['/public/js/userLogin.js'],
+                context: { 
+                    noPagination: true,
+                    error: true,
+                    errors: errors
+                }
+            });
+            return;
+        }
         
         let theUser = undefined;
         try {
             theUser = await userData.checkUser(emailInput, passwordInput); 
         }
-        catch (e){
-            console.log(e);
+        catch (e){ 
             errors.push(e); //This block is to catch the error of 'Either invalid password or username'
         } //theUser is now a whole user object after this part
         
-        console.log(errors.length)
         if (errors.length > 0) {
             res.status(400).render('pages/userLogin', {
                 scripts: ['/public/js/userLogin.js'],
@@ -215,52 +225,82 @@ router
 router
     .route('/register')
     .get(async (req, res) => {
-        /** 
-         * Once you add the user to the session, you can delete the line below and uncomment the 
-         * other ones to restore the correct functionality. - Chance 
-         */
+        if (req.session.user) res.redirect('/listings')
         res.render('pages/userRegister', {
             scripts: ['/public/js/userRegister.js'],
             context: {
                 noPagination: true
             }
         });
-        // if (req.session.user) res.redirect('/'); reviewLater
-        // else res.render('pages/userRegister', {
-        //     scripts: ['/public/js/userRegister.js'],
-        //     context: {
-        //         noPagination: true
-        //     }
-        // });
     })
     .post(async (req, res) => {
-        /** 
-         * This function is pretty much free for the taking. If registering throws any errors, 
-         * render the page again with an object of 'error: true' and 'errors: <array of error 
-         * strings>', and with a HTTP 400 (or 500 if it's likely a server/db error) status code. I 
-         * guess if you're confused by what any of this means, you can look at the "PUT /account" 
-         * route for reference. - Chance 
-         */ 
-        //reviewLater Nick
-        let theUserData = req.body; 
+        if (req.session.user) res.redirect('/listings')
         let errors = [];
+        let firstName = req.body.firstInput
+        let lastName = req.body.lastInput
+        let username = req.body.usernameInput
+        let password = req.body.passwordInput
+        let email = req.body.emailInput
+        //Error checking
+        if(!firstName || !lastName || !email || !username || !password){
+            errors.push( "to sign up need a first name, last name, email address, username, and password");
+        }
+        if (typeof firstName!='string' || typeof lastName!='string' || typeof email!='string' ||
+        typeof username!='string' || typeof password!='string'){
+            errors.push( "inputs are not valid strings");
+        }
+        firstName.trim();
+        lastName.trim();
+        email.trim();
+        username.trim();
+        password.trim();
+        if (firstName.length === 0 || lastName.length === 0 || email.length === 0 || username.length === 0 || password.length === 0) errors.push("An element cannot be only whitespace.")
+        if(firstName.length<3 || lastName.length<3){
+            errors.push( "first name or last name are too short");
+        }
+        if(helpers.containsNum(firstName) || helpers.containsNum(lastName)){
+            errors.push( "first name and last name cannot contain numbers");
+        }
+        const at = email.indexOf('@');
+        if(at ==-1){
+            errors.push( "not a proper email");
+        }
+        if(!email.includes('.', at)){
+            errors.push( "not a proper email");
+        }
+        //username length of 5, no special characters only letters and numbers
+        if(username.length<5 || helpers.containsSpec(username)){
+            errors.push( "not a valid username");
+        }
+        let checker = await userData.checkForUser(username);
+        if(checker){
+            errors.push( "username already exists");
+        }
+        if(password.length<5){
+            errors.push( "password is too short");
+        }
+        if(!(helpers.containsNum(password) || helpers.containsUpper(password) || 
+        helpers.containsSpec(password)) || helpers.containsSpace(password)){
+            errors.push( "password needs a number, special character, and uppercase with no spaces")
+        }
 
-        theUserData.usernameInput = theUserData.usernameInput.trim();
-        theUserData.passwordInput = theUserData.passwordInput.trim();
-        theUserData.firstInput = theUserData.firstInput.trim();
-        theUserData.lastInput = theUserData.lastInput.trim();
-        theUserData.emailInput = theUserData.emailInput.trim();
+        if (errors.length > 0) { //Similar to login, error page is not shown for registration if there is an error reviewLater
+            res.status(400).render('pages/userRegister', {
+            scripts: ['/public/js/userRegister.js'],
+            context: { 
+                noPagination: true,
+                error: true,
+                errors: errors
+                }
+            });
+            return;
+        }
+    
 
         try {
-            const newUser = await userData.createUser(
-            theUserData.firstInput,
-            theUserData.lastInput,
-            theUserData.emailInput,
-            theUserData.usernameInput,
-            theUserData.passwordInput,
-            );
-            if (newUser['firstName'] === theUserData.firstInput) {
-                res.redirect('/'); //Might need to be adjusted based on createUser reviewLater
+            const newUser = await userData.createUser(firstName, lastName, email, username, password);
+            if (newUser['firstName'] === firstName) {
+                res.redirect('/login'); 
             }
             else {
                 errors.push("Internal Server Error");
@@ -272,9 +312,10 @@ router
                         errors: errors
                         }
                     });
+                    return;
             }
         } catch (e) {
-            errors.push(e); //Check if this works reviewLater; In general, this is jank but hopefully its ok?
+            errors.push(e); 
             res.status(400).render('pages/userRegister', {
                 scripts: ['/public/js/userRegister.js'],
                 context: { 
@@ -283,20 +324,8 @@ router
                     errors: errors
                     }
                 });
+                return;
         }
-
-        // if (errors.length > 0) { //this part is prob not needed
-        //     res.status(400).render('pages/userRegister', {
-        //     scripts: ['/public/js/userRegister.js'],
-        //     context: { 
-        //         //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
-        //         error: true,
-        //         errors: errors
-        //         }
-        //     });
-        // }
-
-        
     });
 
 /**
@@ -304,12 +333,28 @@ router
  *   Deletes the cookie and takes us to the "Logout" page.
  */
 router.get('/logout', async (req, res) => {
-    req.session.destroy();
-    res.render('pages/userLogout', {
-        context: {
-            noPagination: true
-        }
-    });
+    if (req.session.user){
+        req.session.destroy();
+        res.render('pages/userLogout', {
+            context: {
+                noPagination: true
+            }
+        });
+        return;
+    }
+    else{
+        res.status(404).render('pages/soloListing', { //userLogout wouldnt display the message, and this does basically the same thing
+            scripts: ['/public/js/soloListing.js'],
+            context: {
+                loggedIn: false,
+                isAdmin: false,
+                noPagination: true,
+                error: true,
+                errors: ["You must be logged in to log out."]
+            }
+        });
+        return;
+    }
 });
 
 /**

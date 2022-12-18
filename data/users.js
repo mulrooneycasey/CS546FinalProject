@@ -8,19 +8,37 @@ const posts = require('./posts');
 
 
 //make usernames case insensitive
-async function checkForUser(username){//checks whether username already exists return true or false
-    try {
-        const userCollection = await users();
-    } catch (e){
-        return false
-    }
-    username.toLowerCase();
-    let users = {}
-    users= await userCollection.find({});
-    for(let i=0; i<user.length; i++){
-        if(users[i]['username'].toLowerCase()==username){
-            return true;
-        }
+// async function checkForUser(username){//checks whether username already exists return true or false
+//     // try {
+//     //     userCollection = await users();
+//     // } catch (e){
+//     //     console.log("o")
+//     //     return false
+//     // }
+//     const userCollection = await users();
+//     username.toLowerCase();
+//     let users = []
+//     const temp = await userCollection.find({}).toArray();
+//     console.log(temp)
+//     if (temp.length === 0 ) return false;
+//     users= await userCollection.find({}).toArray();
+//     console.log("o")
+//     for(let i=0; i<users.length; i++){
+//         if(users[i]['username'].toLowerCase() ===username){
+//             return true;
+//         }
+//     }
+//     return false;
+// }
+
+async function checkForUser(username){ //I made a new function because the other one does not work for some reason i cant figure out, yet somehow this one does
+    const userCollection = await users();
+    username = username.toLowerCase();
+    const allUsers = await userCollection.find({}).toArray();
+    for (let user of allUsers){
+        let temp = "";
+        if (user) temp = user.username;
+        if (temp && temp === username) return true;
     }
     return false;
 }
@@ -38,6 +56,7 @@ async function createUser(firstName, lastName, email, username, password){//retu
     email.trim();
     username.trim();
     password.trim();
+    if (firstName.length === 0 || lastName.length === 0 || email.length === 0 || username.length === 0 || password.length === 0) throw "An element cannot be only whitespace."
     if(firstName.length<3 || lastName.length<3){
         throw "first name or last name are too short";
     }

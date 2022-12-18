@@ -143,6 +143,7 @@ router.get('/:postId', async (req, res) => {
                 errors: [e]
             }
         });
+        return;
     }
 
     res.render('pages/soloListing', {

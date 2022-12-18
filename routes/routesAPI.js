@@ -9,6 +9,7 @@ const xss = require('xss');
 const data = require('../data');
 const helpers = require('../helpers');
 const { addFavorite } = require('../data/users');
+const { ObjectID } = require('bson');
 const userData = data.users;
 const postData = data.posts;
 /** Include any helper functions here. */
@@ -164,17 +165,17 @@ router
         if (!emailInput || !passwordInput) errors.push("Email or password not provided.")
         else if (typeof emailInput !== "string" || typeof passwordInput !== "string") errors.push("Email or password is not a string.");
         if (typeof emailInput === "string" && typeof passwordInput === "string") {
-        emailInput = emailInput.trim();
-        emailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; //Sourced from https://www.w3resource.com/javascript/form/email-validation.php for the regular expression -Nicholas Mule 
-        if (emailInput.length === 0) errors.push( "Error: Email cannot be only whitespace.");
-        if (!emailFormat.test(emailInput)) errors.push("Email is invalid format.");
-        passwordInput = passwordInput.trim();
-        if (passwordInput === "") errors.push("Error: Password cannot be only whitespace.")
-        if (helpers.containsSpace(passwordInput)) errors.push( "Error: Password cannot contain a whitespace within.");
-        if (passwordInput.length < 6) errors.push("Error: Password must be atleast 6 characters aside from bordering whitespace.");
-        if (!helpers.containsUpper(passwordInput)) errors.push( "Error: Password must contain atleast one uppercase character.");
-        if (!helpers.containsNum(passwordInput)) errors.push( "Error: Password must contain atleast one number.");
-        if (!helpers.containsSpec(passwordInput) && !helpers.containsPunct(passwordInput)) errors.push( "Error: Password must contain atleast one special character.");
+            emailInput = emailInput.trim();
+            emailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; //Sourced from https://www.w3resource.com/javascript/form/email-validation.php for the regular expression -Nicholas Mule 
+            if (emailInput.length === 0) errors.push( "Error: Email cannot be only whitespace.");
+            if (!emailFormat.test(emailInput)) errors.push("Email is invalid format.");
+            passwordInput = passwordInput.trim();
+            if (passwordInput === "") errors.push("Error: Password cannot be only whitespace.")
+            if (helpers.containsSpace(passwordInput)) errors.push( "Error: Password cannot contain a whitespace within.");
+            if (passwordInput.length < 6) errors.push("Error: Password must be atleast 6 characters aside from bordering whitespace.");
+            if (!helpers.containsUpper(passwordInput)) errors.push( "Error: Password must contain atleast one uppercase character.");
+            if (!helpers.containsNum(passwordInput)) errors.push( "Error: Password must contain atleast one number.");
+            if (!helpers.containsSpec(passwordInput) && !helpers.containsPunct(passwordInput)) errors.push( "Error: Password must contain atleast one special character.");
         }
         if (errors.length > 0) { //Login does not show this even if it occurs, not sure why. Might have to do with js script? - Nick
             res.status(400).render('pages/userLogin', {
@@ -245,45 +246,48 @@ router
         if(!firstName || !lastName || !email || !username || !password){
             errors.push( "to sign up need a first name, last name, email address, username, and password");
         }
-        if (typeof firstName!='string' || typeof lastName!='string' || typeof email!='string' ||
+        else if (typeof firstName!='string' || typeof lastName!='string' || typeof email!='string' ||
         typeof username!='string' || typeof password!='string'){
             errors.push( "inputs are not valid strings");
         }
-        firstName.trim();
-        lastName.trim();
-        email.trim();
-        username.trim();
-        password.trim();
-        if (firstName.length === 0 || lastName.length === 0 || email.length === 0 || username.length === 0 || password.length === 0) errors.push("An element cannot be only whitespace.")
-        if(firstName.length<3 || lastName.length<3){
-            errors.push( "first name or last name are too short");
+        else{
+            firstName.trim();
+            lastName.trim();
+            email.trim();
+            username.trim();
+            password.trim();
+        } if (typeof firstName==='string' && typeof lastName==='string' && typeof email==='string' &&
+        typeof username==='string' && typeof password==='string'){
+            if (firstName.length === 0 || lastName.length === 0 || email.length === 0 || username.length === 0 || password.length === 0) errors.push("An element cannot be only whitespace.")
+            if(firstName.length<3 || lastName.length<3){
+                errors.push( "first name or last name are too short");
+            }
+            if(helpers.containsNum(firstName) || helpers.containsNum(lastName)){
+                errors.push( "first name and last name cannot contain numbers");
+            }
+            const at = email.indexOf('@');
+            if(at ==-1){
+                errors.push( "not a proper email");
+            }
+            if(!email.includes('.', at)){
+                errors.push( "not a proper email");
+            }
+            //username length of 5, no special characters only letters and numbers
+            if(username.length<5 || helpers.containsSpec(username)){
+                errors.push( "not a valid username");
+            }
+            let checker = await userData.checkForUser(username);
+            if(checker){
+                errors.push( "username already exists");
+            }
+            if(password.length<5){
+                errors.push( "password is too short");
+            }
+            if(!(helpers.containsNum(password) || helpers.containsUpper(password) || 
+            helpers.containsSpec(password)) || helpers.containsSpace(password)){
+                errors.push( "password needs a number, special character, and uppercase with no spaces")
+            }
         }
-        if(helpers.containsNum(firstName) || helpers.containsNum(lastName)){
-            errors.push( "first name and last name cannot contain numbers");
-        }
-        const at = email.indexOf('@');
-        if(at ==-1){
-            errors.push( "not a proper email");
-        }
-        if(!email.includes('.', at)){
-            errors.push( "not a proper email");
-        }
-        //username length of 5, no special characters only letters and numbers
-        if(username.length<5 || helpers.containsSpec(username)){
-            errors.push( "not a valid username");
-        }
-        let checker = await userData.checkForUser(username);
-        if(checker){
-            errors.push( "username already exists");
-        }
-        if(password.length<5){
-            errors.push( "password is too short");
-        }
-        if(!(helpers.containsNum(password) || helpers.containsUpper(password) || 
-        helpers.containsSpec(password)) || helpers.containsSpace(password)){
-            errors.push( "password needs a number, special character, and uppercase with no spaces")
-        }
-
         if (errors.length > 0) { //Similar to login, error page is not shown for registration if there is an error reviewLater
             res.status(400).render('pages/userRegister', {
             scripts: ['/public/js/userRegister.js'],
@@ -368,7 +372,7 @@ router.get('/logout', async (req, res) => {
  *   Favorites the given post.
  */
 router.post('/favorite/:postId', async (req, res) => {
-    const postId = req.params.postId.trim();
+    const postId = req.params.postId; //use just favorite()
     /** 
      * Insert the code that appends the ObjectId (MongoDB) of the post to the user's list of 
      * favorites here.
@@ -377,31 +381,76 @@ router.post('/favorite/:postId', async (req, res) => {
      * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
      */
     //reviewLater nick
-    // const userId = req.session.user['_id']; 
-    // let errors = [];
-    // try{
-    //     const result = await userData.addFavorite(postId, userId.toString())
-    //     if (result['favoriteInserted'] !== true){
-    //         res.status(500).render('pages/soloListing', {
-    //             scripts: ['/public/js/soloListing.js'],
-    //             context: { 
-    //                 //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
-    //                 error: true,
-    //                 errors: errors
-    //                 }
-    //             });
-    //     }
-    // } catch (e){
-    //     errors.append(e.toString());
-    //     res.status(400).render('pages/soloListing', { //Maybe to the post's page?
-    //         scripts: ['/public/js/soloListing.js'],
-    //         context: { 
-    //             //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
-    //             error: true,
-    //             errors: errors
-    //             }
-    //         });
-    // }
+    let loggedIn = false;
+    let isAdmin = false;
+    if (req.session.user){
+        loggedIn = true;
+        if (req.session.user.isAdmin === true) isAdmin = true;
+    }
+    else{
+        res.status(403).render('pages/soloListing', { //Maybe to the post's page?
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                error: true,
+                errors: ["You must be logged in to favorite a post"],
+                noPagination: true,
+                LoggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
+    }
+
+    const userId = req.session.user['_id']; 
+    let errors = [];
+
+    if (!postId) errors.push("No postId given");
+    else if (typeof postId !== "string") errors.push("PostId must be a string.")
+    else postId = postId.trim();
+    if (postId.length === 0) errors.push("postId cannot be only whitespace");
+    else if (!ObjectID.isValid(postId)) errors.push("Must be a valid postId");
+
+    if (errors.length > 0) { 
+        res.status(400).render('pages/soloListing', {
+        scripts: ['/public/js/soloListing.js'],
+        context: { 
+            error: true,
+            errors: errors,
+            noPagination: true,
+            loggedIn: loggedIn,
+            isAdmin: isAdmin
+            }
+        });
+        return;
+    }
+
+    try{
+        const result = await userData.favorite(userId, postId)
+        if (result['favoriteInserted'] !== true){
+            res.status(500).render('pages/soloListing', {
+                scripts: ['/public/js/soloListing.js'],
+                context: { 
+                    noPagination: true,
+                    error: true,
+                    errors: errors
+                    }
+                });
+            return;
+        }
+    } catch (e){
+        errors.append(e.toString());
+        res.status(400).render('pages/soloListing', { //Maybe to the post's page?
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                noPagination: true;
+                error: true,
+                errors: errors
+                }
+            });
+        return;
+    }
+    
+    res.redirect('/listings')
 });
 
 /**
@@ -480,22 +529,23 @@ router.post('/comment/:postId', async (req, res) => {
     let comment = req.body['comment-textarea']
     if (!comment) errors.push ("No comment given");
     else if (typeof comment !== "string") errors.push("Comment is not of type string.");
-    comment = comment.trim();
-    if (comment.length === 0) errors.push("Comment cannot be only whitespace.");
+    else comment = comment.trim();
+    if (typeof comment === "string" && comment.length === 0) errors.push("Comment cannot be only whitespace.");
+    if (typeof comment === "string" && !ObjectID.isValid(postId)) errors.push("PostId must be a valid objectId");
     
     if (errors.length > 0) { 
-            res.status(400).render('pages/soloListing', {
-            scripts: ['/public/js/soloListing.js'],
-            context: { 
-                error: true,
-                errors: errors,
-                noPagination: true,
-                loggedIn: loggedIn,
-                isAdmin: isAdmin
-                }
-            });
-            return;
-        }
+        res.status(400).render('pages/soloListing', {
+        scripts: ['/public/js/soloListing.js'],
+        context: { 
+            error: true,
+            errors: errors,
+            noPagination: true,
+            loggedIn: loggedIn,
+            isAdmin: isAdmin
+            }
+        });
+        return;
+    }
 
     let result = undefined;
 

@@ -1,15 +1,15 @@
 {{#unless this.context.error}}
-    <div class="card">
+    <div class="card p-2">
         <h1 class="text-primary">Hoboken Curbside</h1>
-    <h2>What is Stooping?</h2>
-    <p>Stooping is a long-time New York tradition: someone discards their no-longer-needed belongings on the stoop or sidewalk in front of their home, and any passerby can salvage the items for free. Hoboken Curbside seeks to bring this tradition to Hoboken</p>
-    <p>Copyright © Andrew Capro, Nicholas Mule, Casey Mulrooney, Chancelor Assiamah</p>
-    <a href="/about" class="btn btn-outline-primary btn-sm">About Us</a>
+        <h2>What is Stooping?</h2>
+        <p>Stooping is a long-time New York tradition: someone discards their no-longer-needed belongings on the stoop or sidewalk in front of their home, and any passerby can salvage the items for free. Hoboken Curbside seeks to bring this tradition to Hoboken.</p>
+        <p>Copyright © Andrew Capro, Nicholas Mule, Casey Mulrooney, Chancelor Assiamah</p>
+        <a href="/about" class="btn btn-info ml-auto mr-auto mb-1" style="width: auto;">About Us</a>
     </div>
     
-    <div class="mb-3 p-2">
+    <div class="mt-2 mb-3 p-2">
         <div class="row w-100">
-            <div class="col-auto ml-auto mr-auto">
+            <div class="col-auto mr-auto">
                 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createPostModal"{{#unless this.context.loggedIn}} hidden aria-disabled="true"{{/unless}}>Create Post</button>
             </div>
         </div>
@@ -25,11 +25,11 @@
                 </div>
                 <div class="modal-body">
                     <div class="container-fluid align-items-center">
-                        <form id="createPostForm" method="POST" action="/">
+                        <form class="needs-validation" id="createPostForm" method="POST" action="/" novalidate>
                             <div class="form-group row">
                                 <label for="descriptionInput" class="col-auto col-md-4 col-form-label col-form-label-lg">Description</label>
                                 <div class="col-auto col-md-7 p-1 offset-1 offset-md-0">
-                                    <input type="text" class="form-control" id="descriptionInput" name="descriptionInput" size="32" minlength="10" maxlength="128" placeholder="Enter description" required aria-required="true">
+                                    <input type="text" class="form-control" id="descriptionInput" name="descriptionInput" size="32" minlength="5" maxlength="128" placeholder="Enter description" required aria-required="true">
                                 </div>
                             </div>
                             <div class="form-group row mb-5 mb-md-4">
@@ -54,7 +54,7 @@
                                 <div class="col-auto col-md-7 p-1 offset-1 offset-md-0">
                                     <input type="text" class="form-control" id="keywordInput" name="keywordInput" size="32" minlength="4" maxlength="64" placeholder="Enter keyword(s)" required aria-required="true">
                                     <div class="col-auto">
-                                        <span class="small text-muted">Must be in the format: "kw1; kw2; kw3".</span>
+                                        <span class="small text-muted">Must be in the format: "kw1;kw2;kw3".</span>
                                     </div>
                                 </div>
                             </div>
@@ -68,29 +68,6 @@
             </div>
         </div>
     </div>
-    {{#if this.context.allKeywords}}
-        <div>
-            <div class="row w-100 mb-2">
-                <div class="col-auto p-1 ml-auto mr-auto">
-                    <form class="form-inline">
-                        <div class="input-group">
-                            <div class="input-group-prepend mr-1">
-                                <label for="filter" class="sr-only">Filter:</label>
-                                <i class="bi bi-funnel-fill"></i>
-                            </div>
-                            <select class="custom-select" id="filter" name="filter" size="3" multiple>
-                                <option selected disabled aria-disabled="true">Choose Keyword(s)...</option>
-                                {{#each this.context.allKeywords}}
-                                    <option value="{{this}}">{{this}}</option>
-                                {{/each}}
-                            </select>
-                        </div>
-                        <button type="submit" class="btn btn-outline-primary mt-2 mx-3">Apply</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    {{/if}}
 
     <div class="row row-cols-1">
         {{#if this.context.posts}}
@@ -101,7 +78,7 @@
             <div class="col">
                 <div class="alert alert-danger" role="alert">
                     <h3 class="alert-heading">Uh oh...</h3>
-                    <p>No posts found. Either the server had an internal error, or your filter and/or search query returned nothing.</p>
+                    <p>No posts found.</p>
                 </div>
             </div>
         {{/if}}

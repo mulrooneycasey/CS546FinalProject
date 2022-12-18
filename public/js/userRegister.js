@@ -130,7 +130,6 @@ const validatePassword = passwordVal => {
     }
     // Else, display a valid succcess message on screen.
     else {
-        console.log(`${passwordVal} is valid.`);
         showValidationMessage(validationMsg, parentDiv, 'passwordValueSuccess', validClass);
         return true;
     }

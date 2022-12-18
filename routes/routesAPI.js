@@ -214,8 +214,8 @@ router
             req.session.user = theUser;
             res.redirect('/'); //Redirect to homepage if successfully logged in
         }
-
-    });
+        }   
+    })
 
 /**
  * "GET /register": 

@@ -28,7 +28,7 @@ async function main() {
     const cPost1 = await users.makePost(casey1['_id'], 'Casey', 'Mulrooney', 'Mulch', '../public/photos/img4.jpg', '300 Bloomfield Ave.', 'Mulch')
     await users.makePost(casey1['_id'], 'Casey', 'Mulrooney', 'White Chairs', '../public/photos/img5.jpg', 'Outside Babbio Center', 'White; Chairs')
     const cPostID = cPost1.toString()
-    await users.makeReview(casey1['_id'], aPostID, 'nmule', 'This is a cool thing!', 2) 
+    await users.makeReview(casey1['_id'], aPostID, 'cmulrooney', 'Im not a fan', 2) 
     await users.makeReview(casey1['_id'], nPostID, 'cmulrooney', 'This is fake!', 4)
     await users.makeComment(casey1['_id'], aPostID, 'cmulrooney', 'nmule is wrong, someone already took it!')
 

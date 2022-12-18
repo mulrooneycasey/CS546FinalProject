@@ -8,19 +8,49 @@ const posts = require('./posts');
 
 
 //make usernames case insensitive
-async function checkForUser(username){//checks whether username already exists return true or false
-    try {
-        const userCollection = await users();
-    } catch (e){
-        return false
+// async function checkForUser(username){//checks whether username already exists return true or false
+//     // try {
+//     //     userCollection = await users();
+//     // } catch (e){
+//     //     console.log("o")
+//     //     return false
+//     // }
+//     const userCollection = await users();
+//     username.toLowerCase();
+//     let users = []
+//     const temp = await userCollection.find({}).toArray();
+//     console.log(temp)
+//     if (temp.length === 0 ) return false;
+//     users= await userCollection.find({}).toArray();
+//     console.log("o")
+//     for(let i=0; i<users.length; i++){
+//         if(users[i]['username'].toLowerCase() ===username){
+//             return true;
+//         }
+//     }
+//     return false;
+// }
+
+async function checkForUser(username){ //I made a new function because the other one does not work for some reason i cant figure out, yet somehow this one does
+    const userCollection = await users();
+    username = username.toLowerCase();
+    const allUsers = await userCollection.find({}).toArray();
+    for (let user of allUsers){
+        let temp = "";
+        if (user) temp = user.username;
+        if (temp && temp === username) return true;
     }
-    username.toLowerCase();
-    let users = {}
-    users= await userCollection.find({});
-    for(let i=0; i<user.length; i++){
-        if(users[i]['username'].toLowerCase()==username){
-            return true;
-        }
+    return false;
+}
+
+async function checkForEmail(email){ //I made a new function because the other one does not work for some reason i cant figure out, yet somehow this one does
+    const userCollection = await users();
+    email = email.toLowerCase();
+    const allUsers = await userCollection.find({}).toArray();
+    for (let user of allUsers){
+        let temp = "";
+        if (user) temp = user.email;
+        if (temp && temp === email) return true;
     }
     return false;
 }
@@ -39,6 +69,7 @@ async function createUser(firstName, lastName, email, username, password, age){/
     email.trim();
     username.trim();
     password.trim();
+    if (firstName.length === 0 || lastName.length === 0 || email.length === 0 || username.length === 0 || password.length === 0) throw "An element cannot be only whitespace."
     if(firstName.length<3 || lastName.length<3){
         throw "first name or last name are too short";
     }
@@ -60,6 +91,8 @@ async function createUser(firstName, lastName, email, username, password, age){/
     if(checker){
         throw "username already exists";
     }
+    let checker2 = await checkForEmail(email);
+    if (checker2) throw "email already exists";
     if(password.length<5){
         throw "password is too short";
     }
@@ -122,13 +155,13 @@ async function changeFirstName(id, password, change){//returns user with userID 
         throw "first name cannot have numbers punctuation, or special characters";
     }
     const userCollection = await users();
-    if(users['firstName']==change){
-        throw "name is the same as before";
-    }
+    // if(user['firstName']==change){ Because of put implementation, im going to only check this in the route
+    //     throw "name is the same as before";
+    // }
     const update = {firstName: change};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
-        throw "Error: name did not update";
+        throw "Error: first name did not update";
     }
     return await this.getUserById(id);
 }
@@ -154,13 +187,13 @@ async function changeLastName(id, password, change){//returns user with userID a
         throw "last name cannot have numbers punctuation, or special characters";
     }
     const userCollection = await users();
-    if(users['lastName']==change){
-        throw "name is the same as before";
-    }
+    // if(user['lastName']==change){
+    //     throw "name is the same as before";
+    // }
     const update = {lastName: change};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
-        throw "Error: name did not update";
+        throw "Error: last name did not update";
     }
     return await this.getUserById(id);
 }
@@ -186,13 +219,13 @@ async function changeUsername(id, password, change){//returns user with userID a
         throw "username cannot have numbers punctuation, or special characters";
     }
     const userCollection = await users();
-    if(users['username']==change){
-        throw "username is the same as before";
-    }
+    // if(user['username']==change){
+    //     throw "username is the same as before";
+    // }
     const update = {username: change};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
-        throw "Error: name did not update";
+        throw "Error: username did not update";
     }
     return await this.getUserById(id);
 }
@@ -223,7 +256,7 @@ async function changePassword(id, password, change){//returns use with userID as
     const update = {password: hash};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
-        throw "Error: name did not update";
+        throw "Error: password did not update";
     }
     return await this.getUserById(id);
 }
@@ -524,5 +557,6 @@ module.exports = {
     checkForUser,
     deleteAccount,
     approvePost,
+    checkForEmail,
     favorite
 };

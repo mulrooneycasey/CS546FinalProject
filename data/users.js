@@ -226,6 +226,11 @@ async function changeUsername(id, password, change){//returns user with userID a
     if(info.modifiedCount==0){
         throw "Error: username did not update";
     }
+    try{
+        await posts.updatePostsByUser(id, change);
+    }catch(e){
+        console.log(e);
+    }
     return await this.getUserById(id);
 }
 

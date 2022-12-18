@@ -261,20 +261,6 @@ async function changeUsername(id, password, change){//returns user with userID a
     return await this.getUserById(id);
 }
 
-/*const at = email.indexOf('@');
-    if(at ==-1){
-        throw "not a proper email";
-    }
-    if(!email.includes('.', at)){
-        throw "not a proper email";
-    }
-    //username length of 5, no special characters only letters and numbers
-    let checker2 = await checkForEmail(email);
-    if (checker2) throw "email already exists";
-    if(password.length<5){
-        throw "password is too short";
-    }*/
-
 async function changePassword(id, password, change){//returns use with userID as a string
     let user = this.getUserById(id);
     if(!password || !change){
@@ -304,7 +290,7 @@ async function changePassword(id, password, change){//returns use with userID as
         throw "password needs a number, special character, and uppercase with no spaces"
     }
     const userCollection = await users();
-    const hash = await bcrypt.hash(password, 10);
+    const hash = await bcrypt.hash(change, 10);
     const update = {password: hash};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
@@ -314,7 +300,7 @@ async function changePassword(id, password, change){//returns use with userID as
 }
 
 
-async function makeAdmin(id){//returns suer with userDI as a string
+async function makeAdmin(id){//returns user with userDI as a string
     let user = await this.getUserById(id);
     if(user==null){
         throw "user does not exist";
@@ -330,16 +316,23 @@ async function makeAdmin(id){//returns suer with userDI as a string
 
 async function changeEmail(id, password, change){//returns user with userID as a string
     let user = await this.getUserById(id);
+    if(!password || !change){
+        throw "error: need password and new email";
+    }
+    if(typeof password!='string' || typeof change!='string'){
+        throw "Error password and new email needs to be strings";
+    }
     if(user==null){
         throw "user does not exist";
     }
     let pass=user['password'];
-    let match=await bcrypt.compare(password, pass);
+    try{
+        let match=await bcrypt.compare(password, pass);
+    }catch(e){
+
+    }
     if(!match){
         throw "password does not match";
-    }
-    if(!change || typeof change!='string'){
-        throw "email must be at least 3 letters";
     }
     change.trim()
     const at = email.indexOf('@');
@@ -353,6 +346,10 @@ async function changeEmail(id, password, change){//returns user with userID as a
     if(users['email']==change){
         throw "email is the same as before";
     }
+    let check = await this.checkForEmail(change);
+    if(check){
+        throw "error: email already exists";
+    }
     const update = {email: change};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
@@ -363,11 +360,21 @@ async function changeEmail(id, password, change){//returns user with userID as a
 
 async function deleteAccount(id, password){
     let user = await this.getUserById(id);
+    if(!password || !change){
+        throw "error: need password and new email";
+    }
+    if(typeof password!='string' || typeof change!='string'){
+        throw "Error password and new email needs to be strings";
+    }
     if(user==null){
         throw "user does not exist";
     }
     let pass=user['password'];
-    let match=await bcrypt.compare(password, pass);
+    try{
+        let match=await bcrypt.compare(password, pass);
+    }catch(e){
+
+    }
     if(!match){
         throw "password does not match";
     }
@@ -386,7 +393,7 @@ async function makePost(id, username, object, image, location, keywords){//retur
     }
     const newPost = await posts.createPost(username, object, image, location, keywords);
     let ogPosts = user['posts'];
-    ogPosts.push(ObjectId(newPost));
+    ogPosts.push(newPost['_id']);
     let userCollection = await users();
     const update = {posts: ogPosts};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});

@@ -27,7 +27,7 @@ async function checkForUser(username){
 
 async function createUser(firstName, lastName, email, username, password, age){//returns whole user object with id as a string
     if(!firstName || !lastName || !email || !username || !password || !age){
-        throw "to sign up need a first name, last name, email address, username, and password";
+        throw "to sign up need a first name, last name, email address, username, password, and age";
     }
     if(typeof firstName!='string' || typeof lastName!='string' || typeof email!='string' ||
     typeof username!='string' || typeof password!='string'){

@@ -5,7 +5,8 @@ const xss = require('xss');
 const data = require('../data');
 const userData = data.users;
 const postData = data.posts;
-const helpers = require('../helpers')
+const helpers = require('../helpers');
+const { ObjectId } = require('mongodb');
 
 /**
  * "GET /listings": 
@@ -17,29 +18,27 @@ const helpers = require('../helpers')
 router
     .route('/')
     .get(async (req, res) => {
-        // Grab all keywords so that we can pass them to the 'listings' view, which will enable
-        // filter functionality.
-        /** 
-         * I recommend using projection to get the keywords for every user. Remove the line below 
-         * once you're ready to do this. - Chance 
-         */
         let allKeywords = [];
-        /** 
-         * Once you add the user to the session, you can delete the line below and uncomment the 
-         * other one. - Chance 
-         */
-        // const loggedIn = false;
-        // If there is the user logged in, then enable them to create posts and to logout.
         const loggedIn = typeof req.session.user !== 'undefined';
         if (loggedIn && req.session.user['isAdmin']) res.redirect('/admin/listings')
-        /** 
-         * If the user has clicked a specific page (say, page 3), then we need to move the cursor 
-         * in the database so that the corresponding posts are displayed. We must keep in mind any 
-         * filtered keywords the user has selected and/or any keyword the user has searched.
-         */
         //Beginning of nick filter/page/search
+        let currentList = []
         try{
-            let currentList = await postData.getAllPosts();//
+            currentList = await postData.getAllPosts();
+        } catch (e){
+            res.status(500).render('pages/listings', {
+                scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
+                context: {
+                    loggedIn: loggedIn,
+                    isAdmin: false,
+                    error: true,
+                    errors: ["Internal Server Error"]
+                }
+            })
+            return;
+        }
+
+        try{
             currentList.sort(helpers.compareNumbers)//
             // console.log(currentList);
             if (req.query.search){
@@ -60,10 +59,10 @@ router
             if (req.query.page){
                 let pageField = req.query.page;
                 pageField = parseInt(pageField);
-                currentList = await postData.getPostsByIndex(pageField*10-10, 5, currentList);
+                currentList = await postData.getPostsByIndex(pageField*10-10, 10, currentList);
             }
             else {
-                currentList = await postData.getPostsByIndex(0, 5, currentList);//
+                currentList = await postData.getPostsByIndex(0, 10, currentList);//
             }
             for (let post of currentList){
                 let theKeywords = post['keywords']
@@ -81,8 +80,18 @@ router
                     isAdmin: false
                 }
             })
-            }catch (e){
-                console.log(e);
+            return;
+            } catch (e){
+                res.status(400).render('pages/listings', {
+                scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
+                context: {
+                    loggedIn: loggedIn,
+                    isAdmin: false,
+                    error: true,
+                    errors: errors
+                }
+            })
+            return;
             }
         })
     .post(async (req, res) => {
@@ -101,19 +110,81 @@ router
             });
             return;
         }
-        const postId = await userData.makePost(req.session.user['_id'], req.session.user['firstName'], req.session.user['lastName'], res.body.descriptionInput, res.body.imageInput, res.body.locationInput, res.body.keywordInput)
-        const thePost = await postData.getPostById(postId);
-        res.render('pages/soloListing', {
-            scripts: ['/public/js/soloListing.js'],
-            context: {
-                post: thePost,
-                loggedIn: loggedIn,
-                trunc: false,
-                noPagination: true
+
+        let userId = req.session.user;
+        let firstName = req.session.user.firstName;
+        let lastName = req.session.user.lastName;
+        let object = req.body.descriptionInput;
+        let image = req.body.imageInput;
+        let location = req.body.locationInput;
+
+        if(!firstName || !lastName || !object || !image || !location || !keywords){
+            throw "missing item";
+        }
+        else if(helpers.containsNum(firstName) || helpers.containsNum(lastName)){
+            throw "name cannot have numbers in it";
+        }
+        else if(typeof firstName!='string' || typeof lastName!='string' ||
+        typeof location!='string' || typeof object!='string'){
+            throw "first name, last name, location, and object has to be a string";
+        }
+        else if(typeof keywords != ' undefined' && typeof keywords != 'string'){
+            throw "keywords has to be a string";
+        }
+        else{
+            firstName.trim();
+            lastName.trim();
+            location.trim();
+            object.trim();
+            keywords.trim();
+            if(firstName=='' || lastName=='' || location=='' || object==''){
+                throw "first name, last name, location, and object has to be a string";
             }
-        });
-        return;
-        //descriptionInput, imageInput, locationInput, keywordInput
+        }  
+        
+        if (errors.length > 0) { 
+            res.status(400).render('pages/soloListing', {
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                error: true,
+                errors: errors,
+                noPagination: true,
+                loggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
+        }
+        
+        const postId = undefined;
+        try{
+            postId = await userData.makePost(userId, firstName, lastName, object, image, location, keyword)
+            if (!ObjectId.isValid(postId)){
+                res.render('pages/soloListing', {
+                    scripts: ['/public/js/soloListing.js'],
+                    context: {
+                        loggedIn: loggedIn,
+                        trunc: false,
+                        noPagination: true,
+                        error: true,
+                        errors: ["Internal Server Error"]
+                    }
+                });
+            }
+        } catch (e){
+            res.render('pages/soloListing', {
+                scripts: ['/public/js/soloListing.js'],
+                context: {
+                    loggedIn: loggedIn,
+                    trunc: false,
+                    noPagination: true,
+                    error: true,
+                    errors: errors
+                }
+            });
+        }
+
+        res.redirect(`/listings/${postId}`)
     });
 
 /**
@@ -122,25 +193,58 @@ router
  */
 router.get('/:postId', async (req, res) => {
     const postId = req.params.postId;
-    // If there is the user logged in, then enable them to create posts and to logout.
     const loggedIn = typeof req.session.user !== 'undefined';
-    /** 
-     * Insert code that fetches the post by its ID here. Once you do, modify or delete the lines 
-     * below. 
-     */
+    if (loggedIn && req.session.user.isAdmin) res.redirect(`/admin/listings/${postId}`)
     errors = [];
+    if(!postId){
+        errors.push( "Error: no postId provided");
+    }
+    if(typeof postId!='string' || postId.trim()==''){
+        errors.push( "Error: postId is not a valid string");
+    }
+    postId=postId.trim();
+    if(!ObjectId.isValid(postId)){
+        errors.push( "Error: postId is not valid");
+    }
+
+    if (errors.length > 0) { 
+        res.status(400).render('pages/soloListing', {
+        scripts: ['/public/js/soloListing.js'],
+        context: { 
+            error: true,
+            errors: errors,
+            noPagination: true,
+            loggedIn: loggedIn,
+            isAdmin: false
+            }
+        });
+        return;
+    }
+
     let thePost = undefined
     try {
         thePost = await postData.getPostById(postId);
+        if (thePost['_id'] !== postId){
+            res.status(500).render('pages/soloListing', {
+                scripts: ['/public/js/soloListing.js'],
+                context: {
+                    loggedIn: loggedIn,
+                    noPagination: true,
+                    error: true,
+                    errors: ["Interal server error"]
+                }
+            });
+            return;
+        }
     }catch (e){
-        //console.log(e);
-        res.render('pages/soloListing', {
+        errors.push(e);
+        res.status(400).render('pages/soloListing', {
             scripts: ['/public/js/soloListing.js'],
             context: {
                 loggedIn: loggedIn,
                 noPagination: true,
                 error: true,
-                errors: [e]
+                errors: errors
             }
         });
         return;

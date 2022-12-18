@@ -418,9 +418,11 @@ router.post('/favorite/:postId', async (req, res) => {
 
     if (!postId) errors.push("No postId given");
     else if (typeof postId !== "string") errors.push("PostId must be a string.")
-    else postId = postId.trim();
-    if (postId.length === 0) errors.push("postId cannot be only whitespace");
-    else if (!ObjectId.isValid(postId)) errors.push("Must be a valid postId");
+    else {
+        postId = postId.trim();
+        if (postId.length === 0) errors.push("postId cannot be only whitespace");
+        else if (!ObjectId.isValid(postId)) errors.push("Must be a valid postId");
+    }
 
     if (errors.length > 0) { 
         res.status(400).render('pages/soloListing', {
@@ -618,9 +620,11 @@ router.post('/comment/:postId', async (req, res) => {
     let comment = req.body['comment-textarea']
     if (!comment) errors.push ("No comment given");
     else if (typeof comment !== "string") errors.push("Comment is not of type string.");
-    else comment = comment.trim();
-    if (typeof comment === "string" && comment.length === 0) errors.push("Comment cannot be only whitespace.");
-    if (typeof comment === "string" && !ObjectId.isValid(postId)) errors.push("PostId must be a valid objectId");
+    else{
+        comment = comment.trim(); 
+        if (typeof comment === "string" && comment.length === 0) errors.push("Comment cannot be only whitespace.");
+        else if (typeof comment === "string" && !ObjectId.isValid(postId)) errors.push("PostId must be a valid objectId");
+    }
     
     if (errors.length > 0) { 
         res.status(400).render('pages/soloListing', {

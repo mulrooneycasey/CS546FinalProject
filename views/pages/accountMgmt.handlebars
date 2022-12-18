@@ -40,9 +40,19 @@
                 </div>
             </div>
             <div class="form-group row">
-                <label for="passwordInput" class="col-sm-2 col-form-label col-form-label-lg">Password:</label>
+                <label for="passwordInput" class="col-sm-2 col-form-label col-form-label-lg">New Password:</label>
                 <div class="col-sm-6 col-auto offset-md-1">
                     <input type="password" class="form-control form-control-lg" id="passwordInput" name="passwordInput" pattern="(?=.*\d)(?=.*[!@#$%^&*_=+-])(?=.*[a-z])(?=.*[A-Z]).{6,64}" placeholder="Enter valid password" aria-required="false">
+                </div>
+                <div class="w-100"></div>
+                <div class="col-sm-3 col-auto">
+                    <span class="small text-muted">Must contain at least 1 uppercase charater, 1 lowercase character, 1 number, and 1 special character.</span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="oldPasswordInput" class="col-sm-2 col-form-label col-form-label-lg"> Current Password:</label>
+                <div class="col-sm-6 col-auto offset-md-1">
+                    <input type="password" class="form-control form-control-lg" id="oldPasswordInput" name="oldPasswordInput" pattern="(?=.*\d)(?=.*[!@#$%^&*_=+-])(?=.*[a-z])(?=.*[A-Z]).{6,64}" placeholder="Enter current password" aria-required="false" required>
                 </div>
                 <div class="w-100"></div>
                 <div class="col-sm-3 col-auto">

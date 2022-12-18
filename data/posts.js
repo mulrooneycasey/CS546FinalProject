@@ -34,7 +34,7 @@ async function createPost(firstName, lastName, object, image, location, keywords
     const date = (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
     time=d.toTimeString();
     let newPost = {firstName: firstName, lastName: lastName, description: object, image: image,
-        location: location, time: time, date: date, overallRating: 5, reviews: [], comments: [], status: "pending", keywords: keywords.split("; ")};
+        location: location, time: time, date: date, overallRating: 5, reviews: [], comments: [], status: "pending", keywords: keywords.split("; "), favorites: 0};
     const insertInfo = await postCollection.insertOne(newPost);
     if(!insertInfo.acknowledged || !insertInfo.insertedId){
         throw "Could not add post";
@@ -332,6 +332,50 @@ async function postApproval(postID, isAdmin, approval){//changes status of post 
     }
 }
 
+async function favoritePost(postID){//adds favorite number on a post, returns post
+    if(!postID){
+        throw "need postID";
+    }
+    if(typeof postID!='string'){
+        throw "postID needs to be a string";
+    }
+    postID.trim();
+    if(postID==='' || !ObjectId.isValid(postID)){
+        throw "postID is not a valid";
+    }
+    let postCollection= await posts()
+    let post = await this.getPostById(postID);
+    const favorites = post['favorite'] + 1;
+    const update = {favorite: favorites};
+    const info= await postCollection.updateOne({_id: ObjectId(id)}, {$set: update});
+    if(info.modifiedCount==0){
+        throw "Error: name did not update";
+    }
+    return await this.getPostById(id);
+}
+
+async function removeFavorite(postID){//removes favorite from a post, returns post
+    if(!postID){
+        throw "need postID";
+    }
+    if(typeof postID!='string'){
+        throw "postID needs to be a string";
+    }
+    postID.trim();
+    if(postID==='' || !ObjectId.isValid(postID)){
+        throw "postID is not a valid";
+    }
+    let postCollection= await posts()
+    let post = await this.getPostById(postID);
+    const favorites = post['favorite'] - 1;
+    const update = {favorite: favorites};
+    const info= await postCollection.updateOne({_id: ObjectId(id)}, {$set: update});
+    if(info.modifiedCount==0){
+        throw "Error: name did not update";
+    }
+    return await this.getPostById(id);
+}
+
 module.exports = {
     createPost,
     createReview,
@@ -343,5 +387,7 @@ module.exports = {
     searchPosts,
     getPostsByKeywords,
     deletePost,
-    postApproval
+    postApproval,
+    favoritePost,
+    removeFavorite
 };

@@ -5,7 +5,9 @@ const xss = require('xss');
 const data = require('../data');
 const userData = data.users;
 const postData = data.posts;
-const helpers = require('../helpers')
+const helpers = require('../helpers');
+const { getAllPostsByUser } = require('../data/posts');
+const { ObjectId } = require('mongodb');
 
 /**
  * "GET /account": 
@@ -297,7 +299,6 @@ router
 
 
         let currentList = []
-        console.log(currentList)
         try{
             currentList = await postData.getAllPostsByUser(req.session.user._id); //just change this to getAllPostsBy
         } catch (e){
@@ -313,7 +314,6 @@ router
             })
             return;
         }
-        console.log(currentList)
 
         try{
             currentList.sort(helpers.compareNumbers)
@@ -373,9 +373,7 @@ router
         
     })
     .post(async (req, res) => {
-        /** 
-         * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
-         */
+        res.redirect("/listings")
     });
 
 /**
@@ -394,83 +392,114 @@ router.get('/listings/:postId', async (req, res) => {
          * Once you add the user to the session, you can delete the line below and uncomment the 
          * other ones to restore the correct functionality. - Chance 
          */
-         res.render('pages/soloListing', {
+        //mgmtPage: true and ownPost: true
+        let postId = req.params.postId;
+        const loggedIn = typeof req.session.user !== 'undefined';
+        let isAdmin = false;
+        if (loggedIn && req.session.user.isAdmin) isAdmin = true;
+        if (!loggedIn){
+            res.status(403).render('pages/accountMgmt', {
+                scripts: ['/public/js/accountMgmt.js'],
+                context: {
+                    mgmtPage: true,
+                    noPagination: true,
+                    loggedIn: false,
+                    error: true,
+                    errors: ['You are not currently logged in.']
+                }
+            });
+            return;
+        }
+        errors = [];
+        if(!postId){
+            errors.push( "Error: no postId provided");
+        }
+        else if(typeof postId!='string' || postId.trim()==''){
+            errors.push( "Error: postId is not a valid string");
+        }
+        else {
+            postId=postId.trim();
+            if(!ObjectId.isValid(postId)){
+                errors.push( "Error: postId is not valid");
+            }
+        }
+
+        if (errors.length > 0) { 
+            res.status(400).render('pages/soloListing', {
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                error: true,
+                errors: errors,
+                noPagination: true,
+                loggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
+        }
+
+        let userPosts = await getAllPostsByUser(req.session.user._id);
+        if (!req.session.user.posts.includes(postId)){
+            res.status(403).render('pages/accountMgmt', {
+                scripts: ['/public/js/accountMgmt.js'],
+                context: {
+                    mgmtPage: true,
+                    isAdmin: isAdmin,
+                    noPagination: true,
+                    loggedIn: false,
+                    error: true,
+                    errors: ['This post does not belong to you.']
+                }
+            });
+            return;
+        }
+
+        let thePost = undefined
+        try {
+            thePost = await postData.getPostById(postId);
+            if (thePost['_id'] !== postId){
+                res.status(500).render('pages/soloListing', {
+                    scripts: ['/public/js/soloListing.js'],
+                    context: {
+                        mgmtPage: true,
+                        loggedIn: loggedIn,
+                        isAdmin,
+                        noPagination: true,
+                        error: true,
+                        errors: ["Interal server error"]
+                    }
+                });
+                return;
+            }
+        }catch (e){
+            errors.push(e);
+            res.status(400).render('pages/soloListing', {
+                scripts: ['/public/js/soloListing.js'],
+                context: {
+                    mgmtPage: true,
+                    loggedIn: loggedIn,
+                    isAdmin,
+                    noPagination: true,
+                    error: true,
+                    errors: errors
+                }
+            });
+            return;
+        }
+
+        res.render('pages/soloListing', {
             scripts: ['/public/js/soloListing.js'],
             context: {
-                post: {
-                    postId: 1,
-                    firstName: 'Andrew',
-                    lastName: 'Capro',
-                    description: 'post description',
-                    image: 'img.png',
-                    location: 'Hoboken, 10th St.',
-                    time: new Date().toTimeString(),
-                    date: new Date().toDateString(),
-                    keywords: ['test1', 'test2', 'test3'],
-                    overallRating: 5,
-                    reviews: [{
-                        user: 'Andrew Capro',
-                        ratingNum: 5,
-                        description: 'this was a real thing'
-                    }],
-                    comments: [{
-                        name: 'Casey Mulrooney',
-                        comment: 'this is cool'
-                    }]
-                },
-                mgmtPage: true,
-                loggedIn: true,
+                post: thePost,
+                loggedIn: loggedIn,
+                isAdmin: isAdmin,
                 trunc: false,
                 noPagination: true,
+                mgmtPage: true,
                 ownPost: true
             }
         });
-        // // If the user is logged in, then they should gain access to the post without a problem.
-        // if (req.session.user) {
-        //     /** 
-        //      * Insert code that obtains the post with the provided postId from the database here. 
-        //      * Once you do, modify or delete the lines below.
-        //      */
-        //     const postId = req.params.postId;
-
-        //     /** 
-        //      * Insert code that fetches the post by its ID here. Once you do, modify or delete the lines 
-        //      * below. 
-        //      */
-        //     res.render('pages/soloListing', {
-        //         scripts: ['/public/js/soloListing.js'],
-        //         context: {
-        //             post: {
-        //                 postId: 1,
-        //                 firstName: 'Andrew',
-        //                 lastName: 'Capro',
-        //                 description: 'post description',
-        //                 image: 'img.png',
-        //                 location: 'Hoboken, 10th St.',
-        //                 time: new Date().toTimeString(),
-        //                 date: new Date().toDateString(),
-        //                 keywords: ['test1', 'test2', 'test3'],
-        //                 overallRating: 5,
-        //                 reviews: [{
-        //                     user: 'Andrew Capro',
-        //                     ratingNum: 5,
-        //                     description: 'this was a real thing'
-        //                 }],
-        //                 comments: [{
-        //                     name: 'Casey Mulrooney',
-        //                     comment: 'this is cool'
-        //                 }]
-        //             },
-        //             mgmtPage: true,
-        //             loggedIn: true,
-        //             trunc: false,
-        //             noPagination: true,
-        //             ownPost: true
-        //         }
-        //     });
-        // }
-        // // Else, redirect the user to the "Sign In" page.
-        // else res.redirect('/login');
+        return;
 });
 
 module.exports = router;

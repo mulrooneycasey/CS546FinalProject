@@ -199,12 +199,14 @@ router.get('/:postId', async (req, res) => {
     if(!postId){
         errors.push( "Error: no postId provided");
     }
-    if(typeof postId!='string' || postId.trim()==''){
+    else if(typeof postId!='string' || postId.trim()==''){
         errors.push( "Error: postId is not a valid string");
     }
-    postId=postId.trim();
-    if(!ObjectId.isValid(postId)){
-        errors.push( "Error: postId is not valid");
+    else {
+        postId=postId.trim();
+        if(!ObjectId.isValid(postId)){
+            errors.push( "Error: postId is not valid");
+        }
     }
 
     if (errors.length > 0) { 

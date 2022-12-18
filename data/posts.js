@@ -1,29 +1,25 @@
 const mongoCollections = require('../config/mongoCollections');
 const posts = mongoCollections.posts;
+const users = mongoCollections.users;
 const {ObjectId} = require('mongodb');
 const bcrypt = require('bcrypt');
 const helpers = require('../helpers');
 
-async function createPost(firstName, lastName, object, image, location, keywords){ //returns postId
-    if(!firstName || !lastName || !object || !image || !location || !keywords){
+async function createPost(username, object, image, location, keywords){ //returns postId
+    if(!username || !object || !image || !location || !keywords){
         throw "missing item";
     }
-    if(helpers.containsNum(firstName) || helpers.containsNum(lastName)){
-        throw "name cannot have numbers in it";
-    }
-    if(typeof firstName!='string' || typeof lastName!='string' ||
-    typeof location!='string' || typeof object!='string'){
-        throw "first name, last name, location, and object has to be a string";
+    if(typeof username!='string' || typeof location!='string' || typeof object!='string'){
+        throw "username, location, and object has to be a string";
     }
     if(typeof keywords != ' undefined' && typeof keywords != 'string'){
         throw "keywords has to be a string";
     }
-    firstName.trim();
-    lastName.trim();
+    username.trim();
     location.trim();
     object.trim();
     keywords.trim();
-    if(firstName=='' || lastName=='' || location=='' || object==''){
+    if(username=='' || location=='' || object==''){
         throw "first name, last name, location, and object has to be a string";
     }
 
@@ -33,8 +29,8 @@ async function createPost(firstName, lastName, object, image, location, keywords
     const d = new Date();
     const date = (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
     time=d.toTimeString();
-    let newPost = {firstName: firstName, lastName: lastName, description: object, image: image,
-        location: location, time: time, date: date, overallRating: 5, reviews: [], comments: [], status: "pending", keywords: keywords.split("; ")};
+    let newPost = {username: username, description: object, image: image,
+        location: location, time: time, date: date, overallRating: 5, reviews: [], comments: [], status: "pending", keywords: keywords.split("; "), favorites: 0};
     const insertInfo = await postCollection.insertOne(newPost);
     if(!insertInfo.acknowledged || !insertInfo.insertedId){
         throw "Could not add post";
@@ -104,11 +100,11 @@ async function createReview(postID, username, comment, rating){ //returns review
 
 async function createComment(postID, username, comment){//returns comment object id as a string
     if(!postID || !username || !comment){
-        throw "missing info for review";
+        throw "missing info for comment";
     }
     if(typeof postID!='string' || typeof username!='string' || 
     typeof comment!='string'){
-        throw "type of info is wrong for review";
+        throw "type of info is wrong for comment";
     }
     postID.trim();
     username.trim();
@@ -332,6 +328,109 @@ async function postApproval(postID, isAdmin, approval){//changes status of post 
     }
 }
 
+async function favoritePost(postID){//adds favorite number on a post, returns post
+    if(!postID){
+        throw "need postID";
+    }
+    if(typeof postID!='string'){
+        throw "postID needs to be a string";
+    }
+    postID.trim();
+    if(postID==='' || !ObjectId.isValid(postID)){
+        throw "postID is not a valid";
+    }
+    let postCollection= await posts()
+    let post = await this.getPostById(postID);
+    const favorites = post['favorite'] + 1;
+    const update = {favorite: favorites};
+    const info= await postCollection.updateOne({_id: ObjectId(id)}, {$set: update});
+    if(info.modifiedCount==0){
+        throw "Error: name did not update";
+    }
+    return await this.getPostById(id);
+}
+
+async function removeFavorite(postID){//removes favorite from a post, returns post
+    if(!postID){
+        throw "need postID";
+    }
+    if(typeof postID!='string'){
+        throw "postID needs to be a string";
+    }
+    postID.trim();
+    if(postID==='' || !ObjectId.isValid(postID)){
+        throw "postID is not a valid";
+    }
+    let postCollection= await posts()
+    let post = await this.getPostById(postID);
+    const favorites = post['favorite'] - 1;
+    const update = {favorite: favorites};
+    const info= await postCollection.updateOne({_id: ObjectId(id)}, {$set: update});
+    if(info.modifiedCount==0){
+        throw "Error: name did not update";
+    }
+    return await this.getPostById(id);
+}
+
+async function getAllPostsByUser(userId){
+    if (!userId) throw "Error: Must supply userId";
+    if (typeof userId != 'string') throw "Error: userId must be a string";
+    userId = userId.trim();
+    if (userId.length === 0) throw "Error: userId cannot be only whitespace";
+    if (!ObjectId.isValid(userId)) throw "Error: userId is not a valid objectId";
+    const postList = await getAllPosts();
+    if (!postList) throw 'Error: Could not get all posts';
+    for (const post of postList){ //turn to strings for use in getPostById
+        post["_id"] = post["_id"].toString();
+    }
+    let user = async () =>{//you might be wondering why I did this and why I did not just get the actual function from userData
+        if(!userId){  //CIRCULAR LOGIC ISNT ALLOWED IS WHY AHHHHHHHH
+            throw "Error: no userId provided";
+        }
+        if(typeof userId!='string' || userId.trim()==''){
+            throw "Error: userId is not a valid string";
+        }
+        userId=userId.trim();
+        if(!ObjectId.isValid(userId)){
+            throw "Error: userId is not valid";
+        }
+        const userCollection = await users();
+        let user= await userCollection.findOne({_id: ObjectId(userId)});
+        if(user==null){
+            throw "no post with that id";
+        }
+        user['_id']=user['_id'].toString();
+        return user;
+    }
+    let tUser = await user();
+    let answer = [];
+    for (const post of postList){
+        if (tUser.posts.includes(post._id)) answer.push(post);
+    }
+    return answer;
+}
+
+async function updatePostsByUser(userID, newUsername){
+    if (!userId) throw "Error: Must supply userId";
+    if (typeof userId != 'string') throw "Error: userId must be a string";
+    userId = userId.trim();
+    if (userId.length === 0) throw "Error: userId cannot be only whitespace";
+    if (!ObjectId.isValid(userId)) throw "Error: userId is not a valid objectId";
+    let posts = await this.getAllPostsByUser(userID);
+    let currPost;
+    let update;
+    let info;
+    while(posts.length>0){
+        currPost=posts.pop();
+        update={username: newUsername};
+        info = await postCollection.updateOne({_id: currPost['_id']}, {$set: update});
+        if(info.modifiedCount==0){
+            throw "Error: was not able to modify all the posts";
+        }
+    }
+    return;
+}
+
 module.exports = {
     createPost,
     createReview,
@@ -343,5 +442,9 @@ module.exports = {
     searchPosts,
     getPostsByKeywords,
     deletePost,
-    postApproval
+    postApproval,
+    favoritePost,
+    removeFavorite,
+    getAllPostsByUser,
+    updatePostsByUser
 };

@@ -8,19 +8,49 @@ const posts = require('./posts');
 
 
 //make usernames case insensitive
-async function checkForUser(username){
-    try {
-        const userCollection = await users();
-    } catch (e){
-        return false
+// async function checkForUser(username){//checks whether username already exists return true or false
+//     // try {
+//     //     userCollection = await users();
+//     // } catch (e){
+//     //     console.log("o")
+//     //     return false
+//     // }
+//     const userCollection = await users();
+//     username.toLowerCase();
+//     let users = []
+//     const temp = await userCollection.find({}).toArray();
+//     console.log(temp)
+//     if (temp.length === 0 ) return false;
+//     users= await userCollection.find({}).toArray();
+//     console.log("o")
+//     for(let i=0; i<users.length; i++){
+//         if(users[i]['username'].toLowerCase() ===username){
+//             return true;
+//         }
+//     }
+//     return false;
+// }
+
+async function checkForUser(username){ //I made a new function because the other one does not work for some reason i cant figure out, yet somehow this one does
+    const userCollection = await users();
+    username = username.toLowerCase();
+    const allUsers = await userCollection.find({}).toArray();
+    for (let user of allUsers){
+        let temp = "";
+        if (user) temp = user.username;
+        if (temp && temp === username) return true;
     }
-    username.toLowerCase();
-    let users = {}
-    users= await userCollection.find({});
-    for(let i=0; i<user.length; i++){
-        if(users[i]['username'].toLowerCase()==username){
-            return true;
-        }
+    return false;
+}
+
+async function checkForEmail(email){ //I made a new function because the other one does not work for some reason i cant figure out, yet somehow this one does
+    const userCollection = await users();
+    email = email.toLowerCase();
+    const allUsers = await userCollection.find({}).toArray();
+    for (let user of allUsers){
+        let temp = "";
+        if (user) temp = user.email;
+        if (temp && temp === email) return true;
     }
     return false;
 }
@@ -39,6 +69,7 @@ async function createUser(firstName, lastName, email, username, password, age){/
     email.trim();
     username.trim();
     password.trim();
+    if (firstName.length === 0 || lastName.length === 0 || email.length === 0 || username.length === 0 || password.length === 0) throw "An element cannot be only whitespace."
     if(firstName.length<3 || lastName.length<3){
         throw "first name or last name are too short";
     }
@@ -60,6 +91,8 @@ async function createUser(firstName, lastName, email, username, password, age){/
     if(checker){
         throw "username already exists";
     }
+    let checker2 = await checkForEmail(email);
+    if (checker2) throw "email already exists";
     if(password.length<5){
         throw "password is too short";
     }
@@ -101,7 +134,7 @@ async function getUserById(id){ //returns whole user with id as a string
     return user;
 }
 
-async function changeFirstName(id, password, change){
+async function changeFirstName(id, password, change){//returns user with userID as a string
     let user = this.getUserById(id);
     if(user==null){
         throw "user does not exist";
@@ -122,18 +155,18 @@ async function changeFirstName(id, password, change){
         throw "first name cannot have numbers punctuation, or special characters";
     }
     const userCollection = await users();
-    if(users['firstName']==change){
-        throw "name is the same as before";
-    }
+    // if(user['firstName']==change){ Because of put implementation, im going to only check this in the route
+    //     throw "name is the same as before";
+    // }
     const update = {firstName: change};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
-        throw "Error: name did not update";
+        throw "Error: first name did not update";
     }
     return await this.getUserById(id);
 }
 
-async function changeLastName(id, password, change){
+async function changeLastName(id, password, change){//returns user with userID as a string
     let user = this.getUserById(id);
     if(user==null){
         throw "user does not exist";
@@ -154,18 +187,18 @@ async function changeLastName(id, password, change){
         throw "last name cannot have numbers punctuation, or special characters";
     }
     const userCollection = await users();
-    if(users['lastName']==change){
-        throw "name is the same as before";
-    }
+    // if(user['lastName']==change){
+    //     throw "name is the same as before";
+    // }
     const update = {lastName: change};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
-        throw "Error: name did not update";
+        throw "Error: last name did not update";
     }
     return await this.getUserById(id);
 }
 
-async function changeUsername(id, password, change){
+async function changeUsername(id, password, change){//returns user with userID as a string
     let user = this.getUserById(id);
     if(user==null){
         throw "user does not exist";
@@ -186,18 +219,23 @@ async function changeUsername(id, password, change){
         throw "username cannot have numbers punctuation, or special characters";
     }
     const userCollection = await users();
-    if(users['username']==change){
-        throw "username is the same as before";
-    }
+    // if(user['username']==change){
+    //     throw "username is the same as before";
+    // }
     const update = {username: change};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
-        throw "Error: name did not update";
+        throw "Error: username did not update";
+    }
+    try{
+        await posts.updatePostsByUser(id, change);
+    }catch(e){
+        console.log(e);
     }
     return await this.getUserById(id);
 }
 
-async function changePassword(id, password, change){
+async function changePassword(id, password, change){//returns use with userID as a string
     let user = this.getUserById(id);
     if(user==null){
         throw "user does not exist";
@@ -223,13 +261,13 @@ async function changePassword(id, password, change){
     const update = {password: hash};
     const info= await userCollection.updateOne({_id: ObjectId(id)}, {$set: update});
     if(info.modifiedCount==0){
-        throw "Error: name did not update";
+        throw "Error: password did not update";
     }
     return await this.getUserById(id);
 }
 
 
-async function makeAdmin(id){
+async function makeAdmin(id){//returns suer with userDI as a string
     let user = await this.getUserById(id);
     if(user==null){
         throw "user does not exist";
@@ -243,7 +281,7 @@ async function makeAdmin(id){
     return await this.getUserById(id);
 }
 
-async function changeEmail(id, password, change){
+async function changeEmail(id, password, change){//returns user with userID as a string
     let user = await this.getUserById(id);
     if(user==null){
         throw "user does not exist";
@@ -276,7 +314,7 @@ async function changeEmail(id, password, change){
     return await this.getUserById(id);
 }
 
-async function deleteAccount(id, password, isAdmin){
+async function deleteAccount(id, password){
     let user = await this.getUserById(id);
     if(user==null){
         throw "user does not exist";
@@ -359,8 +397,62 @@ async function approvePost(postID, userID, status){//send admin approval of post
         throw "postid, useris, or status is empty";
     }
     let user = this.getUserById(userID);
-    let approved = posts.postApproval(postID, user['isAdmin'], status);
+    try{
+        let approved = posts.postApproval(postID, user['isAdmin'], status);
+    }catch(e){
+        console.log(e);
+    }
     return approved;
+}
+
+async function favorite(userID, postID){//removes or adds favorite to post 
+    if(!postID || !userID){
+        throw "need postID and user ID";
+    }
+    if(typeof postID!='string' || typeof userID!= 'string'){
+        throw "postID and userID needs to be a string";
+    }
+    postID.trim();
+    userID.trim();
+    if(postID==='' || !ObjectId.isValid(postID)){
+        throw "postID is not a valid";
+    }
+    if(userID==='' || !ObjectId.isValid(userID)){
+        throw "userID is not valid"
+    }
+    const userCollection = await users();
+    const user = await getUserById(userID);
+    let newFavorite = user['favorites'];
+    let update;
+    let info;
+    if(user['favorites'].includes(postID)){
+        try{
+            await posts.removeFavorite(postID);
+        }catch(e){
+            console.log(e);
+            return;
+        }
+        const index = newFavorite.indexOf(postID);
+        newFavorite.splice(index, 1);
+        update={favorites: newFavorite};
+        info = await userCollection.updateOne({_id: ObjectId(userID)}, {$set: update});
+    }
+    else{
+        try{
+            await posts.favoritePost(postID);
+        }catch(e){
+            console.log(e);
+            return;
+        }
+        newFavorite.push(postID);
+        update={favorites: newFavorite};
+        info = await postCollection.updateOne({_id: ObjectId(userID)}, {$set: update});
+    }
+    if(info.modifiedCount==0){
+        throw "Favorites did not update"
+    }
+    return {favoriteInserted: true};
+    
 }
 
 //
@@ -469,5 +561,7 @@ module.exports = {
     makeReview,
     checkForUser,
     deleteAccount,
-    approvePost
+    approvePost,
+    checkForEmail,
+    favorite
 };

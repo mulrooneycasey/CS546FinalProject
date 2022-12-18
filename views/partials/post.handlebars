@@ -10,7 +10,11 @@
                         <h1 class="card-subtitle mb-2 font-weight-bold h2">{{description}}</h1>
                         <h1 class="card-subtitle h4">Located at:</h1>
                         <p class="card-text mb-2 text-truncate">{{location}}</p>
+                        {{#if reviews}}
                         <h2 class="card-subtitle mb-2 h5">Overall Rating: {{overallRating}} (out of {{#length reviews 'review'}}{{/length}})</h2>
+                        {{else}}
+                        <h2 class="card-subtitle mb-2 h5">No reviews for this post</h2>
+                        {{/if}}
                         <hr>
                         <h2 class="card-subtitle mb-2 h5">{{#length comments 'comment'}}{{/length}}</h2>
                     </div>
@@ -46,7 +50,7 @@
             <div class="card-header bg-transparent border-light mb-2">
                 <div class="row">
                     <div class="col-md-6 ml-auto mr-auto">
-                        <img src="{{image}}" class="rounded" alt="User: {{firstName}} {{lastName}}; Keywords: {{#kwPrinter keywords ','}}{{/kwPrinter}}; Location: {{location}}; Datetime: {{date}} {{time}}">
+                        <img src="{{image}}" class="img-thumbnail" width="100%" height="200" alt="{{description}}">
                     </div>
                 </div>
             </div>
@@ -75,10 +79,10 @@
                         <div class="col mb-2 p-2">
                             <form class="form-inline" method="POST" action="/review/{{_id}}">
                                 <label for="review-textarea" class="sr-only">Textbox for Your Review:</label>
-                                <textarea class="form-control w-100" id="review-textarea" aria-required="true" maxlength="500" required></textarea>
+                                <textarea class="form-control w-100" id="review-textarea" name="review-textarea" aria-required="true" maxlength="500" required></textarea>
                                 <div class="container-fluid my-auto p-2">
                                     <label for="review-rating" class="col-form-label float-left mr-md-2 font-weight-bold">Rating:</label>
-                                    <input type="number" class="form-control" id="review-rating" min="1" max="5" aria-required="true" required>
+                                    <input type="number" class="form-control" id="review-rating" name="review-rating" min="1" max="5" aria-required="true" required>
                                     <div class="d-inline-flex p-2 float-md-right"><span><button type="submit" class="btn btn-primary">Add Review</button></span></div>
                                 </div>
                             </form>
@@ -96,7 +100,7 @@
                     <div class="col mb-2 p-2">
                         <form class="form-inline" method="POST" action="/comment/{{_id}}">
                             <label for="comment-textarea" class="sr-only">Textbox for Your Comment:</label>
-                            <textarea class="form-control w-100" id="comment-textarea" maxlength="100" aria-required="true" required></textarea>
+                            <textarea class="form-control w-100" id="comment-textarea" name="comment-textarea" maxlength="100" aria-required="true" required></textarea>
                             <div class="container-fluid my-auto p-2">
                                 <span class="float-md-right">
                                     <button type="submit" class="btn btn-primary">Add Comment</button>

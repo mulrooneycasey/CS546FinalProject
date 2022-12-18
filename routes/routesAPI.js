@@ -9,6 +9,7 @@ const xss = require('xss');
 const data = require('../data');
 const helpers = require('../helpers');
 const { addFavorite } = require('../data/users');
+const { ObjectId } = require('mongodb');
 const userData = data.users;
 const postData = data.posts;
 /** Include any helper functions here. */
@@ -62,8 +63,9 @@ router.get('/', async (req, res) => {
      * Insert code that, if the user is logged in, determines whether the user is an admin or not 
      * here. - Chance 
      */
-    if (loggedIn === true){
-        const isAdmin = req.session.user['isAdmin'];
+    let isAdmin = false;
+    if (loggedIn){
+        isAdmin = req.session.user['isAdmin'];
         if (isAdmin) res.redirect('/admin')
     } 
     const allKeywords = [];
@@ -83,12 +85,23 @@ router.get('/', async (req, res) => {
                 allKeywords: allKeywords,
                 loggedIn: loggedIn,
                 trunc: true,
-                isAdmin: false,
+                isAdmin: isAdmin,
                 isHome: true
             }
         })
     } catch (e) {
-            console.log(e);
+        res.render('pages/homeInfo', {
+            scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
+            context: {
+                allKeywords: allKeywords,
+                loggedIn: loggedIn,
+                trunc: true,
+                isAdmin: isAdmin,
+                isHome: true,
+                error: true,
+                errors: ["Internal Server Error.", e]
+            }
+        })
     }
 });
 
@@ -112,8 +125,8 @@ router.get('/about', async (req, res) => {
     res.render('pages/about', {
         context: {
             noPagination: true,
-            loggedIn: loggedIn, //change to loggedIn reviewLater
-            isAdmin: isAdmin //change to isAdmin
+            loggedIn: loggedIn, 
+            isAdmin: isAdmin 
         }
     });
 });
@@ -128,17 +141,6 @@ router.get('/about', async (req, res) => {
 router
     .route('/login')
     .get(async (req, res) => {
-        /** 
-         * Once you add the user to the session, you can delete the line below and uncomment the 
-         * other ones to restore the correct functionality. - Chance 
-         */
-        // res.render('pages/userLogin', {
-        //     scripts: ['/public/js/userLogin.js'],
-        //     context: {
-        //         noPagination: true
-        //     }
-        // });
-
         if (req.session.user) res.redirect('/'); 
         else res.render('pages/userLogin', {
             scripts: ['/public/js/userLogin.js'],
@@ -156,19 +158,46 @@ router
          * reference. - Chance
          */
         //uncomment when ready reviewLater - Nick
+        //req.body = xss(req.body);
+        if (req.session.user) res.redirect('/');
         let errors = [];
-        let emailInput = req.body.emailInput;
-        let passwordInput = req.body.passwordInput;
+        let emailInput = xss(req.body.emailInput);
+        let passwordInput = xss(req.body.passwordInput);
+        if (!emailInput || !passwordInput) errors.push("Email or password not provided.")
+        else if (typeof emailInput !== "string" || typeof passwordInput !== "string") errors.push("Email or password is not a string.");
+        if (typeof emailInput === "string" && typeof passwordInput === "string") {
+            emailInput = emailInput.trim();
+            emailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; //Sourced from https://www.w3resource.com/javascript/form/email-validation.php for the regular expression -Nicholas Mule 
+            if (emailInput.length === 0) errors.push( "Error: Email cannot be only whitespace.");
+            if (!emailFormat.test(emailInput)) errors.push("Email is invalid format.");
+            passwordInput = passwordInput.trim();
+            if (passwordInput === "") errors.push("Error: Password cannot be only whitespace.")
+            if (helpers.containsSpace(passwordInput)) errors.push( "Error: Password cannot contain a whitespace within.");
+            if (passwordInput.length < 6) errors.push("Error: Password must be atleast 6 characters aside from bordering whitespace.");
+            if (!helpers.containsUpper(passwordInput)) errors.push( "Error: Password must contain atleast one uppercase character.");
+            if (!helpers.containsNum(passwordInput)) errors.push( "Error: Password must contain atleast one number.");
+            if (!helpers.containsSpec(passwordInput) && !helpers.containsPunct(passwordInput)) errors.push( "Error: Password must contain atleast one special character.");
+        
+        if (errors.length > 0) { //Login does not show this even if it occurs, not sure why. Might have to do with js script? - Nick
+            res.status(400).render('pages/userLogin', {
+                scripts: ['/public/js/userLogin.js'],
+                context: { 
+                    noPagination: true,
+                    error: true,
+                    errors: errors
+                }
+            });
+            return;
+        }
+        
         let theUser = undefined;
         try {
             theUser = await userData.checkUser(emailInput, passwordInput); 
         }
-        catch (e){
-            console.log(e);
+        catch (e){ 
             errors.push(e); //This block is to catch the error of 'Either invalid password or username'
         } //theUser is now a whole user object after this part
         
-        console.log(errors.length)
         if (errors.length > 0) {
             res.status(400).render('pages/userLogin', {
                 scripts: ['/public/js/userLogin.js'],
@@ -185,8 +214,8 @@ router
             req.session.user = theUser;
             res.redirect('/'); //Redirect to homepage if successfully logged in
         }
-
-    });
+        }   
+    })
 
 /**
  * "GET /register": 
@@ -198,53 +227,99 @@ router
 router
     .route('/register')
     .get(async (req, res) => {
-        /** 
-         * Once you add the user to the session, you can delete the line below and uncomment the 
-         * other ones to restore the correct functionality. - Chance 
-         */
+        if (req.session.user) res.redirect('/listings')
+
         res.render('pages/userRegister', {
             scripts: ['/public/js/userRegister.js'],
             context: {
                 noPagination: true
             }
         });
-        // if (req.session.user) res.redirect('/'); reviewLater
-        // else res.render('pages/userRegister', {
-        //     scripts: ['/public/js/userRegister.js'],
-        //     context: {
-        //         noPagination: true
-        //     }
-        // });
     })
     .post(async (req, res) => {
-        /** 
-         * This function is pretty much free for the taking. If registering throws any errors, 
-         * render the page again with an object of 'error: true' and 'errors: <array of error 
-         * strings>', and with a HTTP 400 (or 500 if it's likely a server/db error) status code. I 
-         * guess if you're confused by what any of this means, you can look at the "PUT /account" 
-         * route for reference. - Chance 
-         */ 
-        //reviewLater Nick
-        let theUserData = req.body; 
-        let errors = [];
+        if (req.session.user) {
+            res.status(403).render('pages/userRegister', {
+                scripts: ['/public/js/userRegister.js'],
+                context: { 
+                    noPagination: true,
+                    error: true,
+                    errors: ["You cannot register while logged in."]
+                    }
+                });
+                return;
+        }
 
-        theUserData.usernameInput = theUserData.usernameInput.trim();
-        theUserData.passwordInput = theUserData.passwordInput.trim();
-        theUserData.firstInput = theUserData.firstInput.trim();
-        theUserData.lastInput = theUserData.lastInput.trim();
-        theUserData.emailInput = theUserData.emailInput.trim();
+        let errors = [];
+        let firstName = xss(req.body.firstInput)
+        let lastName = xss(req.body.lastInput)
+        let username = xss(req.body.usernameInput)
+        let password = xss(req.body.passwordInput)
+        let email = xss(req.body.emailInput)
+        //Error checking
+        if(!firstName || !lastName || !email || !username || !password){
+            errors.push( "to sign up need a first name, last name, email address, username, and password");
+        }
+        else if (typeof firstName!='string' || typeof lastName!='string' || typeof email!='string' ||
+        typeof username!='string' || typeof password!='string'){
+            errors.push( "inputs are not valid strings");
+        }
+        else{
+            firstName.trim();
+            lastName.trim();
+            email.trim();
+            username.trim();
+            password.trim();
+        } if (typeof firstName==='string' && typeof lastName==='string' && typeof email==='string' &&
+        typeof username==='string' && typeof password==='string'){
+            if (firstName.length === 0 || lastName.length === 0 || email.length === 0 || username.length === 0 || password.length === 0) errors.push("An element cannot be only whitespace.")
+            if(firstName.length<3 || lastName.length<3){
+                errors.push( "first name or last name are too short");
+            }
+            if(helpers.containsNum(firstName) || helpers.containsNum(lastName)){
+                errors.push( "first name and last name cannot contain numbers");
+            }
+            const at = email.indexOf('@');
+            if(at ==-1){
+                errors.push( "not a proper email");
+            }
+            if(!email.includes('.', at)){
+                errors.push( "not a proper email");
+            }
+            //username length of 5, no special characters only letters and numbers
+            if(username.length<5 || helpers.containsSpec(username)){
+                errors.push( "not a valid username");
+            }
+            let checker = await userData.checkForUser(username);
+            if(checker){
+                errors.push( "username already exists");
+            }
+            let checker2 = await userData.checkForEmail(email);
+            if (checker2) errors.push("Email already in use")
+            if(password.length<5){
+                errors.push( "password is too short");
+            }
+            if(!(helpers.containsNum(password) || helpers.containsUpper(password) || 
+            helpers.containsSpec(password)) || helpers.containsSpace(password)){
+                errors.push( "password needs a number, special character, and uppercase with no spaces")
+            }
+        }
+        if (errors.length > 0) { //Similar to login, error page is not shown for registration if there is an error reviewLater
+            res.status(400).render('pages/userRegister', {
+            scripts: ['/public/js/userRegister.js'],
+            context: { 
+                noPagination: true,
+                error: true,
+                errors: errors
+                }
+            });
+            return;
+        }
+    
 
         try {
-            const newUser = await userData.createUser(
-            theUserData.firstInput,
-            theUserData.lastInput,
-            theUserData.emailInput,
-            theUserData.usernameInput,
-            theUserData.passwordInput,
-            theUserData.ageInput
-            );
-            if (newUser['firstName'] === theUserData.firstInput) {
-                res.redirect('/'); //Might need to be adjusted based on createUser reviewLater
+            const newUser = await userData.createUser(firstName, lastName, email, username, password);
+            if (newUser['firstName'] === firstName) {
+                res.redirect('/login'); 
             }
             else {
                 errors.push("Internal Server Error");
@@ -256,9 +331,10 @@ router
                         errors: errors
                         }
                     });
+                    return;
             }
         } catch (e) {
-            errors.push(e.toString()); //Check if this works reviewLater; In general, this is jank but hopefully its ok?
+            errors.push(e); 
             res.status(400).render('pages/userRegister', {
                 scripts: ['/public/js/userRegister.js'],
                 context: { 
@@ -267,20 +343,8 @@ router
                     errors: errors
                     }
                 });
+                return;
         }
-
-        // if (errors.length > 0) { //this part is prob not needed
-        //     res.status(400).render('pages/userRegister', {
-        //     scripts: ['/public/js/userRegister.js'],
-        //     context: { 
-        //         //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
-        //         error: true,
-        //         errors: errors
-        //         }
-        //     });
-        // }
-
-        
     });
 
 /**
@@ -288,12 +352,28 @@ router
  *   Deletes the cookie and takes us to the "Logout" page.
  */
 router.get('/logout', async (req, res) => {
-    req.session.destroy();
-    res.render('pages/userLogout', {
-        context: {
-            noPagination: true
-        }
-    });
+    if (req.session.user){
+        req.session.destroy();
+        res.render('pages/userLogout', {
+            context: {
+                noPagination: true
+            }
+        });
+        return;
+    }
+    else{
+        res.status(404).render('pages/soloListing', { //userLogout wouldnt display the message, and this does basically the same thing
+            scripts: ['/public/js/soloListing.js'],
+            context: {
+                loggedIn: false,
+                isAdmin: false,
+                noPagination: true,
+                error: true,
+                errors: ["You must be logged in to log out."]
+            }
+        });
+        return;
+    }
 });
 
 /**
@@ -307,7 +387,7 @@ router.get('/logout', async (req, res) => {
  *   Favorites the given post.
  */
 router.post('/favorite/:postId', async (req, res) => {
-    const postId = req.params.postId.trim();
+    let postId = xss(req.params.postId); //use just favorite()
     /** 
      * Insert the code that appends the ObjectId (MongoDB) of the post to the user's list of 
      * favorites here.
@@ -316,31 +396,83 @@ router.post('/favorite/:postId', async (req, res) => {
      * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
      */
     //reviewLater nick
-    // const userId = req.session.user['_id']; 
-    // let errors = [];
-    // try{
-    //     const result = await userData.addFavorite(postId, userId.toString())
-    //     if (result['favoriteInserted'] !== true){
-    //         res.status(500).render('pages/soloListing', {
-    //             scripts: ['/public/js/soloListing.js'],
-    //             context: { 
-    //                 //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
-    //                 error: true,
-    //                 errors: errors
-    //                 }
-    //             });
-    //     }
-    // } catch (e){
-    //     errors.append(e.toString());
-    //     res.status(400).render('pages/soloListing', { //Maybe to the post's page?
-    //         scripts: ['/public/js/soloListing.js'],
-    //         context: { 
-    //             //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
-    //             error: true,
-    //             errors: errors
-    //             }
-    //         });
-    // }
+    let loggedIn = false;
+    let isAdmin = false;
+    if (req.session.user){
+        loggedIn = true;
+        if (req.session.user.isAdmin === true) isAdmin = true;
+    }
+    else{
+        res.status(403).render('pages/soloListing', { //Maybe to the post's page?
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                error: true,
+                errors: ["You must be logged in to favorite a post"],
+                noPagination: true,
+                LoggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
+    }
+
+    const userId = req.session.user['_id']; 
+    let errors = [];
+
+    if (!postId) errors.push("No postId given");
+    else if (typeof postId !== "string") errors.push("PostId must be a string.")
+    else {
+        postId = postId.trim();
+        if (postId.length === 0) errors.push("postId cannot be only whitespace");
+        else if (!ObjectId.isValid(postId)) errors.push("Must be a valid postId");
+    }
+
+    if (errors.length > 0) { 
+        res.status(400).render('pages/soloListing', {
+        scripts: ['/public/js/soloListing.js'],
+        context: { 
+            error: true,
+            errors: errors,
+            noPagination: true,
+            loggedIn: loggedIn,
+            isAdmin: isAdmin
+            }
+        });
+        return;
+    }
+
+    try{
+        const result = await userData.favorite(userId, postId)
+        if (result['favoriteInserted'] !== true){
+            res.status(500).render('pages/soloListing', { //Maybe to the post's page?
+                scripts: ['/public/js/soloListing.js'],
+                context: { 
+                    error: true,
+                    errors: ["Internal Server Error"],
+                    noPagination: true,
+                    LoggedIn: loggedIn,
+                    isAdmin: isAdmin
+                    }
+                });
+                return;
+        }
+    } catch (e){
+        errors.push(e);
+        res.status(400).render('pages/soloListing', { //Maybe to the post's page?
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                error: true,
+                errors: errors,
+                noPagination: true,
+                LoggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
+        return;
+    }
+    
+    res.redirect('/listings')
 });
 
 /**
@@ -348,7 +480,7 @@ router.post('/favorite/:postId', async (req, res) => {
  *   Adds a review to the given post.
  */
 router.post('/review/:postId', async (req, res) => {  
-    const postId = req.params.postId.trim();
+    let postID = req.params.postId;
     /** 
      * Insert the code that updates the user's collection of reviews here.
      */
@@ -356,32 +488,104 @@ router.post('/review/:postId', async (req, res) => {
      * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
      */
     //reviewLater nick
-    // const userId = req.session.user['_id'];
-    // let errors = [];
-    // try{
-    //     await postData.createReview(postId, req.session.user['username'], req.body.comment.trim(), req.body.rating)
-    //     const result = await userData.addRating(postId, userId.toString())
-    //     if (result['ratingInserted'] !== true){
-    //         res.status(500).render('pages/soloListing', {
-    //             scripts: ['/public/js/soloListing.js'],
-    //             context: { 
-    //                 //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
-    //                 error: true,
-    //                 errors: errors
-    //                 }
-    //             });
-    //     }
-    // } catch (e){
-    //     errors.append(e.toString());
-    //     res.status(400).render('pages/soloListing', { //Maybe to the post's page?
-    //         scripts: ['/public/js/soloListing.js'],
-    //         context: { 
-    //             //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
-    //             error: true,
-    //             errors: errors
-    //             }
-    //         });
-    // }
+    let loggedIn = false;
+    let isAdmin = false;
+    if (req.session.user){
+        loggedIn = true;
+        if (req.session.user.isAdmin === true) isAdmin = true;
+    }
+    else{
+        res.status(403).render('pages/soloListing', { //Maybe to the post's page?
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                error: true,
+                errors: ["You must be logged in to rate a post"],
+                noPagination: true,
+                LoggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
+    }
+
+    const userId = req.session.user['_id'];
+    let errors = [];
+    let username = req.session.user.username;
+    let comment = req.body['review-textarea'];
+    let rating = req.body['review-rating'];
+    rating = parseInt(rating);
+    
+
+    if(!postID || !username || !comment || !rating){
+        errors.push( "missing info for review");
+    }
+    else if(typeof postID!='string' || typeof username!='string' || 
+    typeof comment!='string' || typeof rating!='number'){
+        errors.push( "type of info is wrong for review");
+    }
+    else {
+        postID.trim();
+        username.trim();
+        comment.trim();
+    }
+    if (typeof postID ==='string' && typeof username ==='string' && 
+    typeof comment ==='string' && typeof rating ==='number'){
+        if(postID=='' || username=='' || comment==''){
+            errors.push( "postid, username, or comment is empty");
+        }
+        if(rating<1 || rating>5){
+            errors.push( "rating needs to be 1-5");
+        }
+        if(!ObjectId.isValid(postID)){
+            errors.push( "not valid post id");
+        }
+    }
+
+    if (errors.length > 0) { 
+        res.status(400).render('pages/soloListing', {
+        scripts: ['/public/js/soloListing.js'],
+        context: { 
+            error: true,
+            errors: errors,
+            noPagination: true,
+            loggedIn: loggedIn,
+            isAdmin: isAdmin
+            }
+        });
+        return;
+    }
+
+    try{
+        const result = await userData.makeReview(userId, postID, username, comment, rating);
+        if (result['username'] !== username){
+            res.status(500).render('pages/soloListing', { //Maybe to the post's page?
+                scripts: ['/public/js/soloListing.js'],
+                context: { 
+                    error: true,
+                    errors: ["Internal server error"],
+                    noPagination: true,
+                    LoggedIn: loggedIn,
+                    isAdmin: isAdmin
+                    }
+                });
+                return;
+        }
+    } catch (e){
+        errors.push(e);
+        res.status(400).render('pages/soloListing', { //Maybe to the post's page?
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                error: true,
+                errors: errors,
+                noPagination: true,
+                LoggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
+    }
+
+    res.redirect(`/listings/${postID}`)
 });
 
 /**
@@ -389,41 +593,98 @@ router.post('/review/:postId', async (req, res) => {
  *   Comments on the given post.
  */
 router.post('/comment/:postId', async (req, res) => {    
-   const postId = req.params.postId;
+   let postId = req.params.postId;
     /** 
      * Insert the code that updates the user's collection of comments here.
      */
-    /** 
-     * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
-     */
-    //reviewLater nick
+    let loggedIn = false;
+    let isAdmin = false;
+    if (req.session.user){
+        loggedIn = true;
+        if (req.session.user.isAdmin === true) isAdmin = true;
+    }
+    else{
+        res.status(403).render('pages/soloListing', { //Maybe to the post's page?
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
+                error: true,
+                errors: ["You must be logged in to make a comment"],
+                noPagination: true,
+                LoggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
+    }
+
+    if (!postId) errors.push("Error: Must supply postId");
+    else if (typeof postId != 'string') errors.push("Error: postId must be a string");
+    else {
+        postId = postId.trim();
+        if (postId.length === 0) errors.push("Error: postId cannot be only whitespace");
+        else if (!ObjectId.isValid(postId)) errors.push("Error: postId is not a valid objectId");
+    }
+
     const userId = req.session.user['_id'];
     let errors = [];
+    let comment = req.body['comment-textarea']
+    if (!comment) errors.push ("No comment given");
+    else if (typeof comment !== "string") errors.push("Comment is not of type string.");
+    else{
+        comment = comment.trim(); 
+        if (typeof comment === "string" && comment.length === 0) errors.push("Comment cannot be only whitespace.");
+        else if (typeof comment === "string" && !ObjectId.isValid(postId)) errors.push("PostId must be a valid objectId");
+    }
+    
+    if (errors.length > 0) { 
+        res.status(400).render('pages/soloListing', {
+        scripts: ['/public/js/soloListing.js'],
+        context: { 
+            error: true,
+            errors: errors,
+            noPagination: true,
+            loggedIn: loggedIn,
+            isAdmin: isAdmin
+            }
+        });
+        return;
+    }
+
+    let result = undefined;
+
     try{
-        await userData.makeComment(req.session.user['_id'], postId, req.session.user['username'], req.body.comment.trim())
-        const result = await userData.addComment(postId, userId.toString())
-        if (result['commentInserted'] !== true){
+        result = await userData.makeComment(userId, postId, req.session.user.username, comment)
+        if (result['_id'] !== userId){
             res.status(500).render('pages/soloListing', {
                 scripts: ['/public/js/soloListing.js'],
                 context: { 
                     noPagination: true,
                     error: true,
-                    errors: errors
-    //post, loggedIn, truncination, posts error: true errors: errors all in 
+                    errors: ["Internal Server Error"],
+                    loggedIn: loggedIn,
+                    isAdmin: isAdmin
                     }
                 });
+                return;
         }
     } catch (e){
-        errors.append(e.toString());
+        errors.push(e);
         res.status(400).render('pages/soloListing', { //Maybe to the post's page?
             scripts: ['/public/js/soloListing.js'],
             context: { 
                 //NoPagination not needed? Im not sure if I rendered the same page but with errors handlebar correctly so reviewLater
                 error: true,
-                errors: errors
+                errors: errors,
+                noPagination: true,
+                LoggedIn: loggedIn,
+                isAdmin: isAdmin
                 }
             });
+            return;
     }
+
+    res.redirect(`/listings/${postId}`);
 });
 
 module.exports = router;

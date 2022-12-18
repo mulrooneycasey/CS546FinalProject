@@ -10,10 +10,13 @@ const constructorMethod = app => {
     app.use('/listings', listingsRoutes);
     app.use('/admin', adminRoutes);
     app.use('*', (req, res) => {
-        res.render('pages/soloListing', {
+        let loggedIn = typeof req.session.user === "undefined" ? false : true
+        let isAdmin = loggedIn && req.session.user.isAdmin === true ? true : false
+        res.status(404).render('pages/soloListing', {
             scripts: ['/public/js/soloListing.js'],
             context: {
-                loggedIn: false,
+                loggedIn: loggedIn,
+                isAdmin: isAdmin,
                 noPagination: true,
                 error: true,
                 errors: ["No page found."]

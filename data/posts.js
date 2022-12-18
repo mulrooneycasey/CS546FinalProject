@@ -5,26 +5,21 @@ const {ObjectId} = require('mongodb');
 const bcrypt = require('bcrypt');
 const helpers = require('../helpers');
 
-async function createPost(firstName, lastName, object, image, location, keywords){ //returns postId
-    if(!firstName || !lastName || !object || !image || !location || !keywords){
+async function createPost(username, object, image, location, keywords){ //returns postId
+    if(!username || !object || !image || !location || !keywords){
         throw "missing item";
     }
-    if(helpers.containsNum(firstName) || helpers.containsNum(lastName)){
-        throw "name cannot have numbers in it";
-    }
-    if(typeof firstName!='string' || typeof lastName!='string' ||
-    typeof location!='string' || typeof object!='string'){
-        throw "first name, last name, location, and object has to be a string";
+    if(typeof username!='string' || typeof location!='string' || typeof object!='string'){
+        throw "username, location, and object has to be a string";
     }
     if(typeof keywords != ' undefined' && typeof keywords != 'string'){
         throw "keywords has to be a string";
     }
-    firstName.trim();
-    lastName.trim();
+    username.trim();
     location.trim();
     object.trim();
     keywords.trim();
-    if(firstName=='' || lastName=='' || location=='' || object==''){
+    if(username=='' || location=='' || object==''){
         throw "first name, last name, location, and object has to be a string";
     }
 
@@ -34,7 +29,7 @@ async function createPost(firstName, lastName, object, image, location, keywords
     const d = new Date();
     const date = (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
     time=d.toTimeString();
-    let newPost = {firstName: firstName, lastName: lastName, description: object, image: image,
+    let newPost = {username: username, description: object, image: image,
         location: location, time: time, date: date, overallRating: 5, reviews: [], comments: [], status: "pending", keywords: keywords.split("; "), favorites: 0};
     const insertInfo = await postCollection.insertOne(newPost);
     if(!insertInfo.acknowledged || !insertInfo.insertedId){
@@ -415,6 +410,27 @@ async function getAllPostsByUser(userId){
     return answer;
 }
 
+async function updatePostsByUser(userID, newUsername){
+    if (!userId) throw "Error: Must supply userId";
+    if (typeof userId != 'string') throw "Error: userId must be a string";
+    userId = userId.trim();
+    if (userId.length === 0) throw "Error: userId cannot be only whitespace";
+    if (!ObjectId.isValid(userId)) throw "Error: userId is not a valid objectId";
+    let posts = await this.getAllPostsByUser(userID);
+    let currPost;
+    let update;
+    let info;
+    while(posts.length>0){
+        currPost=posts.pop();
+        update={username: newUsername};
+        info = await postCollection.updateOne({_id: currPost['_id']}, {$set: update});
+        if(info.modifiedCount==0){
+            throw "Error: was not able to modify all the posts";
+        }
+    }
+    return;
+}
+
 module.exports = {
     createPost,
     createReview,
@@ -429,5 +445,6 @@ module.exports = {
     postApproval,
     favoritePost,
     removeFavorite,
-    getAllPostsByUser
+    getAllPostsByUser,
+    updatePostsByUser
 };

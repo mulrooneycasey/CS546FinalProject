@@ -55,11 +55,6 @@ const postData = data.posts;
  *   Takes us to the landing page.
  */
 router.get('/', async (req, res) => {
-    /** 
-     * Once you add the user to the session, you can delete the line below and uncomment the other 
-     * one. - Chance 
-     */
-    // const loggedIn = false;
     // If there is the user logged in, then enable them to logout.
     const loggedIn = typeof req.session.user !== 'undefined'; //reviewLater
 
@@ -71,12 +66,11 @@ router.get('/', async (req, res) => {
         const isAdmin = req.session.user['isAdmin'];
         if (isAdmin) res.redirect('/admin')
     } 
-    // -Nick reviewLater
     const allKeywords = [];
     // Render the landing page, with an "About" section and the 5 most recent postings.
     /** Insert the code for obtaining the 5 most recent postings here. 
-     *  Use a function to get all of the postings, probably add it in mongoDB
-     *  Then get the most recent five by checking their dates and comparing them - Nick reviewLater
+     *  Use a function to get all of the postings, probably add it in mongoDB - Chance
+     *  Then get the most recent five by checking their dates and comparing them - Nick 
     */
     try{
         let currentList = await postData.getAllPosts();
@@ -93,7 +87,7 @@ router.get('/', async (req, res) => {
                 isHome: true
             }
         })
-        }catch (e){
+    } catch (e) {
             console.log(e);
     }
 });
@@ -109,11 +103,17 @@ router.get('/about', async (req, res) => {
      * here. - Chance 
      * Added the code as requested - Nick
      */
+    let loggedIn = false;
+    let isAdmin = false;
+    if (req.session.user) {
+        loggedIn = true;
+        if (req.session.user.isAdmin === true) isAdmin = true;
+    }
     res.render('pages/about', {
         context: {
             noPagination: true,
-            loggedIn: false, //change to loggedIn reviewLater
-            isAdmin: false //change to isAdmin
+            loggedIn: loggedIn, //change to loggedIn reviewLater
+            isAdmin: isAdmin //change to isAdmin
         }
     });
 });
@@ -139,7 +139,7 @@ router
         //     }
         // });
 
-        if (req.session.user) res.redirect('/'); // reviewLater
+        if (req.session.user) res.redirect('/'); 
         else res.render('pages/userLogin', {
             scripts: ['/public/js/userLogin.js'],
             context: {
@@ -161,15 +161,15 @@ router
         let passwordInput = req.body.passwordInput;
         let theUser = undefined;
         try {
-            theUser = await userData.checkUser(emailInput, passwordInput);  //Might need to be implemented in data/users.js using find({}) and iterating through all until finding matching username, returing entire user - Nick reviewLater
+            theUser = await userData.checkUser(emailInput, passwordInput); 
         }
         catch (e){
             console.log(e);
             errors.push(e); //This block is to catch the error of 'Either invalid password or username'
         } //theUser is now a whole user object after this part
         
+        console.log(errors.length)
         if (errors.length > 0) {
-            console.log();
             res.status(400).render('pages/userLogin', {
                 scripts: ['/public/js/userLogin.js'],
                 context: { 

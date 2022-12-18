@@ -43,27 +43,22 @@ router
             currentList.sort(helpers.compareNumbers)//
             // console.log(currentList);
             if (req.query.search){
-                searchField = req.query.search;
+                let searchField = req.query.search;
                 currentList = await postData.searchPosts(searchField, currentList);
             }
-            if (req.query.filter){ //not fully done reviewLater - Nick
-                //console.log("is this running?")
-                filterField = req.query.filter;
-                console.log(filterField);
+            if (req.query.filter){ //works if we have keywords as one words only!
+                let filterField = req.query.filter;
+                let filterArr = [];
                 if (typeof filterField === "string") {
-                    filterArr = filterField.split('filter=');
-                    if (filterArr[0] === '') filterArr.shift();
+                    filterArr.push(filterField)
+                    currentList = await postData.filterPosts(filterArr, currentList)
                 }
-                let filterArr1 = [];
-                for (let filter of filterArr){
-                    //console.log(filter.length)
-                    if (filter.slice(-1) === "&") filterArr1.push( filter.substring(0, filter.length-1))
-                    else filterArr1.push(filter);
+                else{
+                    currentList = await postData.filterPosts(filterField, currentList)
                 }
-                currentList = await postData.filterPosts(filterArr1, currentList)
             }
             if (req.query.page){
-                pageField = req.query.page;
+                let pageField = req.query.page;
                 pageField = parseInt(pageField);
                 currentList = await postData.getPostsByIndex(pageField*10-10, 5, currentList);
             }
@@ -71,7 +66,7 @@ router
                 currentList = await postData.getPostsByIndex(0, 5, currentList);//
             }
             for (let post of currentList){
-                theKeywords = post['keywords']
+                let theKeywords = post['keywords']
                 for (let keyword of theKeywords){
                     allKeywords.push(keyword)
                 }

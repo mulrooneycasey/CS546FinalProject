@@ -157,7 +157,7 @@ async function getPostsByIndex(startingIndex, numberPosts, postList){
     if (typeof numberPosts === 'undefined') throw "Error: No numberPosts";
     if (typeof numberPosts !== 'number') throw "Error: numberPosts must be a number.";
     if (numberPosts < 0) throw "Error: Cannot have a negative numberPosts";
-    if (startingIndex > postList.length -1) throw "Error: Index cannot exceed length of all posts";
+    if (postList.length < 0 && startingIndex > postList.length -1) throw "Error: Index cannot exceed length of all posts";
 
     let dateArr = [];
     for (let post of postList){ //add objects with associated objectId's then change helper to do correct function, then use getpostbyid to get all of them
@@ -192,23 +192,22 @@ async function filterPosts(keywordArr, postList){ //returns postList, filter wit
         if (keyword.trim().length === 0){
             throw "Error: Keyword in the given array is either an empty string or only whitespace."
         }
+        if (helpers.containsSpace(keyword)) throw "Error: A keyword cannot have a space.";
     }
-
+    //Should be: go through postlist, and check each word of keywordArr. If there is not a match in the post's keywords, break and contained == false so no add
     answer = []; //FIX THIS TO NOT WORK IF COUCH AND WHITE
-    for (let post of postList){
-        postKeywords = post['keywords'];
-        containsAllKeywords = false;
-        let i = 0;
-        while (i < keywordArr.length){
-            if (!postKeywords.includes(keywordArr[i])) {
-                contained = false
+    let contained = true;
+    for (let post of postList){ //for each post
+        postKeywords = post['keywords']; //get all post keywords as an array
+        contained = true; //set contained to true
+        for (let givenKeyword of keywordArr){ //take each keyword of the given keywordArr
+            if (!postKeywords.includes(givenKeyword)) { //if the post's keywords does not include the current keyword, false and break
+                contained = false;
                 break;
             }
-            i++;
         }
         if (contained) answer.push(post);
     }
-
     return answer;
 }
 

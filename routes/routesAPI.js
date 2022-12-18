@@ -241,6 +241,7 @@ router
             theUserData.emailInput,
             theUserData.usernameInput,
             theUserData.passwordInput,
+            theUserData.ageInput
             );
             if (newUser['firstName'] === theUserData.firstInput) {
                 res.redirect('/'); //Might need to be adjusted based on createUser reviewLater

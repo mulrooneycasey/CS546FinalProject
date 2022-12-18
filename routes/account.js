@@ -350,6 +350,7 @@ router
                 scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
                 context: {
                     posts: currentList,
+                    mgmtPage: true,
                     allKeywords: allKeywords,
                     loggedIn: loggedIn,
                     trunc: true,
@@ -486,7 +487,8 @@ router.get('/listings/:postId', async (req, res) => {
             });
             return;
         }
-
+        
+        thePost['image'] = '../' + thePost['image'];
         res.render('pages/soloListing', {
             scripts: ['/public/js/soloListing.js'],
             context: {

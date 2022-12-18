@@ -190,7 +190,7 @@ router
                 scripts: ['/public/js/soloListing.js'],
                 context: {
                     loggedIn: loggedIn,
-                    isAdmin,
+                    isAdmin: true,
                     noPagination: true,
                     error: true,
                     errors: errors
@@ -199,13 +199,14 @@ router
             return;
         }
 
+        thePost['image'] = '../' + thePost['image'];
         res.render('pages/soloListing', {
             scripts: ['/public/js/soloListing.js'],
             context: {
                 post: thePost,
                 loggedIn: loggedIn,
                 isAdmin: true,
-                trunc: false,
+                trunc: true,
                 noPagination: true,
             }
         });

@@ -131,7 +131,7 @@ async function createComment(postID, username, comment){//returns comment object
     if(info.modifiedCount==0){
         throw "post did not update";
     }
-    return newComment["_id"];
+    return newComment["_id"].toString();
 }
 
 async function getAllPosts(){ //returns all posts with ids as a string
@@ -404,6 +404,10 @@ async function getAllPostsByUser(userId){
     }
     let tUser = await user();
     let answer = [];
+    console.log(tUser.posts.toString());
+    for (let i = 0; i < tUser.posts.length; i++){
+        tUser.posts[i] = tUser.posts[i].toString();
+    }
     for (const post of postList){
         if (tUser.posts.includes(post._id)) answer.push(post);
     }

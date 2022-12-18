@@ -99,10 +99,9 @@ router
          * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
          */
         if (!req.session.user){
-            res.status(403).render('pages/accountMgmt', {
-                scripts: ['/public/js/accountMgmt.js'],
+            res.status(403).render('pages/listings', {
+                scripts: ['/public/js/listings.js'],
                 context: {
-                    mgmtPage: true,
                     loggedIn: false,
                     error: true,
                     errors: ['You are not currently logged in.']

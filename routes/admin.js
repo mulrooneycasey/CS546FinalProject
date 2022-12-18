@@ -46,38 +46,55 @@ router.get('/listings', async (req, res) => {
      * Once you add the user to the session, you can uncomment the other lines to restore the 
      * correct functionality. - Chance 
      */
-    const allKeywords = [];
-    // // If the user is logged in, then they should gain access to the "Listings" page without a 
-    // // problem.
-    if (req.session.user && req.session.user['isAdmin'] === true) {
-        /** 
-         * If the user has clicked a specific page (say, page 3), then we need to move the cursor 
-         * in the database so that the corresponding posts are displayed. We must keep in mind any 
-         * filtered keyword(s) the user has selected and/or any keyword the user has searched.
-         */
+        let allKeywords = [];
+        const loggedIn = typeof req.session.user !== 'undefined';
+        if (!loggedIn || !req.session.user['isAdmin']) res.redirect('/listings')
+        //Beginning of nick filter/page/search
+        if (loggedIn && req.session.user['isAdmin']){
+        let currentList = []
         try{
-            let currentList = await postData.getAllPosts();
-            currentList.sort(helpers.compareNumbers)
+            currentList = await postData.getAllPosts();
+        } catch (e){
+            res.status(500).render('pages/listings', {
+                scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
+                context: {
+                    loggedIn: loggedIn,
+                    isAdmin: true,
+                    error: true,
+                    errors: ["Internal Server Error"]
+                }
+            })
+            return;
+        }
+
+        try{
+            currentList.sort(helpers.compareNumbers)//
             // console.log(currentList);
             if (req.query.search){
-                searchField = req.query.search;
+                let searchField = req.query.search;
                 currentList = await postData.searchPosts(searchField, currentList);
             }
-            if (req.query.filter){
-                filterField = req.query.filter;
-                filterArr = filterField.split(' ');
-                currentList = await postData.filterPosts(filterArr, currentList)
+            if (req.query.filter){ //works if we have keywords as one words only!
+                let filterField = req.query.filter;
+                let filterArr = [];
+                if (typeof filterField === "string") {
+                    filterArr.push(filterField)
+                    currentList = await postData.filterPosts(filterArr, currentList)
+                }
+                else{
+                    currentList = await postData.filterPosts(filterField, currentList)
+                }
             }
             if (req.query.page){
-                pageField = req.query.page;
+                let pageField = req.query.page;
                 pageField = parseInt(pageField);
-                currentList = await postData.getPostsByIndex(pageField*10-10, 5, currentList);
+                currentList = await postData.getPostsByIndex(pageField*10-10, 10, currentList);
             }
             else {
-                currentList = await postData.getPostsByIndex(0, 5, currentList);
+                currentList = await postData.getPostsByIndex(0, 10, currentList);//
             }
             for (let post of currentList){
-                theKeywords = post['keywords']
+                let theKeywords = post['keywords']
                 for (let keyword of theKeywords){
                     allKeywords.push(keyword)
                 }
@@ -87,37 +104,25 @@ router.get('/listings', async (req, res) => {
                 context: {
                     posts: currentList,
                     allKeywords: allKeywords,
-                    loggedIn: true,
+                    loggedIn: loggedIn,
                     trunc: true,
                     isAdmin: true
                 }
             })
-            }catch (e){
-                console.log(e);
-            }
-    }else if (!req.session.user){
-        res.status(403).render('pages/accountMgmt', {
-            scripts: ['/public/js/accountMgmt.js'],
-            context: {
-                mgmtPage: true,
-                loggedIn: false,
-                error: true,
-                errors: ['You are not currently logged in.']
-            }
-        });
-    } else{
-        res.status(403).render('pages/accountMgmt', {
-            scripts: ['/public/js/accountMgmt.js'],
-            context: {
-                mgmtPage: true,
-                loggedIn: true,
-                error: true,
-                errors: ['You are not an admin.']
-            }
-        });
+            return;
+            } catch (e){
+                res.status(400).render('pages/listings', {
+                scripts: ['/public/js/listings.js', '/public/js/pagination.js'],
+                context: {
+                    loggedIn: loggedIn,
+                    isAdmin: true,
+                    error: true,
+                    errors: errors
+                }
+            })
+            return;
+        }
     }
-    // // Else, redirect the user to the "Sign In" page.
-    // else res.redirect('/login');
 });
 
 /**
@@ -130,69 +135,170 @@ router.get('/listings', async (req, res) => {
  *   Either changes status to "accepted"/"denied" for the given post.
  */
 router
-    .route('/admin/listings/:postId')
+    .route('/listings/:postId')
     .get(async (req, res) => {
-        /** 
-         * You should probably wrap the function in an if statement that checks if the post 
-         * exists. If it doesn't, then it should redirect us to "/admin/listings". Otherwise, 
-         * carry out the code below.
-         */
-        /** 
-         * Once you add the user to the session, you can delete the line below and uncomment the 
-         * other ones to restore the correct functionality. - Chance 
-         */
-         res.render('pages/soloListing', {
-            scripts: ['/public/js/soloListing.js'],
-            post: {},
-            loggedIn: true,
-            trunc: false,
-            noPagination: true
-        });
-        // // If the user is logged in, then they should gain access to the post without a problem.
-        // if (req.session.user) {
-        //     const postId = req.params.postId;
+        let postId = req.params.postId;
+        const loggedIn = typeof req.session.user !== 'undefined';
+        if (!loggedIn || !req.session.user.isAdmin) res.redirect(`/listings/${postId}`)
+        errors = [];
+        if(!postId){
+            errors.push( "Error: no postId provided");
+        }
+        else if(typeof postId!='string' || postId.trim()==''){
+            errors.push( "Error: postId is not a valid string");
+        }
+        else {
+            postId=postId.trim();
+            if(!ObjectId.isValid(postId)){
+                errors.push( "Error: postId is not valid");
+            }
+        }
 
-        //     /** 
-        //      * Insert code that fetches the post by its ID here. Once you do, modify or delete the 
-        //      * lines below.
-        //      */
-        //     res.render('pages/soloListing', {
-        //         script: ['/public/js/soloListing.js'],
-		// 		context: {
-		// 			post: {
-		// 				postId: 1,
-		// 				firstName: 'Andrew',
-		// 				lastName: 'Capro',
-		// 				description: 'post description',
-		// 				image: 'img.png',
-		// 				location: 'Hoboken, 10th St.',
-		// 				time: new Date().toTimeString(),
-		// 				date: new Date().toDateString(),
-		// 				keywords: ['test1', 'test2', 'test3'],
-		// 				overallRating: 5,
-		// 				reviews: [{
-		// 					user: 'Andrew Capro',
-		// 					ratingNum: 5,
-		// 					description: 'this was a real thing'
-		// 				}],
-		// 				comments: [{
-		// 					name: 'Casey Mulrooney',
-		// 					comment: 'this is cool'
-		// 				}]
-		// 			},
-		// 			loggedIn: true,
-		// 			trunc: false,
-		// 			noPagination: true
-		// 		}
-        //     });
-        // }
-        // // Else, redirect the user to the "Sign In" page.
-        // else res.redirect('/login');
+        if (errors.length > 0) { 
+            res.status(400).render('pages/soloListing', {
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                error: true,
+                errors: errors,
+                noPagination: true,
+                loggedIn: loggedIn,
+                isAdmin: true
+                }
+            });
+            return;
+        }
+
+        let thePost = undefined
+        try {
+            thePost = await postData.getPostById(postId);
+            if (thePost['_id'] !== postId){
+                res.status(500).render('pages/soloListing', {
+                    scripts: ['/public/js/soloListing.js'],
+                    context: {
+                        loggedIn: loggedIn,
+                        isAdmin: true,
+                        noPagination: true,
+                        error: true,
+                        errors: ["Interal server error"]
+                    }
+                });
+                return;
+            }
+        }catch (e){
+            errors.push(e);
+            res.status(400).render('pages/soloListing', {
+                scripts: ['/public/js/soloListing.js'],
+                context: {
+                    loggedIn: loggedIn,
+                    isAdmin,
+                    noPagination: true,
+                    error: true,
+                    errors: errors
+                }
+            });
+            return;
+        }
+
+        res.render('pages/soloListing', {
+            scripts: ['/public/js/soloListing.js'],
+            context: {
+                post: thePost,
+                loggedIn: loggedIn,
+                isAdmin: true,
+                trunc: false,
+                noPagination: true,
+            }
+        });
+        return;
+        
     })
     .post(async (req, res) => {
-        /** 
-         * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
-         */
+        if (!req.session.user || !req.session.user.isAdmin){
+            res.status(403).render('pages/listings', {
+                scripts: ['/public/js/listings.js'],
+                context: {
+                    loggedIn: false,
+                    error: true,
+                    errors: ['You are not currently logged in or not an admin.']
+                }
+            });
+            return;
+        }
+
+        let userId = req.session.user;
+        let firstName = req.session.user.firstName;
+        let lastName = req.session.user.lastName;
+        let object = req.body.descriptionInput;
+        let image = req.body.imageInput;
+        let location = req.body.locationInput;
+
+        if(!firstName || !lastName || !object || !image || !location || !keywords){
+            throw "missing item";
+        }
+        else if(helpers.containsNum(firstName) || helpers.containsNum(lastName)){
+            throw "name cannot have numbers in it";
+        }
+        else if(typeof firstName!='string' || typeof lastName!='string' ||
+        typeof location!='string' || typeof object!='string'){
+            throw "first name, last name, location, and object has to be a string";
+        }
+        else if(typeof keywords != ' undefined' && typeof keywords != 'string'){
+            throw "keywords has to be a string";
+        }
+        else{
+            firstName.trim();
+            lastName.trim();
+            location.trim();
+            object.trim();
+            keywords.trim();
+            if(firstName=='' || lastName=='' || location=='' || object==''){
+                throw "first name, last name, location, and object has to be a string";
+            }
+        }  
+        
+        if (errors.length > 0) { 
+            res.status(400).render('pages/soloListing', {
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                error: true,
+                errors: errors,
+                noPagination: true,
+                loggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
+        }
+        
+        let postId = undefined;
+        try{
+            postId = await userData.makePost(userId, firstName, lastName, object, image, location, keyword)
+            if (!ObjectId.isValid(postId)){
+                res.render('pages/soloListing', {
+                    scripts: ['/public/js/soloListing.js'],
+                    context: {
+                        loggedIn: loggedIn,
+                        trunc: false,
+                        noPagination: true,
+                        error: true,
+                        errors: ["Internal Server Error"]
+                    }
+                });
+            }
+        } catch (e){
+            res.render('pages/soloListing', {
+                scripts: ['/public/js/soloListing.js'],
+                context: {
+                    loggedIn: loggedIn,
+                    trunc: false,
+                    noPagination: true,
+                    error: true,
+                    errors: errors
+                }
+            });
+        }
+
+        res.redirect(`/listings/${postId}`)
     });
 
 module.exports = router;

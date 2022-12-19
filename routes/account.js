@@ -383,7 +383,8 @@ router
  *   If you're not logged in, redirects you to the "Sign In" page;
  *   If the post doesn't exist, redirects you to the "My Listings" page.
  */
-router.get('/listings/:postId', async (req, res) => {
+router.route('/listings/:postId')
+.get(async (req, res) => {
         /** 
          * You should probably wrap the function in an if statement that checks if the post 
          * exists. If it doesn't, then it should redirect us to "/account/listings". Otherwise, 
@@ -464,7 +465,7 @@ router.get('/listings/:postId', async (req, res) => {
                     context: {
                         mgmtPage: true,
                         loggedIn: loggedIn,
-                        isAdmin,
+                        isAdmin: isAdmin,
                         noPagination: true,
                         error: true,
                         errors: ["Interal server error"]
@@ -479,7 +480,7 @@ router.get('/listings/:postId', async (req, res) => {
                 context: {
                     mgmtPage: true,
                     loggedIn: loggedIn,
-                    isAdmin,
+                    isAdmin: isAdmin,
                     noPagination: true,
                     error: true,
                     errors: errors
@@ -502,6 +503,109 @@ router.get('/listings/:postId', async (req, res) => {
             }
         });
         return;
+
+})
+    .post(async (req, res) => {
+        let postId = xss(req.params.postId);
+        const loggedIn = typeof req.session.user !== 'undefined';
+        if (!loggedIn) {
+            res.status(403).render('pages/listings', {
+                scripts: ['/public/js/listings.js'],
+                context: {
+                    loggedIn: false,
+                    error: true,
+                    errors: ['You are not currently logged in or not an admin']
+                }
+            });
+            return;
+        }
+        let isAdmin = req.session.user.isAdmin;
+        errors = [];
+        if(!postId){
+            errors.push( "Error: no postId provided");
+        }
+        else if(typeof postId!='string' || postId.trim()==''){
+            errors.push( "Error: postId is not a valid string");
+        }
+        else {
+            postId=postId.trim();
+            if(!ObjectId.isValid(postId)){
+                errors.push( "Error: postId is not valid");
+            }
+        }
+
+        if (errors.length > 0) { 
+            res.status(400).render('pages/soloListing', {
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                error: true,
+                errors: errors,
+                noPagination: true,
+                loggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
+        }
+        
+        let userId = req.session.user._id;
+        let status = req.body.status;
+        if (!status) errors.push("No status provided")
+        else if (typeof status !== "string") errors.push("status must be a string")
+        else {
+            status = status.trim();
+            if (status.length === 0) errors.push("status cannot be only whitespace.")
+            if (status.toLowerCase() === 'pending') errors.push("you cannot submit a pending status");
+            if (status.toLowerCase() === "accepted") errors.push("only admins can change status to accepted")
+            else if (status.toLowerCase() === "taken") status = "deny";
+        }
+
+        if (errors.length > 0) { 
+            res.status(400).render('pages/soloListing', {
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                error: true,
+                errors: errors,
+                noPagination: true,
+                loggedIn: loggedIn,
+                isAdmin: true
+                }
+            });
+            return;
+        }
+
+        let theApprove = undefined;
+        try{
+            theApprove = await userData.approvePost(postId, userId, status)
+            if (typeof theApprove !== "string" && typeof theApprove !== "object"){
+                res.status(500).render('pages/soloListing', {
+                    scripts: ['/public/js/soloListing.js'],
+                    context: { 
+                        error: true,
+                        errors: ["Internal Server Error"],
+                        noPagination: true,
+                        loggedIn: loggedIn,
+                        isAdmin: true
+                        }
+                    });
+                    return;
+            }
+        } catch (e){
+            errors.push(e);
+            res.status(400).render('pages/soloListing', {
+                scripts: ['/public/js/soloListing.js'],
+                context: { 
+                    error: true,
+                    errors: errors,
+                    noPagination: true,
+                    loggedIn: loggedIn,
+                    isAdmin: true
+                    }
+                });
+                return;
+        }
+
+        res.redirect('/listings')
 });
 
 module.exports = router;

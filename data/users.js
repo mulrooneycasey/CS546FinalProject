@@ -436,6 +436,28 @@ async function makeReview(id, postID, username, comment, rating){ //returns whol
     if(user==null){
         throw "user does not exist";
     }
+    if(!postID || !username || !comment || !rating){
+        throw "missing post id/username/comment/rating";
+    }
+    if(typeof postID!='string' || typeof username!='string' || typeof comment!=string || typeof rating !='number'){
+        throw "post id/username/comment/rating has wrong type";
+    }
+    postID.trim();
+    username.trim();
+    comment.trim();
+    if(postID=='' || !ObjectId.isValid(postID) || username=='' || !ObjectId.isValid(username) || comment=='' || !ObjectId.isValid(comment)){
+        throw "post id/username/comment needs to be a valid id";
+    }
+    if(rating<1 || rating>5){
+        throw "rating needs to be 1 to 5";
+    }
+    let userReviews = user['reviews'];
+    let postReviews = posts.getPostById(postID)['reviews']; //array of comments
+    for (let review in postReviews){
+        if (userReviews.includes(review._id)){
+            throw "User cannot submit more than one review on a post";
+        } 
+    }
     const newReview = await posts.createReview(postID, username, comment, rating);
     let ogReviews = user['reviews'];
     ogReviews.push(ObjectId(newReview));
@@ -459,8 +481,8 @@ async function approvePost(postID, userID, status){//send admin approval of post
     postID.trim();
     userID.trim();
     status.trim();
-    if(postID=='' || userID=='' || status==''){
-        throw "postid, useris, or status is empty";
+    if(postID=='' || userID=='' || status=='' || !ObjectId.isValid(userID) || !ObjectId.isValid(postID)){
+        throw "postid, userid, or status is not right";
     }
     let user = this.getUserById(userID);
     try{
@@ -469,6 +491,20 @@ async function approvePost(postID, userID, status){//send admin approval of post
         console.log(e);
     }
     return approved;
+}
+
+async function takenItem(userID, postID){
+    if(!userID || !postID){
+        throw "need user and post ids";
+    }
+    if(typeof userID=='string' || typeof postID!='string'){
+        throw "user and post ids need to be strings";
+    }
+    userID.trim();
+    postID.trim();
+    if(userID=='' || !ObjectId.isValid(userID) || postID=='' || !ObjectId.isValid(postID)){
+        throw "user and post ids need to be valid";
+    }
 }
 
 async function favorite(userID, postID){//removes or adds favorite to post 

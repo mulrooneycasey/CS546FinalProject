@@ -446,6 +446,32 @@ async function updatePostsByUser(userId, newUsername){
     return;
 }
 
+async function itemTaken(postID, username, isAdmin){
+    if(!postID || !username || !isAdmin){
+        throw "need postid and username";
+    }
+    if(typeof postID!='string' || typeof userID!='string' || typeof isAdmin!='boolean'){
+        throw "postid and username needs to be a string and isAdmin needs to be boolean";
+    }
+    postID.trim();
+    username.trim();
+    if(postID=='' || !ObjectId.isValid(postID) || userID=='' || !ObjectId.isValid(userID)){
+        throw "postid and username are not valid ids";
+    }
+    let post = await this.getPostById(postID);
+    if(!isAdmin){
+        if(post['username']!=username){
+            throw "Error: user does not have access to this post";
+        }
+    }
+    let update = {status: 'taken'};
+    let info = await postCollection.updateOne({_id: currPost['_id']}, {$set: update});
+    if(info.modifiedCount==0){
+        throw "Error: was not able to modify all the posts";
+    }
+    return await this.getPostById;
+}
+
 module.exports = {
     createPost,
     createReview,
@@ -461,5 +487,6 @@ module.exports = {
     favoritePost,
     removeFavorite,
     getAllPostsByUser,
-    updatePostsByUser
+    updatePostsByUser,
+    itemTaken
 };

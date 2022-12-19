@@ -556,7 +556,6 @@ async function favorite(userID, postID){//removes or adds favorite to post
         update={favorites: newFavorite};
         info = await userCollection.updateOne({_id: ObjectId(userID)}, {$set: update});
     }
-    console.log(await this.getUserById(userID));
     if(info.modifiedCount==0){
         throw "Favorites did not update"
     }

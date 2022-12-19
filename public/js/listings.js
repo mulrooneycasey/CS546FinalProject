@@ -2,7 +2,8 @@ const inputIds = {
     description: '#descriptionInput',
     image: '#imageInput',
     location: '#locationInput',
-    keyword: '#keywordInput'
+    keyword: '#keywordInput',
+    placedSighted: '#placedInput'
 };
 
 $(document).ready(function() {
@@ -46,10 +47,10 @@ $(document).ready(function() {
 
             // Create variables to hold all of the relevant form inputs.
             let descriptionVal = $('#descriptionInput').val(),
-                imageVal = fileInputLabel.val(),
+                imageVal = $('#imageInput').val(),
                 locationVal = $('#locationInput').val(),
                 keywordVal = $('#keywordInput').val().split('; '),
-                placedSightedVal = $('#placedSightedSelect').val();
+                placedSightedVal = $('#placedInput') ? "true" : "false"
             
             // Use AJAX to a make POST request using the data in the form.
             let requestConfig = {

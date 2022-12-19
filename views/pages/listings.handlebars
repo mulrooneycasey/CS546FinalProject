@@ -24,15 +24,10 @@
                                     <input type="text" class="form-control" id="descriptionInput" name="descriptionInput" size="32" minlength="5" maxlength="128" placeholder="Enter description" required aria-required="true">
                                 </div>
                             </div>
-                            <div class="form-group row mb-5 mb-md-4">
-                                <label for="imageInput" class="col-5 col-md-4 mr-2 mr-md-1 col-form-label col-form-label-lg">Image</label>
-                                <div class="col-7 p-1 offset-1 offset-md-0 custom-file">
-                                    <input type="file" id="imageInput" class="custom-file-input form-control" accept=".png, .jpg, .jpeg" required aria-required="true">
-                                    <label for="imageInput" class="custom-file-label">Choose file</label>
-                                    <div class="w-100"></div>
-                                    <div class="col-auto">
-                                        <span class="small text-muted">Must be .png or .jpg/.jpeg file.</span>
-                                    </div>
+                            <div class="form-group row">
+                                <label for="descriptionInput" class="col-auto col-md-4 col-form-label col-form-label-lg">File name and extension</label>
+                                <div class="col-auto col-md-7 p-1 offset-1 offset-md-0">
+                                    <input type="text" class="form-control" id="imageInput" name="imageInput" size="32" minlength="1" maxlength="128" placeholder="Enter img.ext" required aria-required="true">
                                 </div>
                             </div>
                             <div class="form-group row">

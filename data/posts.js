@@ -294,7 +294,8 @@ async function deletePost(postID){//deletes post
 
 async function postApproval(postID, isAdmin, approval){//changes status of post and if denied deletes it
     if(!postID || !isAdmin || !approval){
-        throw "missing info for approval";
+        console.log(postID + isAdmin + approval)
+        throw "missing info for approval.";
     }
     if(typeof postID!='string' || typeof isAdmin!='boolean' || 
     typeof approval!='string'){
@@ -311,9 +312,9 @@ async function postApproval(postID, isAdmin, approval){//changes status of post 
     if(!isAdmin){
         throw "Error: need admin status to approve or deny posts"
     }
-    if(approval!=='approve' || approval !=='deny'){
-        throw "Error: need to approve or deny";
-    }
+    if (approval.toLowerCase() ==='approve') approval = true
+    else if (approval.toLowerCase() ==='deny') approval = false
+    else throw "Error: approval value must be approve or deny"
     const postCollection = await posts();
     if(approval===true){
         const update = {status: 'approved'};

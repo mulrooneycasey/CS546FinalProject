@@ -472,7 +472,7 @@ async function makeReview(id, postID, username, comment, rating){ //returns whol
 
 async function approvePost(postID, userID, status){//send admin approval of post status to posts.js
     if(!postID || !userID || !status){
-        throw "missing info for approval";
+        throw "missing info for approval!";
     }
     if(typeof postID!='string' || typeof userID!='string' || 
     typeof status!='string'){
@@ -484,11 +484,12 @@ async function approvePost(postID, userID, status){//send admin approval of post
     if(postID=='' || userID=='' || status=='' || !ObjectId.isValid(userID) || !ObjectId.isValid(postID)){
         throw "postid, userid, or status is not right";
     }
-    let user = this.getUserById(userID);
+    let user = await this.getUserById(userID);
+    let approved = undefined;
     try{
-        let approved = posts.postApproval(postID, user['isAdmin'], status);
+        approved = posts.postApproval(postID, user['isAdmin'], status);
     }catch(e){
-        console.log(e);
+        throw e
     }
     return approved;
 }

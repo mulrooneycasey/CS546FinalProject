@@ -537,8 +537,8 @@ async function favorite(userID, postID){//removes or adds favorite to post
         try{
             await posts.removeFavorite(postID);
         }catch(e){
-            console.log(e);
-            return;
+            //console.log(e);
+            //return;
         }
         const index = newFavorite.indexOf(postID);
         newFavorite.splice(index, 1);
@@ -549,18 +549,18 @@ async function favorite(userID, postID){//removes or adds favorite to post
         try{
             await posts.favoritePost(postID);
         }catch(e){
-            console.log(e);
-            return;
+            //console.log(e);
+            //return;
         }
-        newFavorite.push(postID);
+        newFavorite.push(ObjectId(postID));
         update={favorites: newFavorite};
-        info = await postCollection.updateOne({_id: ObjectId(userID)}, {$set: update});
+        info = await userCollection.updateOne({_id: ObjectId(userID)}, {$set: update});
     }
+    console.log(await this.getUserById(userID));
     if(info.modifiedCount==0){
         throw "Favorites did not update"
     }
-    return {favoriteInserted: true};
-    
+    return {favoriteInserted: true};   
 }
 
 //

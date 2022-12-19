@@ -206,8 +206,8 @@ router
                 post: thePost,
                 loggedIn: loggedIn,
                 isAdmin: true,
-                trunc: true,
-                noPagination: true,
+                trunc: false,
+                noPagination: true
             }
         });
         return;
@@ -235,17 +235,17 @@ router
         let placed = xss(req.body.placedInput);
 
         if(!firstName || !lastName || !object || !image || !location || !keywords || !placed){
-            throw "missing item";
+            errors.push( "missing item");
         }
         else if(helpers.containsNum(firstName) || helpers.containsNum(lastName)){
-            throw "name cannot have numbers in it";
+            errors.push( "name cannot have numbers in it");
         }
         else if(typeof firstName!='string' || typeof lastName!='string' ||
         typeof location!='string' || typeof object!='string' || typeof placed !== "string"){
-            throw "first name, last name, location, placed, and object has to be a string";
+            errors.push( "first name, last name, location, placed, and object has to be a string");
         }
         else if(typeof keywords != ' undefined' && typeof keywords != 'string'){
-            throw "keywords has to be a string";
+            errors.push( "keywords has to be a string");
         }
         else{
             firstName.trim();
@@ -255,7 +255,7 @@ router
             keywords.trim();
             placed.trim();
             if(firstName=='' || lastName=='' || location=='' || object==''){
-                throw "first name, last name, location, and object has to be a string";
+                errors.push( "first name, last name, location, and object has to be a string");
             }
             if (placed.toLowerCase() !== "true" || placed.toLowerCase() !== "false") errors.push("placed must be a string, either true or false")
         }  
@@ -282,6 +282,7 @@ router
                     scripts: ['/public/js/soloListing.js'],
                     context: {
                         loggedIn: loggedIn,
+                        isAdmin: true,
                         trunc: false,
                         noPagination: true,
                         error: true,
@@ -294,6 +295,7 @@ router
                 scripts: ['/public/js/soloListing.js'],
                 context: {
                     loggedIn: loggedIn,
+                    isAdmin: true,
                     trunc: false,
                     noPagination: true,
                     error: true,

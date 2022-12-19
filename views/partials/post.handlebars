@@ -146,40 +146,23 @@
                 <p class="card-text mb-3">{{#kwPrinter keywords ';'}}{{/kwPrinter}}</p>
             </div>
             {{#if ownPost}}
-                <div class="card">
-                    <div class="card-body">
-                        <form method="POST" action="/account/listings/{{_id}}">
-                            {{!-- <div class="dropdown">
-                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Dropdown button
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <a class="dropdown-item" href="#">Available</a>
-                                    <a class="dropdown-item" href="#">Taken</a>
-                                </div>
-                            </div> --}}
-                            <select id="status" name="status">
-                                <option value="accepted">Accepted</option>
-                                <option value="Taken">Taken</option>
-                            </select>
-                        </form>
+                {{#unless isAdmin}}
+                    <div class="card">
+                        <div class="card-body">
+                            <form method="POST" action="/account/listings/{{_id}}">
+                                <select id="status">
+                                    <option value="Taken">Taken</option>
+                                </select>
+                                <button type="submit" class="btn btn-primary mb-2">Submit</button>
+                            </form>
+                        </div>
                     </div>
-                </div>
+                {{/unless}}
             {{/if}}
             {{#if isAdmin}}
                 <div class="card">
                     <div class="card-body">
                         <form method="POST" action="/admin/listings/{{_id}}">
-                            {{!-- <div class="dropdown">
-                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Dropdown button
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <a class="dropdown-item" href="#">Pending</a>
-                                    <a class="dropdown-item" href="#">Available</a>
-                                    <a class="dropdown-item" href="#">Taken</a>
-                                </div>
-                            </div> --}}
                             <select id="status" name="status">
                                 <option value="pending">Pending</option>
                                 <option value="accepted">Accepted</option>

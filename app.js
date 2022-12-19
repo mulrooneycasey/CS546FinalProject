@@ -44,10 +44,10 @@ app.set('view engine', 'handlebars');
 // Initializing the middleware.
 app.use(session({
     name: 'AuthCookie',
-    secret: 'hoboken curbside', // This can be changed to whatever you think works best. - Chance
+    secret: 'hoboken curbside',
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 300000 } // This can be changed to whatever you think works best. - Chance
+    cookie: { maxAge: 300000 }
 }));
 /** rest of middleware code goes here */
 
@@ -56,8 +56,6 @@ app.use(session({
 configRoutes(app);
 
 app.listen(3000, () => {
-    /* (maybe keep this or maybe not) Create a database seed. Might need to make this an async 
-     * function. */
     console.group('Server Initialization:');
     console.log('The server is now running on http://localhost:3000.');
     console.groupEnd();

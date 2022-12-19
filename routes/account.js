@@ -7,12 +7,12 @@ const userData = data.users;
 const postData = data.posts;
 const helpers = require('../helpers');
 const { getAllPostsByUser } = require('../data/posts');
-const { ObjectId } = require('mongodb');
+const { ObjectId, MongoBatchReExecutionError } = require('mongodb');
 
 /**
  * "GET /account": 
  *   Takes us to the "Account Management" page.
- * "PUT /account": 
+ * "POST /account": 
  *   Updates the phone number/email address/username/password.
  */
 router
@@ -46,7 +46,7 @@ router
             return;
         }
     })
-    .put(async (req, res) => {
+    .post(async (req, res) => {
         //There is changeFirst, last, email, pass, username
         // Error checking on fields in req.body and (most) error rendering will be handled by AJAX.
         let loggedIn = false;
@@ -212,6 +212,7 @@ router
                     });
                     return;
                 }
+                res.redirect('/account')
             } catch (e){
                 errors.push(e);
                 res.status(400).render('pages/accountMgmt', {
@@ -227,42 +228,11 @@ router
                 });
                 return;
             }
-            res.redirect('/')
-        }
-        // Update the user with the provided fields.
-        let updateUserResult = undefined;
-        try {
-            /* Insert code that fetches the post by its ID here. Once you do, modify or delete the 
-             * lines below. */
-            // let userId = req.session.user['_id'];
-            // updateUserResult = await users.updateUser(
-            //     xss(userId),
-            //     xss(usernameInput),
-            //     xss(passwordInput),
-            //     xss(firstNameInput), //This line and the one below could cause error based on xss, I honestly dont know what xss is - Nick
-            //     xss(lastNameInput),
-            //     xss(emailInput)
-            // );
-        } catch (e) {
-            errors.push(e);
-        }
 
-        // If updating an user threw an error, then render the "Account Management" page (with a 
-        // HTTP 400 status code) again with the errors.
-        if (errors.length > 0) {
-            res.status(400).render('pages/accountMgmt', {
-                scripts: ['/public/js/accountMgmt.js'],
-                context: {
-                    error: true,
-                    errors: errors
-                }
-            });
-            return;
+            // If we successfully updated a user, do nothing (because AJAX will update the page with a 
+            // success message).
+            // res.redirect('/')
         }
-
-        // If we successfully updated a user, do nothing (because AJAX will update the page with a 
-        // success message).
-        return;
     });
 
 /**

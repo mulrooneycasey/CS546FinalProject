@@ -439,7 +439,7 @@ async function makeReview(id, postID, username, comment, rating){ //returns whol
     if(!postID || !username || !comment || !rating){
         throw "missing post id/username/comment/rating";
     }
-    if(typeof postID!='string' || typeof username!='string' || typeof comment!=string || typeof rating !='number'){
+    if(typeof postID!='string' || typeof username!='string' || typeof comment!='string' || typeof rating !='number'){
         throw "post id/username/comment/rating has wrong type";
     }
     postID.trim();

@@ -140,41 +140,40 @@
                 <p class="card-text mb-3">{{date}} {{time}}</p>
                 {{!-- This status was mentioned in the original project proposal, so I included 
                 here. If it's causing issues, feel free to comment it or delete it. - Chance --}}
-                <div class="form-check form-check-inline mb-3">
-                    <label class="form-check-label font-weight-bold font-italic mr-2" for="postTaken">Taken?</label>
-                    {{#if taken}}
-                        <input type="checkbox" id="postTaken" name="postTaken" aria-selected="true" aria-disabled="true" checked disabled>
-                    {{else}}
-                        <input type="checkbox" id="postTaken" name="postTaken" aria-checked="false" aria-disabled="false">
-                    {{/if}}
-                </div>
+                <h2 class='card-subtitle font-weight-bold h3'>Status:</h2>
+                <p class="card-text mb-3">{{status}}</p>
                 <h2 class="card-subtitle font-weight-bold h3">Keywords:</h2>
                 <p class="card-text mb-3">{{#kwPrinter keywords ';'}}{{/kwPrinter}}</p>
             </div>
+            {{#if ownPost}}
+                <div class="card">
+                    <div class="card-body">
+                        <form method="POST" action="/account/listings/{{_id}}">
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Dropdown button
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a class="dropdown-item" href="#">Available</a>
+                                    <a class="dropdown-item" href="#">Taken</a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            {{/if}}
             {{#if isAdmin}}
                 <div class="card">
                     <div class="card-body">
                         <form method="POST" action="/admin/listings/{{_id}}">
-                            <div class="form-group">
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="real-object-check" value="">
-                                    <label class="form-check-label" for="real-object-check">Real Object?</label>
-                                </div>
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="appropriate-check" value="">
-                                    <label class="form-check-label" for="appropriate-check">Not inappropriate?</label>
-                                </div>
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="verified-location-check" value="">
-                                    <label class="form-check-label" for="verified-location-check">Located at listed location?</label>
-                                </div>
-                            </div>
-                            <div class="row justify-content-around align-items-center">
-                                <div class="col">
-                                    <button type="submit" class="btn btn-outline-danger">Deny (Remove)</button>
-                                </div>
-                                <div class="col">
-                                    <button type="submit" class="btn btn-outline-success">Approve (Post)</button>
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Dropdown button
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a class="dropdown-item" href="#">Pending</a>
+                                    <a class="dropdown-item" href="#">Available</a>
+                                    <a class="dropdown-item" href="#">Taken</a>
                                 </div>
                             </div>
                         </form>

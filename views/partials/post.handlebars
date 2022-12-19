@@ -11,6 +11,13 @@
                         <h1 class="card-subtitle h2">Post by:</h1>
                         <p class="card-subtitle h4">{{username}}</p>
                         <hr>
+                        {{#if placed}}
+                        <p class="card-subtitle h5">Placed by poster</p>
+                        <hr>
+                        {{else}}
+                        <p class="card-subtitle h5">Spotted by poster</p>
+                        <hr>
+                        {{/if}}
                         <h1 class="card-subtitle h4">Located at:</h1>
                         <p class="card-text mb-2 text-truncate">{{location}}</p>
                         {{#if reviews}}
@@ -75,6 +82,13 @@
                 <h2 class="card-subtitle font-weight-bold">Post by:</h2>
                 <p class="card-subtitle h4">{{username}}</p>
                 <hr>
+                {{#if placed}}
+                <p class="card-subtitle h5">Placed by poster</p>
+                <hr>
+                {{else}}
+                <p class="card-subtitle h5">Spotted by poster</p>
+                <hr>
+                {{/if}}
                 <h2 class="card-subtitle font-weight-bold mb-3">Reviews:</h2>
                 <div id="review-area" class="row row-cols-1 justify-content-center">{{#each reviews}} {{> review }} {{/each}}</div>
                 <div class="row row-cols-1 align-items-center">

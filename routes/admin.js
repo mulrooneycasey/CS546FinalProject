@@ -232,16 +232,17 @@ router
         let object = xss(req.body.descriptionInput);
         let image = xss(req.body.imageInput);
         let location = xss(req.body.locationInput);
+        let placed = xss(req.body.placedInput);
 
-        if(!firstName || !lastName || !object || !image || !location || !keywords){
+        if(!firstName || !lastName || !object || !image || !location || !keywords || !placed){
             throw "missing item";
         }
         else if(helpers.containsNum(firstName) || helpers.containsNum(lastName)){
             throw "name cannot have numbers in it";
         }
         else if(typeof firstName!='string' || typeof lastName!='string' ||
-        typeof location!='string' || typeof object!='string'){
-            throw "first name, last name, location, and object has to be a string";
+        typeof location!='string' || typeof object!='string' || typeof placed !== "string"){
+            throw "first name, last name, location, placed, and object has to be a string";
         }
         else if(typeof keywords != ' undefined' && typeof keywords != 'string'){
             throw "keywords has to be a string";
@@ -252,9 +253,11 @@ router
             location.trim();
             object.trim();
             keywords.trim();
+            placed.trim();
             if(firstName=='' || lastName=='' || location=='' || object==''){
                 throw "first name, last name, location, and object has to be a string";
             }
+            if (placed.toLowerCase() !== "true" || placed.toLowerCase() !== "false") errors.push("placed must be a string, either true or false")
         }  
         
         if (errors.length > 0) { 
@@ -273,7 +276,7 @@ router
         
         let postId = undefined;
         try{
-            postId = await userData.makePost(userId, firstName, lastName, object, image, location, keyword)
+            postId = await userData.makePost(userId, firstName, lastName, object, image, location, keyword, placed)
             if (!ObjectId.isValid(postId)){
                 res.render('pages/soloListing', {
                     scripts: ['/public/js/soloListing.js'],

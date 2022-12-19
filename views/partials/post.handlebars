@@ -31,10 +31,12 @@
                 {{#if loggedIn}}
                     <div class="col-auto ml-auto mr-auto py-3">
                         <div class="form-inline justify-content-center">
-                            <button type="button" class="btn btn-outline-warning" data-toggle="button" aria-pressed="false">
+                            <form method="POST" action="/favorite/{{_id}}">
+                                <button type="submit" class="btn btn-outline-warning" data-toggle="button" aria-pressed="false">
                                 <span class="sr-only">Add this Post to Favorites</span>
                                 <i class="bi bi-bookmark-star"></i>
                             </button>
+                            </form>
                         </div>
                     </div>
                 {{/if}}
@@ -76,7 +78,7 @@
                         </div>
                     </div>
                 {{/if}}
-                <h2 class="card-subtitle font-weight-bold">Description:</h2>
+                <h1 class="card-subtitle font-weight-bold h2">Description:</h1>
                 <h2 class="card-text mb-4 h4">{{description}}</h2>
                 <h2 class="card-subtitle font-weight-bold h4">Post by: {{username}}</h2>
                 <hr>
@@ -149,8 +151,8 @@
                 <p class="card-text mb-3">{{#kwPrinter keywords ';'}}{{/kwPrinter}}</p>
             </div>
             {{#if isAdmin}}
-                <div class="d-flex align-self-center">
-                    <div class="card-footer">
+                <div class="card">
+                    <div class="card-body">
                         <form method="POST" action="/admin/listings/{{_id}}">
                             <div class="form-group">
                                 <div class="form-check">

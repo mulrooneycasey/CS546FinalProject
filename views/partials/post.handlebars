@@ -57,7 +57,8 @@
                     </div>
                 </div>
             </div>
-        {{else}}
+        {{/if}}
+        {{#unless trunc}}
             <div class="card-header bg-transparent border-light mb-2">
                 <div class="row">
                     <div class="col-md-6 ml-auto mr-auto">
@@ -156,16 +157,16 @@
                         <form method="POST" action="/admin/listings/{{_id}}">
                             <div class="form-group">
                                 <div class="form-check">
-                                    <label class="form-check-label" for="real-object-check">Real Object?</label>
                                     <input type="checkbox" class="form-check-input" id="real-object-check" value="">
+                                    <label class="form-check-label" for="real-object-check">Real Object?</label>
                                 </div>
                                 <div class="form-check">
-                                    <label class="form-check-label" for="appropriate-check">Not inappropriate?</label>
                                     <input type="checkbox" class="form-check-input" id="appropriate-check" value="">
+                                    <label class="form-check-label" for="appropriate-check">Not inappropriate?</label>
                                 </div>
                                 <div class="form-check">
-                                    <label class="form-check-label" for="verified-location-check">Located at listed location?</label>
                                     <input type="checkbox" class="form-check-input" id="verified-location-check" value="">
+                                    <label class="form-check-label" for="verified-location-check">Located at listed location?</label>
                                 </div>
                             </div>
                             <div class="row justify-content-around align-items-center">
@@ -180,6 +181,6 @@
                     </div>
                 </div>
             {{/if}}
-        {{/if}}
+        {{/unless}}
     </div>
 </div>

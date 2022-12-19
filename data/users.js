@@ -445,7 +445,7 @@ async function makeReview(id, postID, username, comment, rating){ //returns whol
     postID.trim();
     username.trim();
     comment.trim();
-    if(postID=='' || !ObjectId.isValid(postID) || username=='' || !ObjectId.isValid(username) || comment=='' || !ObjectId.isValid(comment)){
+    if(postID=='' || !ObjectId.isValid(postID) || username=='' || comment==''){
         throw "post id/username/comment needs to be a valid id";
     }
     if(rating<1 || rating>5){

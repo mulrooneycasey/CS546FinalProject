@@ -449,6 +449,7 @@ router.post('/favorite/:postId', async (req, res) => {
 
     try{
         const result = await userData.favorite(userId, postId)
+        console.log(result);
         if (result['favoriteInserted'] !== true){
             res.status(500).render('pages/soloListing', { //Maybe to the post's page?
                 scripts: ['/public/js/soloListing.js'],

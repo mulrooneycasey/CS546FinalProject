@@ -345,11 +345,11 @@ async function favoritePost(postID){//adds favorite number on a post, returns po
     let post = await this.getPostById(postID);
     const favorites = post['favorite'] + 1;
     const update = {favorite: favorites};
-    const info= await postCollection.updateOne({_id: ObjectId(id)}, {$set: update});
+    const info= await postCollection.updateOne({_id: ObjectId(postID)}, {$set: update});
     if(info.modifiedCount==0){
         throw "Error: name did not update";
     }
-    return await this.getPostById(id);
+    return await this.getPostById(postID);
 }
 
 async function removeFavorite(postID){//removes favorite from a post, returns post

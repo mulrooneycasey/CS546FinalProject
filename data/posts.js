@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const helpers = require('../helpers');
 
 async function createPost(username, object, image, location, keywords, placed){ //returns postId
-    if(!username || !object || !image || !location || !keywords || !placed){
+    if(!username || !object || !image || !location || !keywords || typeof placed === "undefined"){
         throw "missing item";
     }
     if(typeof username!='string' || typeof location!='string' || typeof object!='string' || typeof placed !== "boolean"){

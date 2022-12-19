@@ -360,11 +360,11 @@ async function changeEmail(id, password, change){//returns user with userID as a
 
 async function deleteAccount(id, password){
     let user = await this.getUserById(id);
-    if(!password || !change){
-        throw "error: need password and new email";
+    if(!password){
+        throw "error: need password";
     }
-    if(typeof password!='string' || typeof change!='string'){
-        throw "Error password and new email needs to be strings";
+    if(typeof password!='string'){
+        throw "Error password needs to be strings";
     }
     if(user==null){
         throw "user does not exist";

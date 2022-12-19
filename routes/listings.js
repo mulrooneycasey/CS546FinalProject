@@ -8,6 +8,7 @@ const postData = data.posts;
 const helpers = require('../helpers');
 const { ObjectId } = require('mongodb');
 
+
 /**
  * "GET /listings": 
  *   Takes us to the "Listings" page.
@@ -103,6 +104,9 @@ router
         /** 
          * This function is pretty much free for the taking. It's mostly just MongoDB. - Chance
          */
+        errors = [];
+        let loggedIn = false;
+        let isAdmin = false;
         if (!req.session.user){
             res.status(403).render('pages/listings', {
                 scripts: ['/public/js/listings.js'],
@@ -114,49 +118,89 @@ router
             });
             return;
         }
-
-        let userId = xss(req.session.user);
-        let firstName = xss(req.session.user.firstName);
-        let lastName = xss(req.session.user.lastName);
-        let object = xss(req.body.descriptionInput);
-        let image = xss(req.body.imageInput);
-        let location = xss(req.body.locationInput);
-
-        if(!firstName || !lastName || !object || !image || !location || !keywords){
-            throw "missing item";
+        else {
+            loggedIn = true;
+            if (req.session.user.isAdmin) isAdmin = true;
         }
-        else if(helpers.containsNum(firstName) || helpers.containsNum(lastName)){
-            throw "name cannot have numbers in it";
+    
+        let userId = xss(req.session.user._id);
+        let username = xss(req.session.user.username)
+        let object = xss(req.body.description);
+        let image = xss(req.body.image);
+        let location = xss(req.body.location);
+        let keywords = xss(req.body.keywords);
+        let placed = xss(req.body.placedSighted);
+        console.log(req.body);
+        if(!username || !object || !image || !location || !keywords || !placed){
+            errors.push( "missing item");
         }
-        else if(typeof firstName!='string' || typeof lastName!='string' ||
-        typeof location!='string' || typeof object!='string'){
-            throw "first name, last name, location, and object has to be a string";
+        else if(typeof username !='string' ||
+        typeof location!='string' || typeof object!='string' || typeof placed !== "string" || typeof placed !== "string"){
+            errors.push( "first name, last name, location, placed, keywords, object, and placed has to be a string");
         }
         else if(typeof keywords != ' undefined' && typeof keywords != 'string'){
-            throw "keywords has to be a string";
+            errors.push( "keywords has to be a string");
         }
         else{
-            firstName.trim();
-            lastName.trim();
+            username.trim();
             location.trim();
             object.trim();
             keywords.trim();
-            if(firstName=='' || lastName=='' || location=='' || object==''){
-                throw "first name, last name, location, and object has to be a string";
+            placed.trim();
+            if(username=='' || location=='' || object==''){
+                errors.push( "first name, last name, location, and object has to be a string");
             }
+            if (placed.toLowerCase() !== "true" && placed.toLowerCase() !== "false") errors.push("placed must be a string, either true or false")
         }  
+        image = "../public/photos/" + image;
         
         if (errors.length > 0) { 
+            console.log(errors);
+            res.status(400).render('pages/soloListing', {
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                error: true,
+                errors: errors,
+                noPagination: true,
+                loggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
+        }
+        let postId = undefined;
+        try{
+            postId = await userData.makePost(userId, username, object, image, location, keywords, placed)
+            if (!ObjectId.isValid(postId)){
+                res.status(500).render('pages/soloListing', {
+                    scripts: ['/public/js/soloListing.js'],
+                    context: {
+                        loggedIn: loggedIn,
+                        isAdmin: isAdmin,
+                        trunc: false,
+                        noPagination: true,
+                        error: true,
+                        errors: ["Internal Server Error"]
+                    }
+                });
+                return;
+            }
+        } catch (e){
             res.status(400).render('pages/soloListing', {
                 scripts: ['/public/js/soloListing.js'],
                 context: {
-                    post: thePost,
-                    loggedIn: true,
+                    loggedIn: loggedIn,
+                    isAdmin: isAdmin,
                     trunc: false,
-                    noPagination: true
+                    noPagination: true,
+                    error: true,
+                    errors: errors
                 }
             });
+            return;
         }
+    
+        res.redirect(`/listings/${postId}`)
         //descriptionInput, imageInput, locationInput, keywordInput
     });
 

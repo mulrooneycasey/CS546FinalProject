@@ -25,7 +25,7 @@ router.get('/', async (req, res) => {
             scripts: ['/public/js/listings.js'],
             context: {
                 mgmtPage: true,
-                loggedIn: false,
+                loggedIn: true,
                 error: true,
                 errors: ['Admins only.']
             }
@@ -41,7 +41,8 @@ router.get('/', async (req, res) => {
  *   Else, you're not logged in, redirects you to the "Sign In" page.
  *   Can have additional queries, like "?page=3".
  */
-router.get('/listings', async (req, res) => {
+router.route('/listings')
+    .get(async (req, res) => {
     /** 
      * Once you add the user to the session, you can uncomment the other lines to restore the 
      * correct functionality. - Chance 
@@ -123,6 +124,116 @@ router.get('/listings', async (req, res) => {
             return;
         }
     }
+})
+.post(async (req, res) => {
+    errors = [];
+        let loggedIn = false;
+        let isAdmin = false;
+        if (!req.session.user){
+            res.status(403).render('pages/listings', {
+                scripts: ['/public/js/listings.js'],
+                context: {
+                    loggedIn: false,
+                    error: true,
+                    errors: ['You are not currently logged in.']
+                }
+            });
+            return;
+        }
+        else {
+            loggedIn = true;
+            if (req.session.user.isAdmin) isAdmin = true;
+            else{
+                res.status(403).render('pages/listings', {
+                    scripts: ['/public/js/listings.js'],
+                    context: {
+                        loggedIn: false,
+                        error: true,
+                        errors: ['You are not an admin']
+                    }
+                });
+                return;
+            }
+        }
+    
+        let userId = xss(req.session.user._id);
+        let username = xss(req.session.user.username)
+        let object = xss(req.body.description);
+        let image = xss(req.body.image);
+        let location = xss(req.body.location);
+        let keywords = xss(req.body.keywords);
+        let placed = xss(req.body.placedSighted);
+        console.log(req.body);
+        if(!username || !object || !image || !location || !keywords || !placed){
+            errors.push( "missing item");
+        }
+        else if(typeof username !='string' ||
+        typeof location!='string' || typeof object!='string' || typeof placed !== "string" || typeof placed !== "string"){
+            errors.push( "first name, last name, location, placed, keywords, object, and placed has to be a string");
+        }
+        else if(typeof keywords != ' undefined' && typeof keywords != 'string'){
+            errors.push( "keywords has to be a string");
+        }
+        else{
+            username.trim();
+            location.trim();
+            object.trim();
+            keywords.trim();
+            placed.trim();
+            if(username=='' || location=='' || object==''){
+                errors.push( "first name, last name, location, and object has to be a string");
+            }
+            if (placed.toLowerCase() !== "true" && placed.toLowerCase() !== "false") errors.push("placed must be a string, either true or false")
+        }  
+        image = "../../public/photos/" + image;
+        
+        if (errors.length > 0) { 
+            console.log(errors);
+            res.status(400).render('pages/soloListing', {
+            scripts: ['/public/js/soloListing.js'],
+            context: { 
+                error: true,
+                errors: errors,
+                noPagination: true,
+                loggedIn: loggedIn,
+                isAdmin: isAdmin
+                }
+            });
+            return;
+        }
+        let postId = undefined;
+        try{
+            postId = await userData.makePost(userId, username, object, image, location, keywords, placed)
+            if (!ObjectId.isValid(postId)){
+                res.status(500).render('pages/soloListing', {
+                    scripts: ['/public/js/soloListing.js'],
+                    context: {
+                        loggedIn: loggedIn,
+                        isAdmin: isAdmin,
+                        trunc: false,
+                        noPagination: true,
+                        error: true,
+                        errors: ["Internal Server Error"]
+                    }
+                });
+                return;
+            }
+        } catch (e){
+            res.status(400).render('pages/soloListing', {
+                scripts: ['/public/js/soloListing.js'],
+                context: {
+                    loggedIn: loggedIn,
+                    isAdmin: isAdmin,
+                    trunc: false,
+                    noPagination: true,
+                    error: true,
+                    errors: errors
+                }
+            });
+            return;
+        }
+    
+        res.redirect(`/listings/${postId}`)
 });
 
 /**
@@ -214,97 +325,7 @@ router
         
     })
     .post(async (req, res) => {
-        if (!req.session.user || !req.session.user.isAdmin){
-            res.status(403).render('pages/listings', {
-                scripts: ['/public/js/listings.js'],
-                context: {
-                    loggedIn: false,
-                    error: true,
-                    errors: ['You are not currently logged in or not an admin.']
-                }
-            });
-            return;
-        }
-
-        let userId = xss(req.session.user);
-        let firstName = xss(req.session.user.firstName);
-        let lastName = xss(req.session.user.lastName);
-        let object = xss(req.body.descriptionInput);
-        let image = xss(req.body.imageInput);
-        let location = xss(req.body.locationInput);
-        let placed = xss(req.body.placedInput);
-
-        if(!firstName || !lastName || !object || !image || !location || !keywords || !placed){
-            errors.push( "missing item");
-        }
-        else if(helpers.containsNum(firstName) || helpers.containsNum(lastName)){
-            errors.push( "name cannot have numbers in it");
-        }
-        else if(typeof firstName!='string' || typeof lastName!='string' ||
-        typeof location!='string' || typeof object!='string' || typeof placed !== "string"){
-            errors.push( "first name, last name, location, placed, and object has to be a string");
-        }
-        else if(typeof keywords != ' undefined' && typeof keywords != 'string'){
-            errors.push( "keywords has to be a string");
-        }
-        else{
-            firstName.trim();
-            lastName.trim();
-            location.trim();
-            object.trim();
-            keywords.trim();
-            placed.trim();
-            if(firstName=='' || lastName=='' || location=='' || object==''){
-                errors.push( "first name, last name, location, and object has to be a string");
-            }
-            if (placed.toLowerCase() !== "true" || placed.toLowerCase() !== "false") errors.push("placed must be a string, either true or false")
-        }  
         
-        if (errors.length > 0) { 
-            res.status(400).render('pages/soloListing', {
-            scripts: ['/public/js/soloListing.js'],
-            context: { 
-                error: true,
-                errors: errors,
-                noPagination: true,
-                loggedIn: loggedIn,
-                isAdmin: isAdmin
-                }
-            });
-            return;
-        }
-        
-        let postId = undefined;
-        try{
-            postId = await userData.makePost(userId, firstName, lastName, object, image, location, keyword, placed)
-            if (!ObjectId.isValid(postId)){
-                res.render('pages/soloListing', {
-                    scripts: ['/public/js/soloListing.js'],
-                    context: {
-                        loggedIn: loggedIn,
-                        isAdmin: true,
-                        trunc: false,
-                        noPagination: true,
-                        error: true,
-                        errors: ["Internal Server Error"]
-                    }
-                });
-            }
-        } catch (e){
-            res.render('pages/soloListing', {
-                scripts: ['/public/js/soloListing.js'],
-                context: {
-                    loggedIn: loggedIn,
-                    isAdmin: true,
-                    trunc: false,
-                    noPagination: true,
-                    error: true,
-                    errors: errors
-                }
-            });
-        }
-
-        res.redirect(`/listings/${postId}`)
     });
 
 module.exports = router;

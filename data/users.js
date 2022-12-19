@@ -506,6 +506,9 @@ async function takenItem(userID, postID){
     if(userID=='' || !ObjectId.isValid(userID) || postID=='' || !ObjectId.isValid(postID)){
         throw "user and post ids need to be valid";
     }
+    let user = await this.getUserById(userID);
+    let item = await posts.itemTaken(postID, user['username'], user['isAdmin']);
+    return item;
 }
 
 async function favorite(userID, postID){//removes or adds favorite to post 
@@ -669,5 +672,6 @@ module.exports = {
     deleteAccount,
     approvePost,
     checkForEmail,
-    favorite
+    favorite,
+    takenItem
 };

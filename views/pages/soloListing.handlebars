@@ -1,6 +1,6 @@
 <div class="row row-cols-1">
     {{#unless this.context.error}}
-        {{#with this.context.post}} {{> post }} {{/with}}
+        {{#with this.context.post}} {{> post loggedIn=../context/loggedIn placed=../context/placed ownPost=../context/ownPost isAdmin=../context/isAdmin }} {{/with}}
     {{/unless}}
     {{#if this.context.error}}
         <div class="col">

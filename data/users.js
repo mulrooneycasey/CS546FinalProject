@@ -474,8 +474,7 @@ async function approvePost(postID, userID, status){//send admin approval of post
     if(!postID || !userID || !status){
         throw "missing info for approval";
     }
-    if(typeof postID!='string' || typeof userID!='string' || 
-    typeof status!='string'){
+    if(typeof postID!='string' || typeof userID!='string' || typeof status!='string'){
         throw "type of info is wrong for approval";
     }
     postID.trim();

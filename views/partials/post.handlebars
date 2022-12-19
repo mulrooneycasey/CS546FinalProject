@@ -8,8 +8,7 @@
                 <div class="col-md-7">
                     <div class="card-body text-body">                     
                         <h1 class="card-subtitle mb-2 font-weight-bold h2">{{description}}</h1>
-                        <h1 class="card-subtitle h2">Post by:</h1>
-                        <p class="card-subtitle h4">{{username}}</p>
+                        <h2 class="card-subtitle font-weight-bold h4">Post by: {{username}}</h2>
                         <hr>
                         {{#if placed}}
                         <p class="card-subtitle h5">Placed by poster</p>
@@ -78,9 +77,8 @@
                     </div>
                 {{/if}}
                 <h2 class="card-subtitle font-weight-bold">Description:</h2>
-                <p class="card-text mb-4">{{description}}</p>
-                <h2 class="card-subtitle font-weight-bold">Post by:</h2>
-                <p class="card-subtitle h4">{{username}}</p>
+                <h2 class="card-text mb-4 h4">{{description}}</h2>
+                <h2 class="card-subtitle font-weight-bold h4">Post by: {{username}}</h2>
                 <hr>
                 {{#if placed}}
                 <p class="card-subtitle h5">Placed by poster</p>
@@ -109,7 +107,11 @@
                         </div>
                     {{/unless}}
                 </div>
-                <h2 class="card-subtitle mb-4 h4">Overall Rating: {{overallRating}} (out of {{#length reviews 'review'}}{{/length}})</h2>
+                {{#if reviews}}
+                <h2 class="card-subtitle mb-2 h5">Overall Rating: {{overallRating}} (out of {{#length reviews 'review'}}{{/length}})</h2>
+                {{else}}
+                <h2 class="card-subtitle mb-2 h5">No reviews for this post</h2>
+                {{/if}}
                 <hr>
                 <h2 class="card-subtitle font-weight-bold mb-3 h4">Comments:</h2>
                 <div id="comment-area" class="row row-cols-1 justify-content-center">{{#each comments}} {{> comment }} {{/each}}</div>
@@ -129,7 +131,6 @@
                         </form>
                     </div>
                 </div>
-                <h2 class="card-subtitle mb-4">{{#length comments 'comment'}}{{/length}}</h2>
                 <h2 class="card-subtitle font-weight-bold h3">Location:</h2>
                 <p class="card-text mb-3">{{location}}</p>
                 <h2 class="card-subtitle font-weight-bold h3">Upload Date:</h2>
